@@ -1,3 +1,10 @@
+/*
+Cody Smith 2015
+
+For Ed Angel's webgl class on coursera. 
+
+*/
+
 var gl;
 
 GLtriangle = {
@@ -42,11 +49,15 @@ GLtriangle = {
         gl.bufferData( gl.ARRAY_BUFFER, flatten(this.colors), gl.STATIC_DRAW)
         gl.enableVertexAttribArray(colorLoc)
         gl.vertexAttribPointer(colorLoc, 4, gl.FLOAT, false, 0, 0)
-        //shift and draw 1st triangle
+        //shift 
         shiftLoc = gl.getUniformLocation( this.program, "vShift" );
+        // draw some triangles
         this.drawSomeTriangles(12)
     },
 
+    // this works by drawing a triangle then redrawing it with a slight shift, but never clearing the output buffer. 
+    //   probably not a very good way to draw multiple triangles. 
+    //
     drawSomeTriangles: function(n){
         gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         shiftLoc = gl.getUniformLocation( this.program, "vShift" )
