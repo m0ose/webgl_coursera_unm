@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <script src="triangle2.js"></script>
+  <script type="text/javascript" src="../Common/webgl-utils.js"></script>
+  <script type="text/javascript" src="../Common/initShaders.js"></script>
+  <script type="text/javascript" src="../Common/MV.js"></script>
+  
+  <script id="vertex-shader" type="x-shader/x-vertex">
+    attribute vec3 vPosition;
+    attribute vec4 vColor;
+    uniform float theta;
+    varying vec4 color;
+
+    mat2 rotate(float theta2) {
+      return mat2(
+        cos(theta2), -sin(theta2),
+        sin(theta2), cos(theta2)
+      );
+    }
+
+    void main() {
+      float dist = 1.0-sqrt(vPosition.x*vPosition.x + vPosition.y*vPosition.y);
+      //gl_Position = vec4(vPosition, 1.0) + vec4(vPosition.y*cos(dist*theta), vPosition.x*sin(dist*theta), 0.0, 0.0); //this is cool
+      mat2 rot = rotate(dist*theta);
+      vec2 rotty =  (1.0+theta/12.0)*rot*vec2(vPosition.x, vPosition.y);
+      gl_Position = vec4(rotty, 0.0,1.0);
+      color = vColor;
+    }
+  </script>
+
+  <script id="fragment-shader" type="x-shader/x-fragment">
+    precision mediump float;
+    varying vec4 color;
+
+    void main() {
+        gl_FragColor = color;
+    }
+  </script>
+ 
+  </head>
+  <body>
+  <canvas id="can" width=800 height=800></canvas>
+  </body>
+   <script>
+    window.onload = GLtriangle.init()
+  </script>
+</html>
