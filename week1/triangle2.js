@@ -98,7 +98,7 @@ GLtriangle = {
     render: function(){
         this.theta += 0.01
         thetaLoc = gl.getUniformLocation( this.program, "theta" )
-        gl.uniform1f( thetaLoc, 2*Math.PI*Math.sin(this.theta) )
+        gl.uniform1f( thetaLoc, Math.PI*Math.sin(this.theta) )
         gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         gl.drawArrays( gl.TRIANGLES, 0, this.vertices.length )
     },
