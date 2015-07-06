@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+
+
+
+<script id="vertex-shader2" type="x-shader/x-vertex">
+
+attribute vec4 vPosition;
+attribute vec2 vTexCoord;
+
+varying vec2 fTexCoord;
+
+void main()
+{
+
+gl_Position = vPosition;
+fTexCoord = vTexCoord;
+
+}
+</script>
+
+
+<script id="fragment-shader2" type="x-shader/x-fragment">
+
+precision highp float;
+
+varying  vec2 fTexCoord;
+
+uniform sampler2D texture;
+
+float color2number(vec4 c) {
+  float bs = 8.0;//base
+  float r = c.r*bs*bs*bs;
+  float g = c.g*bs*bs;
+  float b = c.b*bs;
+  float val = r+g+b;
+  if(val > bs*bs*bs - 1.0) {
+    return 0.0;
+  }
+  return val;
+}
+
+vec4 number2Color( float n) {
+  float bs = 8.0;
+  float r = mod( float(n/(bs*bs*bs)), 1.0);
+  float g = mod( float(n/(bs*bs)), 1.0);
+  float b = mod( float(n/bs), 1.0);
+  return vec4(r,g,b, 1.0);
+}
+
+void main() 
+{ 
+    float d = 1.0/512.0;
+    float x = fTexCoord.x;
+    float y = fTexCoord.y;
+    vec4 up = texture2D( texture, vec2(x, y-d));
+    vec4 dn = texture2D( texture, vec2(x, y+d));
+    vec4 l = texture2D( texture, vec2(x+d, y));
+    vec4 r = texture2D( texture, vec2(x-d, y));
+    vec4 center = texture2D( texture, vec2(x, y));
+    float upN = color2number(up);
+    float dnN = color2number(dn);
+    float lN = color2number(l);
+    float rN = color2number(r);
+    float me = color2number(center);
+    if(me >= 8.0){//topple pile
+      me = me - 8.0;
+    }
+    // add toppled neighbors
+    if(upN > 8.0) {
+      me = me + 2.0;
+    }
+    if(dnN > 8.0) {
+      me = me + 2.0;
+    }
+    if(lN > 8.0) {
+      me = me + 2.0;
+    }
+    if(rN > 8.0) {
+      me = me + 2.0;
+    }
+    if(x > (0.5-d) && x < 0.5 && y > (0.5-d) && y<0.5){
+      if( me < 4.0){
+        me = me + 1.0;
+      }
+    }
+    gl_FragColor = number2Color(me);
+} 
+
+
+
+</script>
+
+
+
+<script type="text/javascript" src="../Common/webgl-utils.js"></script>
+<script type="text/javascript" src="../Common/InitShaders.js"></script>
+<script type="text/javascript" src="../Common/MV.js"></script>
+<script type="text/javascript" src="sand.js"></script>
+
+<body>
+<canvas id="gl-canvas" width="1024" height="1024">
+Oops ... your browser doesn't support the HTML5 canvas element
+</canvas>
+</body>
+</html>
