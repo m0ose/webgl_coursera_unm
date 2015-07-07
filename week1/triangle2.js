@@ -21,7 +21,8 @@ GLtriangle = {
             vec3(  0.0, 0.0, 0.9 ),
             vec3( 0.0, 0.9, 0.0 ),
         ],
-    thetaUpdate:0,
+    idleUpdate:new Date().getTime(),
+
     init: function() {
         console.log('init called')
         // Get canvas
@@ -102,13 +103,13 @@ GLtriangle = {
 
     updateTheta: function( theta) {
         this.theta = theta
-        this.thetaUpdate = new Date().getTime()
+        this.idleUpdate = new Date().getTime()
     },
 
     render: function(){
         var wobblyTheta = this.theta
-        // increment theta if idle
-        if( new Date().getTime() - this.thetaUpdate > 10000){
+        // animate theta if idle
+        if( new Date().getTime() - this.idleUpdate > 10000){
             this.theta = (this.theta + 0.05) % (2*Math.PI) // prevent overflow
             var wobblyTheta = (Math.PI/2)*Math.sin(this.theta)
         }
