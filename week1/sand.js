@@ -30,10 +30,9 @@ var framebuffer;
 var texture1, texture2;
 var buffer1, buffer2, buffer3;
 
-function createTexture() {
-    var textureTmp = gl.createTexture();
+function configTexture( tex) {
     gl.activeTexture( gl.TEXTURE0 );
-    gl.bindTexture( gl.TEXTURE_2D, textureTmp );
+    gl.bindTexture( gl.TEXTURE_2D, tex );
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1024, 1024, 0, gl.RGBA, gl.UNSIGNED_SHORT_5_5_5_1, null);
     gl.generateMipmap(gl.TEXTURE_2D);
@@ -41,7 +40,6 @@ function createTexture() {
     gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST )
     gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.MIRRORED_REPEAT );
     gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.MIRRORED_REPEAT );
-    return textureTmp
 }
 
 window.onload = function init() {
@@ -52,8 +50,12 @@ window.onload = function init() {
     
     
 // Create two empty textures
-    texture1 = createTexture()
-    texture2 = createTexture()
+    texture1 = gl.createTexture();
+    gl.activeTexture( gl.TEXTURE0 );
+    configTexture( texture1)
+    texture2 = gl.createTexture();
+    gl.activeTexture( gl.TEXTURE1 );
+    configTexture( texture2)
 // Allocate a frame buffer object
 
    framebuffer = gl.createFramebuffer();
@@ -137,7 +139,7 @@ function render() {
     // choose random place to drop sand
     var range = 0.001
     var xy = [Math.random()*range + 0.5 - range/2, Math.random()*range + 0.5-range/2];
-    if(iterations > 2 ) { 
+    if(iterations > 20 ) { 
         xy = [0.0,0.0]
         console.log('not placing')
     }
