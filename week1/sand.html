@@ -30,7 +30,7 @@ uniform sampler2D texture;
 uniform vec2 placementLoc;
 
 float color2number(vec4 c) {
-  float bs = 8.0;//base
+  float bs = 256.0;//base
   float r = floor(c.r*bs*bs*bs);
   float g = floor(c.g*bs*bs);
   float b = floor(c.b*bs);
@@ -42,7 +42,7 @@ float color2number(vec4 c) {
 }
 
 vec4 number2Color( float n) {
-  float bs = 8.0;
+  float bs = 256.0;
   float r = floor(mod(n,bs*bs*bs))/(bs*bs*bs);
   float g = floor(mod(n,bs*bs))/(bs*bs);
   float b = floor(mod(n,bs))/(bs);
@@ -53,7 +53,7 @@ vec4 number2Color( float n) {
 void main() 
 { 
     float MAX_H = 8.0;
-    float d = 1.0/1024.0;
+    float d = 1.0/256.0;
     float x = fTexCoord.x;
     float y = fTexCoord.y;
     vec4 up = texture2D( texture, vec2(x, y-d));
@@ -108,7 +108,8 @@ attribute vec2 vTexCoord;
 varying vec2 fTexCoord;
 
 void main() {
-    vec4 bla = 2.0*vPosition; //scale
+    float scale = 1.1; //note put in uniform
+    vec4 bla = scale*vPosition; //scale
     fTexCoord = vTexCoord;
     gl_Position = vec4(bla.xy,0.0,1.0);
 } 
@@ -122,7 +123,7 @@ uniform sampler2D texture;
 varying vec2 fTexCoord;
 
 float color2number(vec4 c) {
-  float bs = 8.0;//base
+  float bs = 256.0;//base
   float r = floor(c.r*bs*bs*bs);
   float g = floor(c.g*bs*bs);
   float b = floor(c.b*bs);
@@ -144,8 +145,8 @@ void main() {
     float y = fTexCoord.y;
     vec4 center = texture2D( texture, vec2(x, y));
     float me = color2number(center);
-    //me = max(me,512.0);
-    vec3 col2 = hsv2rgb(vec3(me/64.0, 1.0, me/64.0));
+    //me = max(me,256.0);
+    vec3 col2 = hsv2rgb(vec3(0.5+me/16.0, 1.0, me/4.0));
     gl_FragColor = vec4(col2, 1.0);
 }
 </script>
@@ -158,7 +159,7 @@ void main() {
 <script type="text/javascript" src="sand.js"></script>
 
 <body>
-<canvas id="gl-canvas" width="1024" height="1024">
+<canvas id="gl-canvas" width="256" height="256">
 Oops ... your browser doesn't support the HTML5 canvas element
 </canvas>
 </body>
