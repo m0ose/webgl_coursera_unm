@@ -1,7 +1,5 @@
 
-var canvas;
 var gl;
-
 
 var texCoord = [
     vec2(0, 0),
@@ -21,17 +19,28 @@ var vertices = [
     vec2(  -1, -1 )
 ];
 
+var projectionMatrix = [
+    vec4(2,0,0,0),
+    vec4(0,2,0,0),
+    vec4(0,0,1,0),
+    vec4(0,0,0,1)
+    ]
 
 var program1, program2
 var framebuffer 
 var texture1, texture2
-var WidthHeight = 256
+var widthHeight = 512
+iterations = 0
+var speedMult = 1
 
+
+//  make texture that uses nearest neighbor sampling
+//
 function configTexture( tex) {
     gl.activeTexture( gl.TEXTURE0 )
     gl.bindTexture( gl.TEXTURE_2D, tex )
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true)
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, WidthHeight, WidthHeight, 0, gl.RGBA, gl.UNSIGNED_BYTE, null)//gl.UNSIGNED_SHORT_5_5_5_1, null)
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, widthHeight, widthHeight, 0, gl.RGBA, gl.UNSIGNED_BYTE, null)//gl.UNSIGNED_SHORT_5_5_5_1, null)
     gl.generateMipmap(gl.TEXTURE_2D)
     gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST )
     gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST )
@@ -39,13 +48,13 @@ function configTexture( tex) {
     gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.MIRRORED_REPEAT )
 }
 
-window.onload = function init() {
+function init() {
     //setup webgl
-    canvas = document.getElementById( "gl-canvas" )
+    var canvas = document.getElementById( "gl-canvas" )
     gl = WebGLUtils.setupWebGL( canvas )
     if ( !gl ) { throw( "WebGL isn't available" ) }
     //  
-    gl.viewport(0, 0, WidthHeight, WidthHeight)
+    gl.viewport(0, 0, canvas.width, canvas.height)
     gl.clearColor(0.0, 0.0, 0.0, 1.0)
     gl.clear(gl.COLOR_BUFFER_BIT )
 // Create two empty textures
@@ -58,15 +67,14 @@ window.onload = function init() {
 // Allocate a frame buffer object
    framebuffer = gl.createFramebuffer()
    gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer)
-   framebuffer.width = WidthHeight
-   framebuffer.height = WidthHeight
+   framebuffer.width = widthHeight
+   framebuffer.height = widthHeight
 // Attach color buffer
    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture1, 0)
 // check for completeness
    var status = gl.checkFramebufferStatus(gl.FRAMEBUFFER)
    if(status != gl.FRAMEBUFFER_COMPLETE) alert('Frame Buffer Not Complete')
     //  Load shaders and initialize attribute buffers
-    //
     program2 = initShaders( gl, "vertex-shader2", "fragment-shader2" )
     program3 = initShaders( gl, "vertex-shader3", "fragment-shader3" )
     // setup program 2
@@ -110,12 +118,15 @@ window.onload = function init() {
     //  Where to put new sand grains
     //
     placePos = gl.getUniformLocation(program2, "placementLoc")
-
+    //projection matrix
+    projectionPlace = gl.getUniformLocation(program3, "vProjection")
+    // start render loop
     renderLoop();
 }
 
-iterations = 0
-function render() {
+function iterate() {
+    // loop
+    iterations++
     gl.useProgram(program2)
     gl.bindFramebuffer( gl.FRAMEBUFFER, framebuffer)
     // choose random place to drop sand
@@ -136,18 +147,31 @@ function render() {
     gl.bindTexture(gl.TEXTURE_2D, texture2)
     gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture1, 0)
     gl.drawArrays( gl.TRIANGLES, 0, 6 )
-    // draw to screen
+}
+// draw to screen
+function render() {
     gl.useProgram(program3)
+    gl.uniformMatrix4fv( projectionPlace, false, flatten(projectionMatrix) )
     gl.bindFramebuffer( gl.FRAMEBUFFER, null)
     gl.clear( gl.COLOR_BUFFER_BIT )
     gl.drawArrays(gl.TRIANGLES, 0, 6)
-    // loop
-    iterations++
 }
 
+renderCount = 0
 function renderLoop() {
-    for(var i=0; i<101; i++){
-        render()
+    for(var i=0; i<speedMult; i++){
+        iterate()
     }
+    render()
+
+    if( renderCount % 100 == 0){
+        console.log('grains dropped', iterations, '  speed multiplier:', speedMult, ' zoom:', projectionMatrix[0][0])
+    }
+    renderCount ++
     requestAnimFrame(renderLoop);
 }
+
+//
+// call init. starts render
+window.onload = init
+
