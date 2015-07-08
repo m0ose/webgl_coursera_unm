@@ -20,18 +20,18 @@ var vertices = [
 ];
 
 var projectionMatrix = [
-    vec4(2,0,0,0),
-    vec4(0,2,0,0),
+    vec4(3,0,0,0),
+    vec4(0,3,0,0),
     vec4(0,0,1,0),
     vec4(0,0,0,1)
     ]
 
-var program1, program2
-var framebuffer 
-var texture1, texture2
-var widthHeight = 512
-iterations = 0
-var speedMult = 1
+var program2, program_display
+var framebuffer // ??? not sure what this is ???
+var texture1, texture2 // the simulation state is saved on these textures, which are flip flopped. Meaning render to 1 using 2 as input then render to 2 with 1 as input....
+var widthHeight = 512 // width and height of the texture for rendering to texture.
+var iterattionCount = 0 // number of 
+var speedMult = 1 // this is how many times to loop through iterate function before drawing to screen. 
 
 
 //  make texture that uses nearest neighbor sampling
@@ -53,8 +53,8 @@ function init() {
     var canvas = document.getElementById( "gl-canvas" )
     gl = WebGLUtils.setupWebGL( canvas )
     if ( !gl ) { throw( "WebGL isn't available" ) }
-    //  
-    gl.viewport(0, 0, canvas.width, canvas.height)
+    // setup view
+    gl.viewport(0, 0, widthHeight, widthHeight)
     gl.clearColor(0.0, 0.0, 0.0, 1.0)
     gl.clear(gl.COLOR_BUFFER_BIT )
 // Create two empty textures
@@ -76,7 +76,7 @@ function init() {
    if(status != gl.FRAMEBUFFER_COMPLETE) alert('Frame Buffer Not Complete')
     //  Load shaders and initialize attribute buffers
     program2 = initShaders( gl, "vertex-shader2", "fragment-shader2" )
-    program3 = initShaders( gl, "vertex-shader3", "fragment-shader3" )
+    program_display = initShaders( gl, "vertex-shader-display", "fragment-shader-display" )
     // setup program 2
     //    This is used for the calcualtions and is never really shown
     gl.useProgram(program2)
@@ -96,10 +96,13 @@ function init() {
     gl.enableVertexAttribArray( vTexCoord )
     //   send texture
     gl.uniform1i( gl.getUniformLocation(program2, "texture"), 0)
+    // width and height of texture
+    var textureWidthPlace = gl.getUniformLocation(program2, "texWidth")
+    gl.uniform1f(textureWidthPlace, widthHeight)
     //
-    //setup program3, which is just for display
+    //setup program_display, which is just for display
     //   
-    gl.useProgram(program3)
+    gl.useProgram(program_display)
     var buffer31 = gl.createBuffer()
     gl.bindBuffer( gl.ARRAY_BUFFER, buffer31)
     gl.bufferData(gl.ARRAY_BUFFER, flatten(vertices), gl.STATIC_DRAW)
@@ -114,26 +117,27 @@ function init() {
     var vTexCoord = gl.getAttribLocation( program2, "vTexCoord") 
     gl.vertexAttribPointer( vTexCoord, 2, gl.FLOAT, false, 0, 0 )
     gl.enableVertexAttribArray( vTexCoord )
-    gl.uniform1i( gl.getUniformLocation(program3, "texture"), 0)
+    gl.uniform1i( gl.getUniformLocation(program_display, "texture"), 0)
     //  Where to put new sand grains
     //
     placePos = gl.getUniformLocation(program2, "placementLoc")
     //projection matrix
-    projectionPlace = gl.getUniformLocation(program3, "vProjection")
+    projectionPlace = gl.getUniformLocation(program_display, "vProjection")
+    // shift center of viewport to to center of canvas
+    //projectionMatrix[3][0] = projectionMatrix[3][1] = -canvas.width/widthHeight
     // start render loop
     renderLoop();
 }
 
 function iterate() {
     // loop
-    iterations++
+    iterattionCount++
     gl.useProgram(program2)
     gl.bindFramebuffer( gl.FRAMEBUFFER, framebuffer)
     // choose random place to drop sand
     var range = 0.0001
     var xy = [Math.random()*range + 0.5 - range/2, Math.random()*range + 0.5-range/2]
-    //console.log(xy)
-    /*if(iterations > 20000 ) { 
+    /*if(iterattionCount > 20000 ) { 
         xy = [0.0,0.0]
         console.log('not placing')
     }
@@ -150,7 +154,7 @@ function iterate() {
 }
 // draw to screen
 function render() {
-    gl.useProgram(program3)
+    gl.useProgram(program_display)
     gl.uniformMatrix4fv( projectionPlace, false, flatten(projectionMatrix) )
     gl.bindFramebuffer( gl.FRAMEBUFFER, null)
     gl.clear( gl.COLOR_BUFFER_BIT )
@@ -165,7 +169,7 @@ function renderLoop() {
     render()
 
     if( renderCount % 100 == 0){
-        console.log('grains dropped', iterations, '  speed multiplier:', speedMult, ' zoom:', projectionMatrix[0][0])
+        console.log('grains dropped', iterattionCount, '  speed multiplier:', speedMult, ' zoom:', projectionMatrix[0][0])
     }
     renderCount ++
     requestAnimFrame(renderLoop);

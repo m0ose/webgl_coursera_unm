@@ -28,6 +28,7 @@ varying  vec2 fTexCoord;
 
 uniform sampler2D texture;
 uniform vec2 placementLoc;
+uniform float texWidth;
 
 float color2number(vec4 c) {
   float bs = 256.0;//base
@@ -53,7 +54,7 @@ vec4 number2Color( float n) {
 void main() 
 { 
     float MAX_H = 8.0;
-    float d = 1.0/512.0;
+    float d = 1.0/texWidth;
     float x = fTexCoord.x;
     float y = fTexCoord.y;
     vec4 up = texture2D( texture, vec2(x, y-d));
@@ -97,7 +98,7 @@ void main()
 
 
 
-<script id="vertex-shader3" type="x-shader/x-vertex">
+<script id="vertex-shader-display" type="x-shader/x-vertex">
 //
 // This shader is for displaying to the screen
 //
@@ -112,7 +113,7 @@ void main() {
     gl_Position = bla;
 } 
 </script>
-<script id="fragment-shader3" type="x-shader/x-fragment">
+<script id="fragment-shader-display" type="x-shader/x-fragment">
 //
 //  also for displaying to the screen
 //
@@ -156,8 +157,8 @@ void main() {
 <script type="text/javascript" src="sand.js"></script>
 
 <body>
-zoom: <input type=range min=1 max=30 step=0.1 value=1 oninput="projectionMatrix[0][0] = projectionMatrix[1][1] =  Number(this.value)"></input>
-speed: <input type=range min=1 max=1000 step=1 value=1 oninput="speedMult =  Number(this.value)"></input>
+zoom: <input type=range min=0.25 max=30 step=0.1 value=3 oninput="projectionMatrix[0][0] = projectionMatrix[1][1] =  Number(this.value)"></input>
+speed: <input type=range min=1 max=300 step=1 value=1 oninput="speedMult =  Number(this.value)"></input>
 
 <br>
 <canvas id="gl-canvas" width="512" height="512">
