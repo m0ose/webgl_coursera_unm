@@ -31,7 +31,7 @@ uniform vec2 placementLoc;
 uniform float texWidth;
 
 float color2number(vec4 c) {
-  float bs = 256.0;//base
+  float bs = 255.0;//base
   float r = floor(c.r*bs*bs*bs);
   float g = floor(c.g*bs*bs);
   float b = floor(c.b*bs);
@@ -43,12 +43,12 @@ float color2number(vec4 c) {
 }
 
 vec4 number2Color( float n) {
-  float bs = 256.0;
-  float r = floor(mod(n,bs*bs*bs))/(bs*bs*bs);
-  float g = floor(mod(n,bs*bs))/(bs*bs);
-  float b = floor(mod(n,bs))/(bs);
-
-  return vec4(r,g,b, 1.0);
+  float bs = 255.0;
+  float r = floor(mod(n,bs*bs*bs)/(bs*bs));
+  float g = floor(mod(n,bs*bs)/(bs));
+  float b = floor(mod(n,bs));
+  vec3 result = vec3(r,g,b)/bs;
+  return vec4(result, 1.0);
 }
 
 void main() 
@@ -122,7 +122,7 @@ uniform sampler2D texture;
 varying vec2 fTexCoord;
 
 float color2number(vec4 c) {
-  float bs = 256.0;//base
+  float bs = 255.0;//base
   float r = floor(c.r*bs*bs*bs);
   float g = floor(c.g*bs*bs);
   float b = floor(c.b*bs);
