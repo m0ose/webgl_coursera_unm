@@ -29,7 +29,7 @@ var projectionMatrix = [
 var program2, program_display
 var framebuffer // ??? not sure what this is ???
 var texture1, texture2 // the simulation state is saved on these textures, which are flip flopped. Meaning render to 1 using 2 as input then render to 2 with 1 as input....
-var widthHeight = 512 // width and height of the texture for rendering to texture.
+var widthHeight = 1024 // width and height of the texture for rendering to texture.
 var iterattionCount = 0 // number of 
 var speedMult = 1 // this is how many times to loop through iterate function before drawing to screen. 
 
@@ -124,7 +124,7 @@ function init() {
     //projection matrix
     projectionPlace = gl.getUniformLocation(program_display, "vProjection")
     // shift center of viewport to to center of canvas
-    //projectionMatrix[3][0] = projectionMatrix[3][1] = -canvas.width/widthHeight
+    projectionMatrix[3][0] = projectionMatrix[3][1] = (canvas.width - widthHeight)/(widthHeight)
     // start render loop
     renderLoop();
 }
