@@ -51,6 +51,7 @@ var particleScreen = {
         attribute vec4 vPosition;
         attribute vec2 vTexCoord;
         varying vec2 fTexCoord;
+        uniform sampler2D texture;
         void main() {
             gl_Position = vPosition;
             gl_PointSize = 50.0;
@@ -61,19 +62,15 @@ var particleScreen = {
         precision mediump float;
         uniform sampler2D texture;
         varying vec2 fTexCoord;
-        void main(){
-            //vec4 me = texture2D( texture, fTexCoord);
-            float d = 0.01;
-            float x = fTexCoord.x;
-            float y = fTexCoord.y;
-            vec4 me = texture2D( texture, fTexCoord);
-            vec4 nei = (texture2D( texture, vec2(x+d, y))
-            +texture2D( texture, vec2(x, y+d))
-            +texture2D( texture, vec2(x-d, y))
-            +texture2D( texture, vec2(x, y-d)))/4.0;
-            vec4 result = (me + nei)/2.0;
-
-            gl_FragColor = vec4(me.xyz,1.0);
+        uniform vec4 offset;
+        uniform vec4 weight;
+        void main() {
+            vec4 frg = texture2D( texture, vec2(gl_FragCoord)/1024.0 ) * weight[0];
+            for (int i=1; i<3; i++) {
+                frg += texture2D( texture, ( vec2(gl_FragCoord)+vec2(0.0, offset[i]) )/1024.0 ) * weight[i];
+                frg += texture2D( texture, ( vec2(gl_FragCoord)-vec2(0.0, offset[i]) )/1024.0 ) * weight[i];
+            }
+            gl_FragColor = vec4(frg.xyz,1.0);
         }
     `,
 
@@ -176,6 +173,11 @@ var particleScreen = {
         var vTexCoord = gl.getAttribLocation( this.program2, "vTexCoord") 
         gl.vertexAttribPointer( vTexCoord, 2, gl.FLOAT, false, 0, 0 )
         gl.enableVertexAttribArray( vTexCoord )
+        var offset = gl.getUniformLocation( this.program2, "offset" )
+        gl.uniform4fv( offset, [0.0, 1.3846153846, 3.2307692308, 0.0] )
+        var weight = gl.getUniformLocation( this.program2, "weight" )
+        gl.uniform4fv( weight, [0.2270270270, 0.3162162162, 0.0702702703, 0.0] )
+
         // ?
         gl.uniform1i( gl.getUniformLocation( this.program2, "texture"), 0)
     },
