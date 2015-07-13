@@ -63,7 +63,7 @@ var particleScreen = {
     },
 
     moveVertices: function() {
-        var amount = 0.01
+        var amount = 0.02
         for(var i=0; i < this.vertices.length; i++) {
             var v = this.vertices[i]
             v[0] = v[0] + Math.random()*amount - amount/2

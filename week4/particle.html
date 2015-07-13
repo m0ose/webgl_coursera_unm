@@ -24,7 +24,7 @@
 
     void main() {
       vec2 pointCenter = (gl_PointCoord - 0.5);
-      float dist =  0.5-sqrt(dot(pointCenter,pointCenter));//abs(length(frgcoord - center.xy));
+      float dist =  0.5-sqrt(dot(pointCenter,pointCenter)); //make center of point darker
       if( partType == 0.0) {
         gl_FragColor = vec4(1.0,0.0,0.0,dist*density);
       } else if (partType == 1.0) {
