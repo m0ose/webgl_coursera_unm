@@ -2,38 +2,6 @@
 <html>
 
 <title>Particle Test</title>
-  
-<script id="vertex-shader" type="x-shader/x-vertex">
-    attribute vec3 vPosition;
-    attribute vec2 vTypeDens;
-    varying float partType;
-    varying float density;
-
-    void main() {
-      gl_Position = vec4(vPosition.xy, 0.0, 1.0);
-      gl_PointSize = vPosition.z;
-      partType = vTypeDens.x;
-      density = vTypeDens.y;
-    }
-</script>
-
-<script id="fragment-shader" type="x-shader/x-fragment">
-    precision mediump float;
-    varying float partType;
-    varying float density;
-
-    void main() {
-      vec2 pointCenter = (gl_PointCoord - 0.5);
-      float dist =  0.5-sqrt(dot(pointCenter,pointCenter)); //make center of point darker
-      if( partType == 0.0) {
-        gl_FragColor = vec4(1.0,0.0,0.0,dist*density);
-      } else if (partType == 1.0) {
-        gl_FragColor = vec4(0.0,1.0,0.0,dist*density);
-      } else { //type 2
-        gl_FragColor = vec4(0.0,0.0,1.0,dist*density);
-      } 
-    }
-</script>
 
 <script type="text/javascript" src="../Common/webgl-utils.js"></script>
 <script type="text/javascript" src="../Common/initShaders.js"></script>

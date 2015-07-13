@@ -55,3 +55,27 @@ function initShaders( gl, vertexShaderId, fragmentShaderId )
 
     return program;
 }
+
+
+function initShadersFromStrings(gl, vertString, fragString) {
+    var vertShdr = gl.createShader( gl.VERTEX_SHADER )
+    gl.shaderSource( vertShdr, vertString )
+    gl.compileShader( vertShdr )
+    if ( !gl.getShaderParameter(vertShdr, gl.COMPILE_STATUS) ) {
+        throw("Vertex shader failed to compile.  The error log is:" + gl.getShaderInfoLog( vertShdr ) )
+    }
+    var fragShdr = gl.createShader( gl.FRAGMENT_SHADER )
+    gl.shaderSource( fragShdr, fragString )
+    gl.compileShader( fragShdr )
+    if ( !gl.getShaderParameter(fragShdr, gl.COMPILE_STATUS) ) {
+        throw("Fragment shader failed to compile.  The error log is:" + gl.getShaderInfoLog( fragShdr ) )
+    }
+    var program = gl.createProgram()
+    gl.attachShader( program, vertShdr )
+    gl.attachShader( program, fragShdr )
+    gl.linkProgram( program )
+    if ( !gl.getProgramParameter(program, gl.LINK_STATUS) ) {
+        throw("Shader program failed to link.  The error log is:" + gl.getProgramInfoLog( program ) )
+    }
+    return program;
+}

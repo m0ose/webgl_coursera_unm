@@ -8,10 +8,40 @@ For Ed Angel's webgl class on coursera.
 var gl;
 
 var particleScreen = {
+
     program:undefined,
-    
     initialVertices : [], // vec3, where the 3rd part is the width of the particle in pixels
-    initialTypeDensity : [], //
+    initialTypeDensity : [], // type: there are 3 types. Density: is basiacaly opacity at the center. 
+    program1Vertex : `
+        attribute vec3 vPosition;
+        attribute vec2 vTypeDens;
+        varying float partType;
+        varying float density;
+
+        void main() {
+            gl_Position = vec4(vPosition.xy, 0.0, 1.0);
+            gl_PointSize = vPosition.z;
+            partType = vTypeDens.x;
+            density = vTypeDens.y;
+        }
+    `,
+    program1Fragment : `
+        precision mediump float;
+        varying float partType;
+        varying float density;
+
+        void main() {
+          vec2 pointCenter = gl_PointCoord - 0.5;
+          float dist = 0.5-sqrt(dot(pointCenter,pointCenter)); //make center of point darker
+          if( partType == 0.0) {
+            gl_FragColor = vec4(1.0,0.0,0.0,dist*density);
+          } else if (partType == 1.0) {
+            gl_FragColor = vec4(0.0,1.0,0.0,dist*density);
+          } else { //type 2
+            gl_FragColor = vec4(0.0,0.0,1.0,dist*density);
+          } 
+        }
+    `,
 
     init: function() {
         console.log('init called')
@@ -27,7 +57,7 @@ var particleScreen = {
         gl.enable(gl.BLEND)
         gl.blendFunc(gl.SRC_ALPHA, gl.DST_ALPHA)
         // Load shaders
-        this.program = initShaders( gl, "vertex-shader", "fragment-shader" );
+        this.program = initShadersFromStrings( gl, this.program1Vertex, this.program1Fragment );
         gl.useProgram( this.program );
         // make initial vertices
         this.vertices = this.initialVertices
@@ -58,7 +88,7 @@ var particleScreen = {
         this.typeDensity = []
         for(var i=0; i<2001; i++) {
             this.vertices.push(vec3(2*Math.random()-1, 2*Math.random()-1, Math.random()*100))
-            this.typeDensity.push(vec2(Math.floor(Math.random()*3), Math.random() ))
+            this.typeDensity.push(vec2(Math.floor(Math.random()*3), Math.random()    ))
         }
     },
 
