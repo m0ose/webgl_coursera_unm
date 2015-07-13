@@ -12,12 +12,12 @@ var particleScreen = {
     program:undefined,
     initialVertices : [], // vec3, where the 3rd part is the width of the particle in pixels
     initialTypeDensity : [], // type: there are 3 types. Density: is basiacaly opacity at the center. 
+    // vertex shader
     program1Vertex : `
         attribute vec3 vPosition;
         attribute vec2 vTypeDens;
         varying float partType;
         varying float density;
-
         void main() {
             gl_Position = vec4(vPosition.xy, 0.0, 1.0);
             gl_PointSize = vPosition.z;
@@ -25,14 +25,14 @@ var particleScreen = {
             density = vTypeDens.y;
         }
     `,
+    // fragment shader
     program1Fragment : `
         precision mediump float;
         varying float partType;
         varying float density;
-
         void main() {
           vec2 pointCenter = gl_PointCoord - 0.5;
-          float dist = 0.5-sqrt(dot(pointCenter,pointCenter)); //make center of point darker
+          float dist = 0.5-sqrt(dot(pointCenter,pointCenter)); // scale density based on the distance from the center of the point
           if( partType == 0.0) {
             gl_FragColor = vec4(1.0,0.0,0.0,dist*density);
           } else if (partType == 1.0) {

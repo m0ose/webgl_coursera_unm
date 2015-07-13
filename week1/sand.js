@@ -37,7 +37,7 @@ var speedMult = 1 // this is how many times to loop through iterate function bef
 //  make texture that uses nearest neighbor sampling
 //
 function configTexture( tex) {
-    gl.activeTexture( gl.TEXTURE0 )
+    //gl.activeTexture( gl.TEXTURE0 )
     gl.bindTexture( gl.TEXTURE_2D, tex )
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true)
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, widthHeight, widthHeight, 0, gl.RGBA, gl.UNSIGNED_BYTE, null)//gl.UNSIGNED_SHORT_5_5_5_1, null)
@@ -64,6 +64,8 @@ function init() {
     texture2 = gl.createTexture()
     gl.activeTexture( gl.TEXTURE1 )
     configTexture( texture2)
+    // re activate texture 0
+    gl.activeTexture( gl.TEXTURE0 )
 // Allocate a frame buffer object
    framebuffer = gl.createFramebuffer()
    gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer)
