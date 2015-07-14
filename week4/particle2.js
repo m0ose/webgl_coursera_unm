@@ -64,15 +64,18 @@ var particleScreen = {
         varying vec2 fTexCoord;
         uniform vec4 offset;
         uniform vec4 weight;
+        uniform vec2 dimensions;
+
         void main() {
+            //blur
             vec4 frg = texture2D( texture, vec2(fTexCoord) ) * weight[0];
             for (int i=1; i<3; i++) {
-                vec2 off2 = vec2( 0.0, offset[i]/256.0);
+                vec2 off2 = vec2( 0.0, offset[i]/dimensions[1]);
                 frg += texture2D( texture, vec2(fTexCoord) + off2) * weight[i]/2.0;
                 frg += texture2D( texture, vec2(fTexCoord) - off2) * weight[i]/2.0;
             }
             for (int i=1; i<3; i++) {
-                vec2 off2 = vec2( offset[i]/256.0 , 0.0);
+                vec2 off2 = vec2( offset[i]/dimensions[0] , 0.0);
                 frg += texture2D( texture, vec2(fTexCoord) + off2) * weight[i]/2.0;
                 frg += texture2D( texture, vec2(fTexCoord) - off2) * weight[i]/2.0;
             }
@@ -179,10 +182,13 @@ var particleScreen = {
         var vTexCoord = gl.getAttribLocation( this.program2, "vTexCoord") 
         gl.vertexAttribPointer( vTexCoord, 2, gl.FLOAT, false, 0, 0 )
         gl.enableVertexAttribArray( vTexCoord )
+        // some uniforms
         var offset = gl.getUniformLocation( this.program2, "offset" )
         gl.uniform4fv( offset, [0.0, 1.3846153846, 3.2307692308, 0.0] )
         var weight = gl.getUniformLocation( this.program2, "weight" )
         gl.uniform4fv( weight, [0.2270270270, 0.3162162162, 0.0702702703, 0.0] )
+        var dims = gl.getUniformLocation( this.program2, "dimensions" )
+        gl.uniform2fv(dims, [canvas.width, canvas.height] )
         // ?
         gl.uniform1i( gl.getUniformLocation( this.program2, "texture"), 0)
     },
