@@ -66,7 +66,7 @@ var particleScreenShaders = {
             return smoothstep(0.0, 1.0, x);
         }
 
-        vec3 doColorMap( vec4 intensity) {
+        vec4 doColorMap( vec4 intensity) {
             vec3 blue = vec3(0.0, 0.0, 1.0);
             vec3 cyan = vec3(0.0, 1.0, 1.0);
             vec3 green = vec3(0.0, 1.0, 0.0);
@@ -86,8 +86,9 @@ var particleScreenShaders = {
                 smoothstep(0.0, 0.7, intensity.b)*cyan + 
                 smoothstep(0.25, 1.0, min(0.9,intensity.b))*green 
             );
-
-            return color;
+            float opacity = intensity.r + min(0.7, intensity.g) + intensity.b;
+            vec4 colorOut = vec4(color, sqrt(opacity) );
+            return colorOut;
         }
 
         void main() {
@@ -105,7 +106,7 @@ var particleScreenShaders = {
             }
             vec4 col = vec4(frg.xyz,1.0);
             if( applyColorMap == 0) {
-                col = vec4(doColorMap(frg).xyz, 1.0);
+                col = doColorMap(frg);
             }
             gl_FragColor = col;
         }

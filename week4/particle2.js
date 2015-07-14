@@ -15,7 +15,7 @@ var particleScreen = {
     frameBuffer: undefined,
     texture1: undefined,
     texture2: undefined,
-    blurLoops: 2,
+    blurLoops: 5,
     // shaders are in another file
     program1Vertex: particleScreenShaders.program1Vertex,
     program1Fragment: particleScreenShaders.program1Fragment,
@@ -129,7 +129,7 @@ var particleScreen = {
         var weight = gl.getUniformLocation( this.program2, "weight" )
         gl.uniform4fv( weight, [0.2270270270, 0.3162162162, 0.0702702703, 0.0] )
         var dims = gl.getUniformLocation( this.program2, "dimensions" )
-        gl.uniform2fv(dims, [canvas.width/3, canvas.height/3] )
+        gl.uniform2fv(dims, [canvas.width/2, canvas.height/2] )
         this.applyColorMapLoc = gl.getUniformLocation( this.program2, "applyColorMap" )
         gl.uniform1i(this.applyColorMapLoc, 1)
         // ?
@@ -153,7 +153,8 @@ var particleScreen = {
         gl.vertexAttribPointer(TDLocation, 2, gl.FLOAT, false, 0, 0)
         gl.enableVertexAttribArray(TDLocation)
         // draw to texture
-        gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT )
+        gl.clearColor( 0.0, 0.0, 0.0, 1.0 )
+        gl.clear( gl.COLOR_BUFFER_BIT )
         gl.drawArrays( gl.POINTS, 0, this.vertices.length )
         //
         // render program2. blur
@@ -177,7 +178,7 @@ var particleScreen = {
                 gl.uniform1i(this.applyColorMapLoc, 1)
             }
             //draw
-            gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT )
+            gl.clear( gl.COLOR_BUFFER_BIT )
             gl.drawArrays( gl.TRIANGLES, 0, 6)
             // swap texture
             var tex3 = tex1
@@ -199,7 +200,8 @@ var particleScreen = {
         gl.enableVertexAttribArray( vTexCoord )
         gl.uniform1i(this.applyColorMapLoc, 0)
         //
-        gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT )
+        gl.clearColor( 0.0, 0.0, 0.0, 0.0 )
+        gl.clear( gl.COLOR_BUFFER_BIT )
         gl.drawArrays( gl.TRIANGLES, 0, 6)
         
     },
@@ -220,8 +222,8 @@ var particleScreen = {
     makeRandomVertices: function() {
         this.vertices = [];
         this.typeDensity = []
-        for(var i=0; i<3000; i++) {
-            this.vertices.push(vec3(2*Math.random()-1, 2*Math.random()-1, Math.random()*50))
+        for(var i=0; i<1000; i++) {
+            this.vertices.push(vec3(2*Math.random()-1, 2*Math.random()-1, Math.random()*100))
             this.typeDensity.push(vec2(Math.floor(Math.random()*3),  Math.random() ))
         }
     },
