@@ -65,12 +65,18 @@ var particleScreen = {
         uniform vec4 offset;
         uniform vec4 weight;
         void main() {
-            vec4 frg = texture2D( texture, vec2(gl_FragCoord)/1024.0 ) * weight[0];
+            vec4 frg = texture2D( texture, vec2(fTexCoord) ) * weight[0];
             for (int i=1; i<3; i++) {
-                frg += texture2D( texture, ( vec2(gl_FragCoord)+vec2(0.0, offset[i]) )/1024.0 ) * weight[i];
-                frg += texture2D( texture, ( vec2(gl_FragCoord)-vec2(0.0, offset[i]) )/1024.0 ) * weight[i];
+                vec2 off2 = vec2( 0.0, offset[i]/256.0);
+                frg += texture2D( texture, vec2(fTexCoord) + off2) * weight[i]/2.0;
+                frg += texture2D( texture, vec2(fTexCoord) - off2) * weight[i]/2.0;
             }
-            gl_FragColor = vec4(frg.xyz,1.0);
+            for (int i=1; i<3; i++) {
+                vec2 off2 = vec2( offset[i]/256.0 , 0.0);
+                frg += texture2D( texture, vec2(fTexCoord) + off2) * weight[i]/2.0;
+                frg += texture2D( texture, vec2(fTexCoord) - off2) * weight[i]/2.0;
+            }
+            gl_FragColor = vec4(frg.xyz,1.0);//texture2D( texture, gl_FragCoord.xy/512.0); //
         }
     `,
 
@@ -103,8 +109,8 @@ var particleScreen = {
         // check for completeness
         var status = gl.checkFramebufferStatus(gl.FRAMEBUFFER)
         if(status != gl.FRAMEBUFFER_COMPLETE){
-            console.error('Frame Buffer Not Complete' )
-            //throw('Frame Buffer Not Complete')
+            //console.error('Frame Buffer Not Complete' )
+            throw('Frame Buffer Not Complete')
         }
         // setup blure shader
         this.setupBlurProgram(can)
@@ -141,12 +147,12 @@ var particleScreen = {
 
     setupBlurProgram: function(canvas) {
         var texCoord = [
-            vec2(0, 0),
             vec2(0, 1),
-            vec2(1, 1),
-            vec2(1, 1),
+            vec2(0, 0),
             vec2(1, 0),
-            vec2(0, 0)
+            vec2(1, 0),
+            vec2(1, 1),
+            vec2(0, 1)
         ];
         var vertices = [
             vec2( -1, -1 ),
@@ -177,7 +183,6 @@ var particleScreen = {
         gl.uniform4fv( offset, [0.0, 1.3846153846, 3.2307692308, 0.0] )
         var weight = gl.getUniformLocation( this.program2, "weight" )
         gl.uniform4fv( weight, [0.2270270270, 0.3162162162, 0.0702702703, 0.0] )
-
         // ?
         gl.uniform1i( gl.getUniformLocation( this.program2, "texture"), 0)
     },
@@ -186,7 +191,6 @@ var particleScreen = {
         //
         // render program1
         //
-        // 
         gl.useProgram( this.program1)
         gl.bindFramebuffer( gl.FRAMEBUFFER, this.framebuffer)
         gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.texture, 0)
