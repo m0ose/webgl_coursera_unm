@@ -13,7 +13,9 @@ var particleScreen = {
     initialVertices : [], // vec3, where the 3rd part is the width of the particle in pixels
     initialTypeDensity : [], // type: there are 3 types. Density: is basiacaly opacity at the center. 
     frameBuffer: undefined,
-    texture: undefined,
+    texture1: undefined,
+    texture2: undefined,
+    blurLoops: 7,
     //  
     // Render particles as fuzzy opaque points
     // vertex shader
@@ -65,6 +67,39 @@ var particleScreen = {
         uniform vec4 offset;
         uniform vec4 weight;
         uniform vec2 dimensions;
+        uniform int applyColorMap;
+
+
+        float fade(float low, float high, float value){
+            float mid = (low+high)*0.5;
+            float range = (high-low)*0.5;
+            float x = 1.0 - clamp(abs(mid-value)/range, 0.0, 1.0);
+            return smoothstep(0.0, 1.0, x);
+        }
+
+        vec3 doColorMap( vec4 intensity) {
+            vec3 blue = vec3(0.0, 0.0, 1.0);
+            vec3 cyan = vec3(0.0, 1.0, 1.0);
+            vec3 green = vec3(0.0, 1.0, 0.0);
+            vec3 yellow = vec3(1.0, 1.0, 0.0);
+            vec3 red = vec3(1.0, 0.0, 0.0);
+            vec3 white = vec3(0.7, 0.7, 0.7);
+            vec3 color = (
+                // color type 0
+                intensity.r*fade(0.0, 0.25, intensity.r)*blue +
+                intensity.r*fade(0.0, 0.5, intensity.r)*cyan +
+                intensity.r*fade(0.25, 0.75, intensity.r)*green +
+                intensity.r*fade(0.5, 1.0, intensity.r)*yellow +
+                intensity.r*smoothstep(0.75, 1.0, intensity.r)*red + 
+                                //color type 2
+                smoothstep(0.0, 0.5, intensity.g)*white + 
+                                //color type 1
+                smoothstep(0.0, 0.7, intensity.b)*cyan + 
+                smoothstep(0.25, 1.0, min(0.9,intensity.b))*green 
+            );
+
+            return color;
+        }
 
         void main() {
             //blur
@@ -79,7 +114,11 @@ var particleScreen = {
                 frg += texture2D( texture, vec2(fTexCoord) + off2) * weight[i]/2.0;
                 frg += texture2D( texture, vec2(fTexCoord) - off2) * weight[i]/2.0;
             }
-            gl_FragColor = vec4(frg.xyz,1.0);//texture2D( texture, gl_FragCoord.xy/512.0); //
+            vec4 col = vec4(frg.xyz,1.0);
+            if( applyColorMap == 0) {
+                col = vec4(doColorMap(frg).xyz, 1.0);
+            }
+            gl_FragColor = col;
         }
     `,
 
@@ -99,16 +138,19 @@ var particleScreen = {
         gl.blendFunc(gl.SRC_ALPHA, gl.DST_ALPHA)
         //
         // setup texture
-        this.texture = gl.createTexture()
+        this.texture1 = gl.createTexture()
         gl.activeTexture( gl.TEXTURE0 )
-        this.configTexture( this.texture, can.width, can.height)
+        this.configTexture( this.texture1, can.width, can.height)
+        this.texture2 = gl.createTexture()
+        gl.activeTexture( gl.TEXTURE1 )
+        this.configTexture( this.texture2, can.width, can.height)
         // Allocate a frame buffer object
         this.framebuffer = gl.createFramebuffer()
         gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer)
         this.framebuffer.width = can.width
         this.framebuffer.height = can.height
         // Attach color buffer
-        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.texture, 0)
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.texture1, 0)
         // check for completeness
         var status = gl.checkFramebufferStatus(gl.FRAMEBUFFER)
         if(status != gl.FRAMEBUFFER_COMPLETE){
@@ -188,18 +230,20 @@ var particleScreen = {
         var weight = gl.getUniformLocation( this.program2, "weight" )
         gl.uniform4fv( weight, [0.2270270270, 0.3162162162, 0.0702702703, 0.0] )
         var dims = gl.getUniformLocation( this.program2, "dimensions" )
-        gl.uniform2fv(dims, [canvas.width, canvas.height] )
+        gl.uniform2fv(dims, [canvas.width/3, canvas.height/3] )
+        this.applyColorMapLoc = gl.getUniformLocation( this.program2, "applyColorMap" )
+        gl.uniform1i(this.applyColorMapLoc, 1)
         // ?
         gl.uniform1i( gl.getUniformLocation( this.program2, "texture"), 0)
     },
 
     render: function(){
         //
-        // render program1
+        // render program1. put particles up
         //
         gl.useProgram( this.program1)
         gl.bindFramebuffer( gl.FRAMEBUFFER, this.framebuffer)
-        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.texture, 0)
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.texture1, 0)
         var positionLocation = gl.getAttribLocation(this.program1, "vPosition")
         gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer)
         gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0)
@@ -213,11 +257,39 @@ var particleScreen = {
         gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT )
         gl.drawArrays( gl.POINTS, 0, this.vertices.length )
         //
-        // render program2
+        // render program2. blur
+        //
+        var tex1 = this.texture1
+        var tex2 = this.texture2
+        gl.useProgram( this.program2)
+        for(var i=0; i<this.blurLoops; i++) {
+            gl.bindFramebuffer( gl.FRAMEBUFFER, this.framebuffer)
+            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tex2, 0)
+            gl.bindTexture(gl.TEXTURE_2D, tex1)
+            // activate some uniforms and what not
+            if(i===0){ //only need to be done once
+                gl.bindBuffer( gl.ARRAY_BUFFER, this.buffer21)
+                gl.vertexAttribPointer( gl.getAttribLocation( this.program2, "vPosition" ), 2, gl.FLOAT, false, 0, 0 )
+                gl.enableVertexAttribArray( gl.getAttribLocation( this.program2, "vPosition" ) )
+                gl.bindBuffer( gl.ARRAY_BUFFER, this.buffer32)
+                var vTexCoord = gl.getAttribLocation( this.program2, "vTexCoord") 
+                gl.vertexAttribPointer( vTexCoord, 2, gl.FLOAT, false, 0, 0 )
+                gl.enableVertexAttribArray( vTexCoord )
+                gl.uniform1i(this.applyColorMapLoc, 1)
+            }
+            //draw
+            gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT )
+            gl.drawArrays( gl.TRIANGLES, 0, 6)
+            // swap texture
+            var tex3 = tex1
+            tex1 = tex2
+            tex2 = tex3
+        }
+        //
+        // render program2. blur again
         //
         gl.bindFramebuffer( gl.FRAMEBUFFER, null)
-        gl.useProgram( this.program2)
-        gl.bindTexture(gl.TEXTURE_2D, this.texture)
+        gl.bindTexture(gl.TEXTURE_2D, tex1)
         //
         gl.bindBuffer( gl.ARRAY_BUFFER, this.buffer21)
         gl.vertexAttribPointer( gl.getAttribLocation( this.program2, "vPosition" ), 2, gl.FLOAT, false, 0, 0 )
@@ -226,6 +298,7 @@ var particleScreen = {
         var vTexCoord = gl.getAttribLocation( this.program2, "vTexCoord") 
         gl.vertexAttribPointer( vTexCoord, 2, gl.FLOAT, false, 0, 0 )
         gl.enableVertexAttribArray( vTexCoord )
+        gl.uniform1i(this.applyColorMapLoc, 0)
         //
         gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT )
         gl.drawArrays( gl.TRIANGLES, 0, 6)
@@ -248,8 +321,8 @@ var particleScreen = {
     makeRandomVertices: function() {
         this.vertices = [];
         this.typeDensity = []
-        for(var i=0; i<2001; i++) {
-            this.vertices.push(vec3(2*Math.random()-1, 2*Math.random()-1, Math.random()*100))
+        for(var i=0; i<3000; i++) {
+            this.vertices.push(vec3(2*Math.random()-1, 2*Math.random()-1, Math.random()*50))
             this.typeDensity.push(vec2(Math.floor(Math.random()*3),  Math.random() ))
         }
     },
