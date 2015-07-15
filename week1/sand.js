@@ -157,6 +157,7 @@ function iterate() {
 // draw to screen
 function render() {
     gl.useProgram(program_display)
+    // I think there is some enableVertexAttribArray and vertexAttribPointer call missing here, but somehow it still works.???
     gl.uniformMatrix4fv( projectionPlace, false, flatten(projectionMatrix) )
     gl.bindFramebuffer( gl.FRAMEBUFFER, null)
     gl.clear( gl.COLOR_BUFFER_BIT )
