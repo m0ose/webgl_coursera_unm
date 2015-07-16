@@ -40,8 +40,12 @@
  
   </head>
   <body>
-  Sierpinski iterations: <input type=range min=0 max=9 step=1 value=4 oninput="GLtriangle.updateVertices(Number(this.value))"></input>
-  angle: <input type=range min=-6 max=6 step=0.01 value=0 oninput="GLtriangle.updateTheta(Number(this.value))"></input>
+  Subdivisions: <input type=range min=0 max=9 step=1 value=4 oninput="GLtriangle.updateVertices(Number(this.value))"></input>
+  <br>
+  Angle: <input type=range min=-6 max=6 step=0.01 value=0 oninput="GLtriangle.updateTheta(Number(this.value))"></input>
+  <br>
+  <input type="checkbox" name="fillHoles" value="fillHoles" onchange="GLtriangle.fillMesh=this.checked; GLtriangle.updateVertices();"> Fill holes <br>
+
   <br>
   <canvas id="can" width=800 height=800></canvas>
   </body>
