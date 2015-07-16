@@ -23,7 +23,7 @@ GLtriangle = {
             vec3(  0.0, 0.0, 1.3 ),
             vec3( 0.0, 1.3, 0.0 ),
         ],
-    idleUpdate: new Date().getTime(),//this is used for the idle animation
+    idleUpdate: 0,//new Date().getTime(),//this is used for the idle animation
 
     init: function() {
         console.log('init called')
@@ -121,7 +121,7 @@ GLtriangle = {
         if( new Date().getTime() - this.idleUpdate > 10000){
             this.theta = (this.theta + 0.05) % (64*Math.PI) // prevent overflow
             var wobblyTheta = (Math.PI/2)*Math.sin(this.theta)
-            wobblyCenter = [Math.sin(this.theta/3)/2,Math.sin(this.theta*3)/8,0]
+            wobblyCenter = [Math.sin(this.theta/3)/2,Math.pow(Math.sin(this.theta*3)/3,2),0]
         }
         // send theta to vertexshader
         thetaLoc = gl.getUniformLocation( this.program, "theta" )
