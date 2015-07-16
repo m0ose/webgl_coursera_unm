@@ -23,7 +23,7 @@ GLtriangle = {
             vec3(  0.0, 0.0, 1.3 ),
             vec3( 0.0, 1.3, 0.0 ),
         ],
-    idleUpdate: 0,//new Date().getTime(),//this is used for the idle animation
+    idleUpdate: new Date().getTime(),//this is used for the idle animation
 
     init: function() {
         console.log('init called')
