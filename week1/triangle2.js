@@ -11,16 +11,17 @@ GLtriangle = {
     
     theta : 0.0, // initial angle for spin
     sierpinskiateIterations : 4, // the triangle count is 3^n and can get big fast
-    fillMesh:false,
+    fillMesh:false, // fully tesselate. If false it will do a sierpinski's gasket. If true it will fill with tiny triangles. 
+    spinCenter : [0,-0.2, 0], // shift the final display by this much.
     initialVertices : [
-            vec3(  0.0,  1.0 , 0 ),
+            vec3(  0.0,  1.0, 0 ),
             vec3( -Math.cos(Math.PI/6),-Math.sin(Math.PI/6), 0 ),
             vec3( Math.cos(Math.PI/6),-Math.sin(Math.PI/6), 0 ),
         ],
     initialColors : [
-            vec3(  0.9,  0.0, 0.0 ),
-            vec3(  0.0, 0.0, 0.9 ),
-            vec3( 0.0, 0.9, 0.0 ),
+            vec3(  1.3,  0.0, 0.0 ),
+            vec3(  0.0, 0.0, 1.3 ),
+            vec3( 0.0, 1.3, 0.0 ),
         ],
     idleUpdate: new Date().getTime(),//this is used for the idle animation
 
@@ -75,7 +76,8 @@ GLtriangle = {
     },
     //
     // turn a normal triangle into a serpinkskis gasket
-    //  
+    //   iterations is the number of recursive steps. 
+    //   if fillMesh is true it will fill the gaps in the gasket. 
     sierpinskiate: function(vertices, iterations, fillMesh){
         //console.log(iterations)
         if(iterations <= 0) {
@@ -114,14 +116,19 @@ GLtriangle = {
 
     render: function(){
         var wobblyTheta = this.theta
+        var wobblyCenter = [0,0,0]
         // animate theta if idle
         if( new Date().getTime() - this.idleUpdate > 10000){
-            this.theta = (this.theta + 0.05) % (2*Math.PI) // prevent overflow
+            this.theta = (this.theta + 0.05) % (64*Math.PI) // prevent overflow
             var wobblyTheta = (Math.PI/2)*Math.sin(this.theta)
+            wobblyCenter = [Math.sin(this.theta/3)/2,Math.sin(this.theta*3)/8,0]
         }
         // send theta to vertexshader
         thetaLoc = gl.getUniformLocation( this.program, "theta" )
         gl.uniform1f( thetaLoc, wobblyTheta )
+        // spin center
+        var spinLoc = gl.getUniformLocation( this.program, "spinCenter" )
+        gl.uniform3fv( spinLoc, flatten( add(wobblyCenter, this.spinCenter)) )
         // draw
         gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT )
         gl.drawArrays( gl.TRIANGLES, 0, this.vertices.length )

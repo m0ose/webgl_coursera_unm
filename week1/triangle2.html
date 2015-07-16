@@ -10,6 +10,7 @@
     attribute vec3 vPosition;
     attribute vec3 vColor;
     uniform float theta;
+    uniform vec3 spinCenter;
     varying vec4 color;
 
     mat2 rotate(float theta2) {
@@ -20,10 +21,10 @@
     }
 
     void main() {
-      float dist = 1.0-sqrt(vPosition.x*vPosition.x + vPosition.y*vPosition.y);
+      float dist = sqrt(vPosition.x*vPosition.x + vPosition.y*vPosition.y);
       //gl_Position = vec4(vPosition, 1.0) + vec4(vPosition.y*cos(dist*theta), vPosition.x*sin(dist*theta), 0.0, 0.0); //this is cool
       mat2 rotM = rotate(dist*theta);
-      vec2 rotted = rotM*vPosition.xy;
+      vec2 rotted = rotM*vPosition.xy + spinCenter.xy;
       gl_Position = vec4(rotted, 0.0, 1.0);
       color = vec4(vColor, 1.0);
     }
