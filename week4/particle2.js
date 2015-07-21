@@ -246,7 +246,6 @@ var particleScreen = {
     }
 }
 
-var gpartscreen
 window.onload = function(){
     particleScreen.init()
 }

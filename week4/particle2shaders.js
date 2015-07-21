@@ -5,6 +5,7 @@
 //
 
 var particleScreenShaders = {
+
     //  
     // Render particles as fuzzy opaque points
     // vertex shader
@@ -20,6 +21,7 @@ var particleScreenShaders = {
             density = vTypeDens.y;
         }
     `,
+
     program1Fragment : `
         precision mediump float;
         varying float partType;
@@ -36,6 +38,7 @@ var particleScreenShaders = {
           } 
         }
     `,
+
     //
     //  blur shader
     //
@@ -50,6 +53,7 @@ var particleScreenShaders = {
             fTexCoord = vTexCoord;
         }
     `,
+    
     program2Fragment : `
         precision mediump float;
         uniform sampler2D texture;
