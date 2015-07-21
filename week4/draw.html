@@ -8,12 +8,30 @@
 <script type="text/javascript" src="../Common/MV.js"></script>
 <script type="text/javascript" src="drawShaders.js"></script>
 <script type="text/javascript" src="draw.js"></script>
+<script type="text/javascript" src="../libs/BeehivePicker/beehive_picker"></script>
+
 
 <body style="background-color:grey;">
+
 <br>
-<canvas id="gl-canvas" width="1024" height="1024">
+<div style="float:right">
+  <div>
+      Cody Smith <br>
+      Interactive Computer Graphics with WebGL <br>
+      Assignment 2. Painting Program <br>
+      July 2015 <br>
+  </div>
+  <br>
+  <div id="colorPicker" ></div>
+  <br>
+  <button onclick="painter.clear()">Clear</button>
+  <br>
+  
+</div>
+<canvas id="gl-canvas" width="800" height="768" style=" border-style: solid; border-width: 5px;">
 Oops ... your browser doesn't support the HTML5 canvas element
 </canvas>
 <br>
+Color picker provided by <a href="https://github.com/tebakane/BeehivePicker">Tebasaki</a>
 </body>
 </html>

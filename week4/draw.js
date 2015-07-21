@@ -1,12 +1,14 @@
 var painter = {
 
     pathHistory: [],
+    path2:[],
     pathColors: [],
     vertex1prog: paintShaders.vertex1,
     frag1prog: paintShaders.fragment1,
     canvas:null,
     projMatrix:null,
     lineWidth:12,
+    currrentColor:vec4(1.0,1.0,0.0,1.0),
 
     init:function() {
         console.log('init called')
@@ -31,6 +33,8 @@ var painter = {
         this.setupProgram()
         // Get the mouse working
         mouseHandler(this.canvas)
+        //color picker
+        setupColorPicker()
     },
 
     setupProgram: function() {
@@ -60,39 +64,72 @@ var painter = {
     _redrawPath: function() {
         gl.lineWidth( this.lineWidth)
         gl.bindBuffer(gl.ARRAY_BUFFER, this.bufferVPos)
-        gl.bufferData( gl.ARRAY_BUFFER, flatten(this.pathHistory), gl.STATIC_DRAW)
+        gl.bufferData( gl.ARRAY_BUFFER, flatten(this.path2), gl.STATIC_DRAW)
         gl.bindBuffer(gl.ARRAY_BUFFER, this.bufferVColor)
         gl.bufferData( gl.ARRAY_BUFFER, flatten(this.pathColors), gl.STATIC_DRAW)
         gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT )
-        gl.drawArrays( gl.LINES, 0, this.pathHistory.length )
+        gl.drawArrays( gl.TRIANGLE_STRIP, 0, this.path2.length )
     },
     //
     // Drawing routines
     //
     moveTo: function(x,y) {
         this.pathHistory.push(new vec4(x, y, 0, 1))
-        this.pathColors.push(new vec4(Math.random(), Math.random(), Math.random(),1.0))
+        //seperate segments using very thin line.
+        var color = this.currrentColor || new vec4(Math.random(), Math.random(), Math.random(),1.0)
+        this.path2.push(new vec4(x, y, 0, 1))
+        this.path2.push(new vec4(x, y, 0, 1))
+        this.pathColors.push(color)
+        this.pathColors.push(color)
         this.redrawPath()
         //console.log('moveTo', x, y)
     },
 
+    widAvg : 1.0,
+    dirAvg : vec4(1,0,0,0),
     lineTo: function(x,y) {
-        if( this.pathHistory.length > 0 && this.pathHistory.length%2 == 0) {
-            var lastPoint = this.pathHistory[ this.pathHistory.length - 1]
-            var lastColor = this.pathColors[ this.pathColors.length - 1]
-            this.pathHistory.push(lastPoint)
-            this.pathColors.push(lastColor)
+        // make 2 points perpindicular to the motion of the brush
+        var p1 = this.pathHistory[this.pathHistory.length-1]
+        var p2 = new vec4(x, y, 0, 1)
+        var diff = subtract(p2, p1)
+        var velo = Math.sqrt(dot(diff,diff))
+        if(velo > 0) {
+            var dir = normalize(diff)
+            this.dirAvg = mix(dir, this.dirAvg, 0.5)
+            var dir2 = this.dirAvg
+            var wid = this.lineWidth - Math.min(this.lineWidth*0.8, velo/3)
+            this.widAvg = 0.3*wid + 0.7*this.widAvg
+            var wid2 = this.widAvg
+            var p3 = add(p2, vec4(-wid2*dir2[1], wid2*dir2[0], 0, 0))
+            var p4 = add(p2, vec4(wid2*dir2[1], -wid2*dir2[0], 0, 0))
+            this.path2.push(p3)
+            this.path2.push(p4)
+            //
+            var color = this.currrentColor || new vec4(Math.random(), Math.random(), Math.random(),1.0)
+            this.pathColors.push(color)
+            this.pathColors.push(color)
+            // history
+            this.pathHistory.push(p2)
+            this.redrawPath()
         }
-        this.pathHistory.push(new vec4(x, y, 0, 1))
-        this.pathColors.push(new vec4(Math.random(), Math.random(), Math.random(),1.0))
-        this.redrawPath()
+        
         //console.log('line to', x, y )
     },
 
     closePath: function() {
-        //this.pathHistory = []
-        //console.log('close path')
+        this.pathHistory = []
+        //add ing a point at the end helps seperate the sgements
+        if( this.path2[this.path2.length-1]) {
+            this.path2.push(this.path2[this.path2.length-1])
+            this.pathColors.push(this.pathColors[this.pathColors.length-1])
+        }
     },
+
+    clear: function() {
+        this.path2 = []
+        this.pathColors = []
+        this.redrawPath()
+    }
 
 
 }
@@ -100,6 +137,9 @@ var painter = {
 window.onload = function(){
     painter.init()
 }
+
+//////////////////////////////////// UI ////////////////////////////////////
+
 
 //
 // Setup the mouse over and out events
@@ -110,9 +150,8 @@ function mouseHandler(element) {
         var rect = element.getBoundingClientRect();
         return {x: Math.floor(event.clientX - rect.left), y: Math.floor(event.clientY - rect.top)};
     }
-
+    
     var _mousedown = false
-
     element.addEventListener("mousemove", function (e) {
         var xy = relativePos(e, this)
         if( _mousedown) {
@@ -132,5 +171,24 @@ function mouseHandler(element) {
         painter.closePath()
         _mousedown = false
     }, false);
+}
+
+//
+// Use the behive picker
+//
+function setupColorPicker() {
+    var div = document.getElementById('colorPicker');
+    Beehive.Picker(div);
+    div.addEventListener('click', function(e){
+        var color = Beehive.getColorCode(e.target);
+        if( color) {
+            var r = parseInt(color.substr(1,2),16) / 256
+            var g = parseInt(color.substr(3,2),16) / 256
+            var b = parseInt(color.substr(5,2),16) / 256
+            //console.log(r,g,b)
+            painter.currrentColor = vec4(r,g,b,1)
+        }
+        else{ console.log('it is not beehive picker color elemnt.'); }
+    });
 }
 
