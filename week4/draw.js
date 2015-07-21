@@ -1,11 +1,12 @@
 var painter = {
 
     pathHistory: [],
+    pathColors: [],
     vertex1prog: paintShaders.vertex1,
     frag1prog: paintShaders.fragment1,
     canvas:null,
     projMatrix:null,
-    lineWidth:2,
+    lineWidth:4,
 
     init:function() {
         console.log('init called')
@@ -35,29 +36,41 @@ var painter = {
         // Load shaders
         this.program1 = initShadersFromStrings( gl, this.vertex1prog, this.frag1prog )
         gl.useProgram( this.program1 )
-        //
+        // vertices
         var vPosition = gl.getAttribLocation( this.program1, "vPosition" )
         this.bufferVPos = gl.createBuffer()
         gl.bindBuffer( gl.ARRAY_BUFFER, this.bufferVPos)
         gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, 0, 0)
         gl.enableVertexAttribArray(vPosition)
-        //
+        // Colors
+        var vColor = gl.getAttribLocation( this.program1, "vColor" )
+        this.bufferVColor = gl.createBuffer()
+        gl.bindBuffer( gl.ARRAY_BUFFER, this.bufferVColor)
+        gl.vertexAttribPointer(vColor, 4, gl.FLOAT, false, 0, 0)
+        gl.enableVertexAttribArray(vColor)
+        // model view projection matrix or MVP
         gl.uniformMatrix4fv(gl.getUniformLocation( this.program1, "projection" ), false, flatten(this.projMatrix))
     },
 
-
     redrawPath: function() {
+        requestAnimationFrame(this._redrawPath.bind(this))
+    },
+
+    _redrawPath: function() {
         gl.lineWidth( this.lineWidth)
         gl.bindBuffer(gl.ARRAY_BUFFER, this.bufferVPos)
         gl.bufferData( gl.ARRAY_BUFFER, flatten(this.pathHistory), gl.STATIC_DRAW)
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.bufferVColor)
+        gl.bufferData( gl.ARRAY_BUFFER, flatten(this.pathColors), gl.STATIC_DRAW)
         gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT )
-        gl.drawArrays( gl.LINES, 0,this.pathHistory.length )
+        gl.drawArrays( gl.LINES, 0, this.pathHistory.length )
     },
     //
     // Drawing routines
     //
     moveTo: function(x,y) {
         this.pathHistory.push(new vec4(x, y, 0, 1))
+        this.pathColors.push(new vec4(Math.random(), Math.random(), Math.random(),1.0))
         this.redrawPath()
         console.log('moveTo', x, y)
     },
@@ -65,15 +78,18 @@ var painter = {
     lineTo: function(x,y) {
         if( this.pathHistory.length > 0 && this.pathHistory.length%2 == 0) {
             var lastPoint = this.pathHistory[ this.pathHistory.length - 1]
+            var lastColor = this.pathColors[ this.pathColors.length - 1]
             this.pathHistory.push(lastPoint)
+            this.pathColors.push(lastColor)
         }
         this.pathHistory.push(new vec4(x, y, 0, 1))
+        this.pathColors.push(new vec4(Math.random(), Math.random(), Math.random(),1.0))
         this.redrawPath()
         console.log('line to', x, y )
     },
 
     closePath: function() {
-        this.pathHistory = []
+        //this.pathHistory = []
         console.log('close path')
     },
 
