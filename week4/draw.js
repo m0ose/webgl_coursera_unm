@@ -6,7 +6,7 @@ var painter = {
     frag1prog: paintShaders.fragment1,
     canvas:null,
     projMatrix:null,
-    lineWidth:4,
+    lineWidth:12,
 
     init:function() {
         console.log('init called')
@@ -18,9 +18,10 @@ var painter = {
         }
         //  Configure WebGL
         gl.viewport( 0, 0, this.canvas.width, this.canvas.height )
-        gl.enable(gl.BLEND)
-        gl.blendFunc(gl.SRC_ALPHA, gl.DST_ALPHA)
-        //projection matrix. This makes it soo cordinates are in screen space.
+        //gl.enable(gl.BLEND)
+        //gl.blendFunc(gl.SRC_ALPHA, gl.DST_ALPHA)
+        //
+        //projection matrix. Transform cordinates to screen space.
         this.projMatrix = mat4()
         this.projMatrix[0][0] = 2/this.canvas.width
         this.projMatrix[1][1] = -2/this.canvas.height
@@ -72,7 +73,7 @@ var painter = {
         this.pathHistory.push(new vec4(x, y, 0, 1))
         this.pathColors.push(new vec4(Math.random(), Math.random(), Math.random(),1.0))
         this.redrawPath()
-        console.log('moveTo', x, y)
+        //console.log('moveTo', x, y)
     },
 
     lineTo: function(x,y) {
@@ -85,12 +86,12 @@ var painter = {
         this.pathHistory.push(new vec4(x, y, 0, 1))
         this.pathColors.push(new vec4(Math.random(), Math.random(), Math.random(),1.0))
         this.redrawPath()
-        console.log('line to', x, y )
+        //console.log('line to', x, y )
     },
 
     closePath: function() {
         //this.pathHistory = []
-        console.log('close path')
+        //console.log('close path')
     },
 
 
