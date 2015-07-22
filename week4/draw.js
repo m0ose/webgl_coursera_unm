@@ -9,6 +9,7 @@ var painter = {
     projMatrix:null,
     lineWidth:12,
     currrentColor:vec4(1.0,1.0,0.0,1.0),
+    MIN_OPACITY:0.8,
 
     init:function() {
         console.log('init called')
@@ -20,8 +21,10 @@ var painter = {
         }
         //  Configure WebGL
         gl.viewport( 0, 0, this.canvas.width, this.canvas.height )
-        //gl.enable(gl.BLEND)
-        //gl.blendFunc(gl.SRC_ALPHA, gl.DST_ALPHA)
+        gl.enable(gl.BLEND)
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
+        gl.clearColor( 1.0, 1.0, 1.0, 0.0 )
+        gl.clear( gl.COLOR_BUFFER_BIT  )
         //
         //projection matrix. Transform cordinates to screen space.
         this.projMatrix = mat4()
@@ -62,12 +65,12 @@ var painter = {
     },
 
     _redrawPath: function() {
-        gl.lineWidth( this.lineWidth)
+        gl.clear( gl.COLOR_BUFFER_BIT  )
+        //gl.lineWidth( this.lineWidth)
         gl.bindBuffer(gl.ARRAY_BUFFER, this.bufferVPos)
         gl.bufferData( gl.ARRAY_BUFFER, flatten(this.path2), gl.STATIC_DRAW)
         gl.bindBuffer(gl.ARRAY_BUFFER, this.bufferVColor)
         gl.bufferData( gl.ARRAY_BUFFER, flatten(this.pathColors), gl.STATIC_DRAW)
-        gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT )
         gl.drawArrays( gl.TRIANGLE_STRIP, 0, this.path2.length )
     },
     //
@@ -82,22 +85,22 @@ var painter = {
         this.pathColors.push(color)
         this.pathColors.push(color)
         this.redrawPath()
-        //console.log('moveTo', x, y)
     },
 
     widAvg : 1.0,
-    dirAvg : vec4(1,0,0,0),
+    dirAvg : vec4(0,0,0,0),
     lineTo: function(x,y) {
         // make 2 points perpindicular to the motion of the brush
         var p1 = this.pathHistory[this.pathHistory.length-1]
         var p2 = new vec4(x, y, 0, 1)
         var diff = subtract(p2, p1)
         var velo = Math.sqrt(dot(diff,diff))
-        if(velo > 0) {
+        var minVelo = Math.max(1, this.lineWidth/5)
+        if(velo > minVelo) {
             var dir = normalize(diff)
-            this.dirAvg = mix(dir, this.dirAvg, 0.5)
+            this.dirAvg = add( scale(0.4,vec4(dir)), scale(0.6,vec4(this.dirAvg)))
             var dir2 = this.dirAvg
-            var wid = this.lineWidth - Math.min(this.lineWidth*0.8, velo/3)
+            var wid = this.lineWidth - Math.min(this.lineWidth*0.8, velo/5)
             this.widAvg = 0.3*wid + 0.7*this.widAvg
             var wid2 = this.widAvg
             var p3 = add(p2, vec4(-wid2*dir2[1], wid2*dir2[0], 0, 0))
@@ -105,15 +108,15 @@ var painter = {
             this.path2.push(p3)
             this.path2.push(p4)
             //
-            var color = this.currrentColor || new vec4(Math.random(), Math.random(), Math.random(),1.0)
+            var opacity = Math.max(this.MIN_OPACITY, 0.2+this.widAvg/this.lineWidth)
+            var color = new vec4(this.currrentColor) || new vec4(Math.random(), Math.random(), Math.random(),1.0)
+            color[3] = opacity
             this.pathColors.push(color)
             this.pathColors.push(color)
             // history
             this.pathHistory.push(p2)
             this.redrawPath()
         }
-        
-        //console.log('line to', x, y )
     },
 
     closePath: function() {
@@ -128,10 +131,9 @@ var painter = {
     clear: function() {
         this.path2 = []
         this.pathColors = []
+        gl.clear( gl.COLOR_BUFFER_BIT)
         this.redrawPath()
-    }
-
-
+    },
 }
 
 window.onload = function(){
@@ -186,7 +188,7 @@ function setupColorPicker() {
             var g = parseInt(color.substr(3,2),16) / 256
             var b = parseInt(color.substr(5,2),16) / 256
             //console.log(r,g,b)
-            painter.currrentColor = vec4(r,g,b,1)
+            painter.currrentColor = vec4(r,g,b,1.0)
         }
         else{ console.log('it is not beehive picker color elemnt.'); }
     });

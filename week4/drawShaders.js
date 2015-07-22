@@ -2,6 +2,7 @@
 var paintShaders = {
 
     vertex1 : `
+        precision mediump float;
         attribute vec4 vPosition;
         attribute vec4 vColor;
         uniform mat4 projection;
