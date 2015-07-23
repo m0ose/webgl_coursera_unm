@@ -2,6 +2,8 @@ var painter = {
 
     pathHistory: [],
     path2:[],
+    dots:[],
+    dotColor:[],
     pathColors: [],
     vertex1prog: paintShaders.vertex1,
     frag1prog: paintShaders.fragment1,
@@ -9,7 +11,10 @@ var painter = {
     projMatrix:null,
     lineWidth:12,
     currrentColor:vec4(1.0,1.0,0.0,1.0),
-    MIN_OPACITY:0.8,
+    min_opacity:0.8,
+    draw_type:"triangle_strip",//gl.TRIANGLE_STRIP,
+    POINTS:"points",
+    TRIANGLE_STRIP:"triangle_strip",
 
     init:function() {
         console.log('init called')
@@ -67,23 +72,37 @@ var painter = {
     _redrawPath: function() {
         gl.clear( gl.COLOR_BUFFER_BIT  )
         //gl.lineWidth( this.lineWidth)
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
         gl.bindBuffer(gl.ARRAY_BUFFER, this.bufferVPos)
         gl.bufferData( gl.ARRAY_BUFFER, flatten(this.path2), gl.STATIC_DRAW)
         gl.bindBuffer(gl.ARRAY_BUFFER, this.bufferVColor)
         gl.bufferData( gl.ARRAY_BUFFER, flatten(this.pathColors), gl.STATIC_DRAW)
         gl.drawArrays( gl.TRIANGLE_STRIP, 0, this.path2.length )
+        if(this.dots.length>0) {
+            //gl.blendFunc(gl.SRC_ALPHA, gl.DST_ALPHA)
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.bufferVPos)
+            gl.bufferData( gl.ARRAY_BUFFER, flatten(this.dots), gl.STATIC_DRAW)
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.bufferVColor)
+            gl.bufferData( gl.ARRAY_BUFFER, flatten(this.dotColor), gl.STATIC_DRAW)
+            gl.drawArrays( gl.POINTS, 0, this.dots.length )
+        }
     },
     //
     // Drawing routines
     //
     moveTo: function(x,y) {
-        this.pathHistory.push(new vec4(x, y, 0, 1))
-        //seperate segments using very thin line.
-        var color = this.currrentColor || new vec4(Math.random(), Math.random(), Math.random(),1.0)
-        this.path2.push(new vec4(x, y, 0, 1))
-        this.path2.push(new vec4(x, y, 0, 1))
-        this.pathColors.push(color)
-        this.pathColors.push(color)
+        var color = vec4(this.currrentColor) || new vec4(Math.random(), Math.random(), Math.random(),1.0)
+        if( this.draw_type == this.POINTS) {
+            this.dots.push(new vec4(x, y, 3*this.lineWidth, 1))
+            this.dotColor.push(color)
+        } else {
+            this.pathHistory.push(new vec4(x, y, 0, 1))
+            //seperate segments using very thin line.
+            this.path2.push(new vec4(x, y, 0, 1))
+            this.path2.push(new vec4(x, y, 0, 1))
+            this.pathColors.push(color)
+            this.pathColors.push(color)
+        }
         this.redrawPath()
     },
 
@@ -91,46 +110,58 @@ var painter = {
     dirAvg : vec4(0,0,0,0),
     lineTo: function(x,y) {
         // make 2 points perpindicular to the motion of the brush
-        var p1 = this.pathHistory[this.pathHistory.length-1]
-        var p2 = new vec4(x, y, 0, 1)
-        var diff = subtract(p2, p1)
-        var velo = Math.sqrt(dot(diff,diff))
-        var minVelo = Math.max(1, this.lineWidth/5)
-        if(velo > minVelo) {
-            var dir = normalize(diff)
-            this.dirAvg = add( scale(0.4,vec4(dir)), scale(0.6,vec4(this.dirAvg)))
-            var dir2 = this.dirAvg
-            var wid = this.lineWidth - Math.min(this.lineWidth*0.8, velo/5)
-            this.widAvg = 0.3*wid + 0.7*this.widAvg
-            var wid2 = this.widAvg
-            var p3 = add(p2, vec4(-wid2*dir2[1], wid2*dir2[0], 0, 0))
-            var p4 = add(p2, vec4(wid2*dir2[1], -wid2*dir2[0], 0, 0))
-            this.path2.push(p3)
-            this.path2.push(p4)
-            //
-            var opacity = Math.max(this.MIN_OPACITY, 0.2+this.widAvg/this.lineWidth)
-            var color = new vec4(this.currrentColor) || new vec4(Math.random(), Math.random(), Math.random(),1.0)
-            color[3] = opacity
-            this.pathColors.push(color)
-            this.pathColors.push(color)
-            // history
-            this.pathHistory.push(p2)
-            this.redrawPath()
+        var color = vec4(this.currrentColor) || new vec4(Math.random(), Math.random(), Math.random(),1.0)
+        if( this.draw_type == this.POINTS) {
+            this.dots.push(new vec4(x, y, 3*this.lineWidth, 1))
+            this.dotColor.push(color)
+        } else {
+            var p1 = this.pathHistory[this.pathHistory.length-1]
+            var p2 = new vec4(x, y, 0, 1)
+            var diff = subtract(p2, p1)
+            var velo = Math.sqrt(dot(diff,diff))
+            var minVelo = Math.max(1, this.lineWidth/5)
+            if(velo > minVelo) {
+                var dir = normalize(diff)
+                this.dirAvg = add( scale(0.4,vec4(dir)), scale(0.6,vec4(this.dirAvg)))
+                var dir2 = this.dirAvg
+                var wid = this.lineWidth - Math.min(this.lineWidth*0.8, velo/5)
+                this.widAvg = 0.3*wid + 0.7*this.widAvg
+                var wid2 = this.widAvg
+                var p3 = add(p2, vec4(-wid2*dir2[1], wid2*dir2[0], 0, 0))
+                var p4 = add(p2, vec4(wid2*dir2[1], -wid2*dir2[0], 0, 0))
+                this.path2.push(p3)
+                this.path2.push(p4)
+                //
+                var opacity = Math.max(this.min_opacity, 0.2+this.widAvg/this.lineWidth)
+                color[3] = opacity
+                this.pathColors.push(color)
+                this.pathColors.push(color)
+                // history
+                this.pathHistory.push(p2)
+            }
         }
+        this.redrawPath()
     },
 
     closePath: function() {
-        this.pathHistory = []
-        //add ing a point at the end helps seperate the sgements
-        if( this.path2[this.path2.length-1]) {
-            this.path2.push(this.path2[this.path2.length-1])
-            this.pathColors.push(this.pathColors[this.pathColors.length-1])
+        if( this.draw_type == this.POINTS) {
+
+        } else {
+            this.pathHistory = []
+            //add ing a point at the end helps seperate the sgements
+            if( this.path2[this.path2.length-1]) {
+                this.path2.push(this.path2[this.path2.length-1])
+                this.pathColors.push(this.pathColors[this.pathColors.length-1])
+            }
         }
+        this.redrawPath()
     },
 
     clear: function() {
         this.path2 = []
         this.pathColors = []
+        this.dots = []
+        this.dotColor = []
         gl.clear( gl.COLOR_BUFFER_BIT)
         this.redrawPath()
     },
