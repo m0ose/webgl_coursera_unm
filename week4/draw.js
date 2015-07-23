@@ -1,10 +1,12 @@
 var painter = {
 
-    pathHistory: [],
-    path2:[],
-    dots:[],
-    dotColor:[],
-    pathColors: [],
+    //pathHistory: [],
+    //path2:[],
+    //dots:[],
+    //dotColor:[],
+    //pathColors: [],
+    //path1 = [],
+    paths:[],
     vertex1prog: paintShaders.vertex1,
     frag1prog: paintShaders.fragment1,
     canvas:null,
@@ -71,51 +73,55 @@ var painter = {
 
     _redrawPath: function() {
         gl.clear( gl.COLOR_BUFFER_BIT  )
-        //gl.lineWidth( this.lineWidth)
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.bufferVPos)
-        gl.bufferData( gl.ARRAY_BUFFER, flatten(this.path2), gl.STATIC_DRAW)
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.bufferVColor)
-        gl.bufferData( gl.ARRAY_BUFFER, flatten(this.pathColors), gl.STATIC_DRAW)
-        gl.drawArrays( gl.TRIANGLE_STRIP, 0, this.path2.length )
-        if(this.dots.length>0) {
-            //gl.blendFunc(gl.SRC_ALPHA, gl.DST_ALPHA)
+        for(var i =0; i<this.paths.length; i++) {
+            var pat = this.paths[i]
+            if(!pat._vertCache || pat._vertCache.length != 4*pat.vertices.length){ //check if flattening is what is slowing stuff down
+                console.log('cacheing vertices',i)
+                pat._vertCache = flatten(pat.vertices)
+            }
+            if(!pat._colorCache || pat._colorCache.length != 4*pat.colors.length){
+                console.log('caching colors',i)
+                pat._colorCache = flatten(pat.colors)
+            }
             gl.bindBuffer(gl.ARRAY_BUFFER, this.bufferVPos)
-            gl.bufferData( gl.ARRAY_BUFFER, flatten(this.dots), gl.STATIC_DRAW)
+            gl.bufferData( gl.ARRAY_BUFFER, flatten(pat.vertices), gl.STATIC_DRAW)
             gl.bindBuffer(gl.ARRAY_BUFFER, this.bufferVColor)
-            gl.bufferData( gl.ARRAY_BUFFER, flatten(this.dotColor), gl.STATIC_DRAW)
-            gl.drawArrays( gl.POINTS, 0, this.dots.length )
+            gl.bufferData( gl.ARRAY_BUFFER, flatten(pat.colors), gl.STATIC_DRAW)
+            if(pat.type == this.POINTS) {
+                gl.drawArrays( gl.POINTS, 0, pat.vertices.length )
+            } else {
+                gl.drawArrays( gl.TRIANGLE_STRIP, 0, pat.vertices.length )
+            }
         }
+        //gl.lineWidth( this.lineWidth)
+   
     },
     //
     // Drawing routines
     //
     moveTo: function(x,y) {
+        this.currPath = {type:this.draw_type, colors:[], vertices:[]}
         var color = vec4(this.currrentColor) || new vec4(Math.random(), Math.random(), Math.random(),1.0)
-        if( this.draw_type == this.POINTS) {
-            this.dots.push(new vec4(x, y, 3*this.lineWidth, 1))
-            this.dotColor.push(color)
-        } else {
-            this.pathHistory.push(new vec4(x, y, 0, 1))
-            //seperate segments using very thin line.
-            this.path2.push(new vec4(x, y, 0, 1))
-            this.path2.push(new vec4(x, y, 0, 1))
-            this.pathColors.push(color)
-            this.pathColors.push(color)
-        }
+        this.currPath.vertices.push(new vec4(x, y, 3*this.lineWidth, 1))
+        this.currPath.colors.push(color)
+        this.lastPoint = new vec4(x, y, 3*this.lineWidth, 1)
+        this.paths.push( this.currPath)
         this.redrawPath()
     },
 
     widAvg : 1.0,
     dirAvg : vec4(0,0,0,0),
+    currPath: {},
+    lastPoint: undefined,
     lineTo: function(x,y) {
         // make 2 points perpindicular to the motion of the brush
         var color = vec4(this.currrentColor) || new vec4(Math.random(), Math.random(), Math.random(),1.0)
         if( this.draw_type == this.POINTS) {
-            this.dots.push(new vec4(x, y, 3*this.lineWidth, 1))
-            this.dotColor.push(color)
+            this.currPath.vertices.push(new vec4(x, y, 3*this.lineWidth, 1))
+            this.currPath.colors.push(color)
         } else {
-            var p1 = this.pathHistory[this.pathHistory.length-1]
+            var p1 = this.lastPoint
             var p2 = new vec4(x, y, 0, 1)
             var diff = subtract(p2, p1)
             var velo = Math.sqrt(dot(diff,diff))
@@ -129,39 +135,26 @@ var painter = {
                 var wid2 = this.widAvg
                 var p3 = add(p2, vec4(-wid2*dir2[1], wid2*dir2[0], 0, 0))
                 var p4 = add(p2, vec4(wid2*dir2[1], -wid2*dir2[0], 0, 0))
-                this.path2.push(p3)
-                this.path2.push(p4)
+                this.currPath.vertices.push(p3)
+                this.currPath.vertices.push(p4)
                 //
                 var opacity = Math.max(this.min_opacity, 0.2+this.widAvg/this.lineWidth)
                 color[3] = opacity
-                this.pathColors.push(color)
-                this.pathColors.push(color)
+                this.currPath.colors.push(color)
+                this.currPath.colors.push(color)
                 // history
-                this.pathHistory.push(p2)
+                this.lastPoint = p2
             }
         }
         this.redrawPath()
     },
 
     closePath: function() {
-        if( this.draw_type == this.POINTS) {
-
-        } else {
-            this.pathHistory = []
-            //add ing a point at the end helps seperate the sgements
-            if( this.path2[this.path2.length-1]) {
-                this.path2.push(this.path2[this.path2.length-1])
-                this.pathColors.push(this.pathColors[this.pathColors.length-1])
-            }
-        }
         this.redrawPath()
     },
 
     clear: function() {
-        this.path2 = []
-        this.pathColors = []
-        this.dots = []
-        this.dotColor = []
+        this.paths = []
         gl.clear( gl.COLOR_BUFFER_BIT)
         this.redrawPath()
     },
