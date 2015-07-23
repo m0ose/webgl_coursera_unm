@@ -156,6 +156,7 @@ function mouseHandler(element) {
     var _mousedown = false
     element.addEventListener("mousemove", function (e) {
         var xy = relativePos(e, this)
+        e.preventDefault()
         if( _mousedown) {
             painter.lineTo(xy.x, xy.y)
         }
