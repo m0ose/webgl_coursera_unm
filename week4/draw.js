@@ -1,11 +1,19 @@
+/*
+Assignment 2. for Webgl class on Coursera
+
+Drawing program
+Cody Smith
+2015/7/23
+
+
+*/
+
 var painter = {
 
-    //pathHistory: [],
-    //path2:[],
-    //dots:[],
-    //dotColor:[],
-    //pathColors: [],
-    //path1 = [],
+    widAvg : 1.0,
+    dirAvg : vec4(0,0,0,0),
+    currPath: {},
+    lastPoint: undefined,
     paths:[],
     vertex1prog: paintShaders.vertex1,
     frag1prog: paintShaders.fragment1,
@@ -76,6 +84,7 @@ var painter = {
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
         for(var i =0; i<this.paths.length; i++) {
             var pat = this.paths[i]
+            //cache the flattenes paths for speed
             if(!pat._vertCache || pat._vertCache.length != 4*pat.vertices.length){ //check if flattening is what is slowing stuff down
                 console.log('cacheing vertices',i)
                 pat._vertCache = flatten(pat.vertices)
@@ -85,40 +94,36 @@ var painter = {
                 pat._colorCache = flatten(pat.colors)
             }
             gl.bindBuffer(gl.ARRAY_BUFFER, this.bufferVPos)
-            gl.bufferData( gl.ARRAY_BUFFER, flatten(pat.vertices), gl.STATIC_DRAW)
+            gl.bufferData( gl.ARRAY_BUFFER, pat._vertCache, gl.STATIC_DRAW)
             gl.bindBuffer(gl.ARRAY_BUFFER, this.bufferVColor)
-            gl.bufferData( gl.ARRAY_BUFFER, flatten(pat.colors), gl.STATIC_DRAW)
+            gl.bufferData( gl.ARRAY_BUFFER, pat._colorCache, gl.STATIC_DRAW)
             if(pat.type == this.POINTS) {
                 gl.drawArrays( gl.POINTS, 0, pat.vertices.length )
             } else {
                 gl.drawArrays( gl.TRIANGLE_STRIP, 0, pat.vertices.length )
             }
-        }
-        //gl.lineWidth( this.lineWidth)
-   
+        }   
     },
     //
     // Drawing routines
     //
     moveTo: function(x,y) {
+        //make new current path
         this.currPath = {type:this.draw_type, colors:[], vertices:[]}
-        var color = vec4(this.currrentColor) || new vec4(Math.random(), Math.random(), Math.random(),1.0)
-        this.currPath.vertices.push(new vec4(x, y, 3*this.lineWidth, 1))
-        this.currPath.colors.push(color)
-        this.lastPoint = new vec4(x, y, 3*this.lineWidth, 1)
         this.paths.push( this.currPath)
+        // first vertex
+        var color = vec4(this.currrentColor) || new vec4(Math.random(), Math.random(), Math.random(),1.0)
+        this.currPath.vertices.push(new vec4(x, y, 5*this.lineWidth, 1))
+        this.currPath.colors.push(color)
+        this.lastPoint = new vec4(x, y, 5*this.lineWidth, 1)
         this.redrawPath()
     },
 
-    widAvg : 1.0,
-    dirAvg : vec4(0,0,0,0),
-    currPath: {},
-    lastPoint: undefined,
     lineTo: function(x,y) {
         // make 2 points perpindicular to the motion of the brush
         var color = vec4(this.currrentColor) || new vec4(Math.random(), Math.random(), Math.random(),1.0)
         if( this.draw_type == this.POINTS) {
-            this.currPath.vertices.push(new vec4(x, y, 3*this.lineWidth, 1))
+            this.currPath.vertices.push(new vec4(x, y, 5*this.lineWidth, 1))
             this.currPath.colors.push(color)
         } else {
             var p1 = this.lastPoint

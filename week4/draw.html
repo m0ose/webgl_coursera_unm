@@ -24,9 +24,13 @@
   <br>
   <div id="colorPicker" ></div>
   <br>
-  <button onclick="painter.clear()">Clear</button>
+  Tool: <button onclick="painter.draw_type = painter.POINTS">Spray Paint</button>
+  <button onclick="painter.draw_type = painter.TRIANGLE_STRIP">Marker</button>
   <br>
-  <input type="range" min=1 max=60 value=10 oninput="painter.lineWidth=Number(this.value)"> Brush Size</input>
+  Brush Size: <input type="range" min=1 max=60 value=10 oninput="painter.lineWidth=Number(this.value)"></input>
+  <br>
+  <button onclick="painter.clear()">Clear</button>
+
   
 </div>
 <canvas id="gl-canvas" width="800" height="768" style=" border-style: solid; border-width: 5px;">
