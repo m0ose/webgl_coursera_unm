@@ -86,11 +86,11 @@ var painter = {
             var pat = this.paths[i]
             //cache the flattenes paths for speed
             if(!pat._vertCache || pat._vertCache.length != 4*pat.vertices.length){ //check if flattening is what is slowing stuff down
-                console.log('cacheing vertices',i)
+                //console.log('cacheing vertices',i)
                 pat._vertCache = flatten(pat.vertices)
             }
             if(!pat._colorCache || pat._colorCache.length != 4*pat.colors.length){
-                console.log('caching colors',i)
+                //console.log('caching colors',i)
                 pat._colorCache = flatten(pat.colors)
             }
             gl.bindBuffer(gl.ARRAY_BUFFER, this.bufferVPos)
@@ -161,6 +161,11 @@ var painter = {
     clear: function() {
         this.paths = []
         gl.clear( gl.COLOR_BUFFER_BIT)
+        this.redrawPath()
+    },
+
+    undo: function() {
+        this.paths.pop()
         this.redrawPath()
     },
 }
