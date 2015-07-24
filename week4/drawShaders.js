@@ -28,7 +28,7 @@ var paintShaders = {
             float dist = 0.5-sqrt(dot(pointCenter,pointCenter)); 
             gl_FragColor = fColor;
             if(fPosition.z > 0.0) {
-                gl_FragColor.w = dist;
+                gl_FragColor.a = gl_FragColor.a*dist;
             }
         }
     `,

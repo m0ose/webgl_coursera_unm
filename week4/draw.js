@@ -25,6 +25,7 @@ var painter = {
     draw_type:"triangle_strip",//gl.TRIANGLE_STRIP,
     POINTS:"points",
     TRIANGLE_STRIP:"triangle_strip",
+    opacity:1.0,
 
     init:function() {
         console.log('init called')
@@ -37,7 +38,8 @@ var painter = {
         //  Configure WebGL
         gl.viewport( 0, 0, this.canvas.width, this.canvas.height )
         gl.enable(gl.BLEND)
-        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
+        gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+        //gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
         gl.clearColor( 1.0, 1.0, 1.0, 0.0 )
         gl.clear( gl.COLOR_BUFFER_BIT  )
         //
@@ -124,6 +126,7 @@ var painter = {
         var color = vec4(this.currrentColor) || new vec4(Math.random(), Math.random(), Math.random(),1.0)
         if( this.draw_type == this.POINTS) {
             this.currPath.vertices.push(new vec4(x, y, 5*this.lineWidth, 1))
+            color[3] = this.opacity;
             this.currPath.colors.push(color)
         } else {
             var p1 = this.lastPoint
@@ -144,7 +147,7 @@ var painter = {
                 this.currPath.vertices.push(p4)
                 //
                 var opacity = Math.max(this.min_opacity, 0.2+this.widAvg/this.lineWidth)
-                color[3] = opacity
+                color[3] = opacity * this.opacity
                 this.currPath.colors.push(color)
                 this.currPath.colors.push(color)
                 // history
