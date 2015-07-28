@@ -38,10 +38,9 @@ var glShapes = {
         // Attributes
         this.bufferVPos = this.setupAttribute(4,"vPosition")
         this.bufferVColor = this.setupAttribute(4,"vColor")
-        //this.bufferVAxis = this.setupAttribute(4,"vAxis")
-        //this.bufferVAxis = this.setupAttribute(1,"vAngle")
+        this.bufferVAxis = this.setupAttribute(4,"vAxis")
+        this.bufferVRotation = this.setupAttribute(1,"vRotation")
         this.bufferVCenter = this.setupAttribute(4,"vCenter")
-
         // model view projection matrix or MVP
         gl.uniformMatrix4fv(gl.getUniformLocation( this.program1, "projection" ), false, flatten(this.projMatrix))
         //gl.uniformMatrix4fv(gl.getUniformLocation( this.program1, "projection" ), false, flatten(this.projMatrix))
@@ -50,9 +49,14 @@ var glShapes = {
     setupAttribute: function(length, location) {
         var loc0 = gl.getAttribLocation( this.program1, location )
         var buff = gl.createBuffer()
-        gl.bindBuffer( gl.ARRAY_BUFFER, buff)
-        gl.vertexAttribPointer(loc0, length, gl.FLOAT, false, 0, 0)
-        gl.enableVertexAttribArray(loc0)
+        if( loc0 >= 0) {
+            gl.bindBuffer( gl.ARRAY_BUFFER, buff)
+            gl.vertexAttribPointer(loc0, length, gl.FLOAT, false, 0, 0)
+            gl.enableVertexAttribArray(loc0)
+        } else {
+            console.warn(location, 'not found in program1')
+        }
+        
         return buff
     },
 
@@ -61,12 +65,16 @@ var glShapes = {
         var colors = []
         var vertices = []
         var centers = []
+        var axis = []
+        var angles = []
         for(var i=0; i < this.shapes.length; i++) {
-            var sh = this.shapes[i]
+            var sh = this.shapes[i].generateVertices()
             for(var j=0; j<sh.vertices.length; j++) {
                 vertices.push(sh.vertices[j])
                 colors.push(sh.colors[j])
                 centers.push(sh.centers[j])
+                axis.push(sh.axis[j])
+                angles.push(sh.rotations[j])
             }
         }
         gl.bindBuffer(gl.ARRAY_BUFFER, this.bufferVPos)
@@ -75,17 +83,42 @@ var glShapes = {
         gl.bufferData( gl.ARRAY_BUFFER, flatten(colors), gl.STATIC_DRAW)
         gl.bindBuffer(gl.ARRAY_BUFFER, this.bufferVCenter)
         gl.bufferData( gl.ARRAY_BUFFER, flatten(centers), gl.STATIC_DRAW)
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.bufferVAxis)
+        gl.bufferData( gl.ARRAY_BUFFER, flatten(axis), gl.STATIC_DRAW)
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.bufferVRotation)
+        gl.bufferData( gl.ARRAY_BUFFER, flatten(angles), gl.STATIC_DRAW)
         gl.drawArrays( gl.LINES, 0, vertices.length )
     }
 }
 
 test1 = function(){
-    var tri = shapeMaker.parameterizeShape( shapeMaker.sphere, 4,4)
+    var tri = new shapeMaker()
+    var sph = new shapeMaker({type:shapeTypes.sphere, center:vec4(1,0,0,0)})
+    var cone = new shapeMaker({type:shapeTypes.cone, 
+        color:vec4(1,0,0,1), 
+        center:vec4(-1,0,0,0),
+        axis:vec4(1,1,1,0),
+        rotation:45,
+    })
+    var cyl = new shapeMaker({type:shapeTypes.cylinder, 
+        color:vec4(0,1,0,1), 
+        center:vec4(0,1,0,0),
+        axis:vec4(1,1,1,0),
+        rotation:45,
+    })
+    glShapes.shapes.push(sph)
+    glShapes.shapes.push(cone)
+    glShapes.shapes.push(cyl)
     //console.assert(tri.length == 288, "wrong size")
-    glShapes.shapes.push( shapeMaker.makeShape({type:shapeMaker.sphere, center:vec4(1,0,0,0)}) )
-    glShapes.shapes.push( shapeMaker.makeShape({type:shapeMaker.cone, color:vec4(1,0,0,1), center:vec4(-1,0,0,0)}) )
+    /*glShapes.shapes.push( shapeMaker.makeShape({type:shapeMaker.sphere, center:vec4(1,0,0,0)}) )
+    glShapes.shapes.push( shapeMaker.makeShape({type:shapeMaker.cone, 
+        color:vec4(1,0,0,1), 
+        center:vec4(-1,0,0,0),
+        axis:vec4(1,1,1,0),
+        rotation:45,
+    }) )
     glShapes.shapes.push( shapeMaker.makeShape({type:shapeMaker.cylinder, color:vec4(0,1,0,1), center:vec4(0,1,0,0)}) )
-
+*/
     //glShapes.shapes.push( shapeMaker.makeShape({type:shapeMaker.sphere}) )
 
     glShapes.render()
