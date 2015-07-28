@@ -118,6 +118,8 @@ var painter = {
         this.currPath.vertices.push(new vec4(x, y, 5*this.lineWidth, 1))
         this.currPath.colors.push(color)
         this.lastPoint = new vec4(x, y, 5*this.lineWidth, 1)
+        this.widAvg = this.lineWidth
+        this.dirAvg = vec4(0,0,0,0)
         this.redrawPath()
     },
 
