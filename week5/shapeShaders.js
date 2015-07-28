@@ -26,7 +26,8 @@ var shapeShaders = {
         void main() {
             float c = cos(radians(vRotation)/2.0);
             float s = sin(radians(vRotation)/2.0);
-            vec4 r = vec4(c, s*vAxis);
+            vec4 axis = normalize(vAxis);
+            vec4 r = vec4(c, s*axis);
             //vec4 p = vPosition;
             vec4 p = vec4(0.0, vPosition.xyz);  // input point quaternion
             p = multq(r, multq(p, invq(r))); // rotated point quaternion

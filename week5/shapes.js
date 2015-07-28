@@ -24,7 +24,8 @@ var glShapes = {
         //  Configure WebGL
         gl.viewport( 0, 0, this.canvas.width, this.canvas.height )
         gl.clearColor( 0.0, 0.0, 0.0, 1.0 )
-        gl.clear( gl.COLOR_BUFFER_BIT  )
+        gl.enable(gl.DEPTH_TEST)
+        gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
         this.projMatrix = mat4()
         this.projMatrix[0][0] = this.projMatrix[1][1] = this.projMatrix[2][2] = 0.4
         //
@@ -43,7 +44,6 @@ var glShapes = {
         this.bufferVCenter = this.setupAttribute(4,"vCenter")
         // model view projection matrix or MVP
         gl.uniformMatrix4fv(gl.getUniformLocation( this.program1, "projection" ), false, flatten(this.projMatrix))
-        //gl.uniformMatrix4fv(gl.getUniformLocation( this.program1, "projection" ), false, flatten(this.projMatrix))
     },
 
     setupAttribute: function(length, location) {
@@ -56,7 +56,6 @@ var glShapes = {
         } else {
             console.warn(location, 'not found in program1')
         }
-        
         return buff
     },
 
@@ -87,43 +86,52 @@ var glShapes = {
         gl.bufferData( gl.ARRAY_BUFFER, flatten(axis), gl.STATIC_DRAW)
         gl.bindBuffer(gl.ARRAY_BUFFER, this.bufferVRotation)
         gl.bufferData( gl.ARRAY_BUFFER, flatten(angles), gl.STATIC_DRAW)
+        // call render
+        gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+        //gl.drawArrays( gl.TRIANGLES, 0, vertices.length )
         gl.drawArrays( gl.LINES, 0, vertices.length )
     }
 }
 
 test1 = function(){
     var tri = new shapeMaker()
-    var sph = new shapeMaker({type:shapeTypes.sphere, center:vec4(1,0,0,0)})
+    var sph = new shapeMaker({
+        type:shapeTypes.sphere, 
+        center:vec4(1,0,0,0),
+        axis:vec4(0,1,0,0),
+        stepsX:41,
+        //stepsTheta:100,
+    })
     var cone = new shapeMaker({type:shapeTypes.cone, 
         color:vec4(1,0,0,1), 
         center:vec4(-1,0,0,0),
-        axis:vec4(1,1,1,0),
+        axis:vec4(0,1,-1,0),
         rotation:45,
+        stepsX:2,
     })
     var cyl = new shapeMaker({type:shapeTypes.cylinder, 
         color:vec4(0,1,0,1), 
         center:vec4(0,1,0,0),
-        axis:vec4(1,1,1,0),
-        rotation:45,
+        axis:vec4(1,0,1,0),
+        rotation:-45,
+        stepsX:2,
     })
     glShapes.shapes.push(sph)
     glShapes.shapes.push(cone)
     glShapes.shapes.push(cyl)
-    //console.assert(tri.length == 288, "wrong size")
-    /*glShapes.shapes.push( shapeMaker.makeShape({type:shapeMaker.sphere, center:vec4(1,0,0,0)}) )
-    glShapes.shapes.push( shapeMaker.makeShape({type:shapeMaker.cone, 
-        color:vec4(1,0,0,1), 
-        center:vec4(-1,0,0,0),
-        axis:vec4(1,1,1,0),
-        rotation:45,
-    }) )
-    glShapes.shapes.push( shapeMaker.makeShape({type:shapeMaker.cylinder, color:vec4(0,1,0,1), center:vec4(0,1,0,0)}) )
-*/
-    //glShapes.shapes.push( shapeMaker.makeShape({type:shapeMaker.sphere}) )
-
+    //
     glShapes.render()
 
+    setInterval( function(){ 
+        for(var i=0; i < glShapes.shapes.length; i++) {
+            var sh = glShapes.shapes[i]
+            sh.rotation += 1
+        }
+        glShapes.render()
+    }, 60)
 }
+
+
 
 
 window.onload = function(){

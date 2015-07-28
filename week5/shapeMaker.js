@@ -45,6 +45,7 @@ var shapeMaker = function(options){
             axis:vec4(1,0,0,0),
             rotation:0,
             center:vec4(0,0,0,0),
+            randomColor:false,
         }
         options = options || {}
         for(var x in options) {
@@ -66,7 +67,11 @@ var shapeMaker = function(options){
         //_.extend(defaults, options)
         result.vertices = this.parameterizeShape(this.type, this.stepsX, this.stepsTheta)
         for(var i=0; i < result.vertices.length; i++) {
-            result.colors.push(this.color)
+            if(this.randomColor){
+                result.colors.push(vec4(Math.random(), Math.random(), Math.random(), 1))
+            } else {
+                result.colors.push(this.color)
+            }
             result.axis.push(this.axis)
             result.rotations.push(this.rotation)
             result.centers.push(this.center)
@@ -85,7 +90,7 @@ var shapeMaker = function(options){
         var pi = Math.PI
         var triangles = []
         for(var x = -1-dx; x <= 1+dx; x+=dx) {
-            for(var theta = -pi+dt; theta <= pi; theta+=dt) {
+            for(var theta = -pi; theta <= pi; theta+=dt) {
                 var p1 = shapeFunction( x, theta, dx)
                 var p2 = shapeFunction( x, theta - dt, dx)
                 var p3 = shapeFunction( x-dx, theta-dt, dx)
