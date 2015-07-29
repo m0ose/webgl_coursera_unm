@@ -14,8 +14,10 @@ var particleScreenShaders = {
         attribute vec2 vTypeDens;
         varying float partType;
         varying float density;
+        uniform mat4 projection;
         void main() {
             gl_Position = vec4(vPosition.xy, 0.0, 1.0);
+            gl_Position = projection*gl_Position;
             gl_PointSize = vPosition.z;
             partType = vTypeDens.x;
             density = vTypeDens.y;

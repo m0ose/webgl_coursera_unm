@@ -22,11 +22,14 @@ var particleScreen = {
     texture1: undefined,
     texture2: undefined,
     program1:undefined,
+    canvas:undefined,
+    projMatrix:mat4(),//start with identity
 
-    init: function() {
+    init: function(canvas) {
         console.log('init called')
         // Get canvas
-        var can = document.getElementById("gl-canvas")
+        var can = canvas || document.getElementById("gl-canvas")
+        this.canvas = canvas
         gl = WebGLUtils.setupWebGL( can )
         if ( !gl ) { 
             throw( "WebGL isn't available" ) 
@@ -76,6 +79,8 @@ var particleScreen = {
         this.TDBuffer = gl.createBuffer()
         gl.bindBuffer(gl.ARRAY_BUFFER, this.TDBuffer)
         gl.bufferData( gl.ARRAY_BUFFER, flatten(this.typeDensity), gl.STATIC_DRAW)
+        // model view projection matrix or MVP
+        gl.uniformMatrix4fv(gl.getUniformLocation( this.program1, "projection" ), false, flatten(this.projMatrix))
         // add some points
         this.makeRandomVertices()
         this.updateVertices( )
@@ -150,7 +155,12 @@ var particleScreen = {
         gl.enableVertexAttribArray( vTexCoord )
     },
 
-    render: function(){
+    render:function() {
+        var tex = this.renderParticles()
+        this.renderColorMap(tex)
+    },
+
+    renderParticles: function(){
         //
         // render program1. put particles up
         //
@@ -160,6 +170,9 @@ var particleScreen = {
         // draw to texture
         gl.clearColor( 0.0, 0.0, 0.0, 1.0 )
         gl.clear( gl.COLOR_BUFFER_BIT )
+        // set projection
+        gl.uniformMatrix4fv(gl.getUniformLocation( this.program1, "projection" ), false, flatten(this.projMatrix))
+        //
         gl.drawArrays( gl.POINTS, 0, this.vertices.length )
         //
         // render program2. blur
@@ -180,6 +193,10 @@ var particleScreen = {
             tex1 = tex2
             tex2 = tex3
         }
+        return tex1
+    },
+
+    renderColorMap: function(tex1) {
         //
         // render program2. but this time apply colormap
         //
@@ -209,8 +226,12 @@ var particleScreen = {
 
     makeRandomVertices: function() {
         for(var i=0; i<5000; i++) {
-            this.vertices.push(vec3(2*Math.random()-1, 2*Math.random()-1, Math.random()*40))
-            this.typeDensity.push(vec2(Math.floor(Math.random()*3),  Math.random() ))
+            var x = 2*Math.random()-1
+            var y = 2*Math.random()-1
+            var size =  Math.random()*40
+            var type  = Math.floor(Math.random()*3)
+            var density = Math.random() 
+            this.addPoint(x, y, size, density, type)
         }
     },
 
@@ -228,6 +249,40 @@ var particleScreen = {
         gl.bufferData( gl.ARRAY_BUFFER, flatten(this.vertices), gl.STATIC_DRAW)
         gl.bindBuffer(gl.ARRAY_BUFFER, this.TDBuffer)
         gl.bufferData( gl.ARRAY_BUFFER, flatten(this.typeDensity), gl.STATIC_DRAW)
+    },
+
+    canvasResized: function() {
+        var dims = gl.getUniformLocation( this.program2, "dimensions" )
+        gl.uniform2fv(dims, [this.canvas.width/2, this.canvas.height/2] )
+    },
+
+    resetPoints: function() {
+        this.vertices = []
+    },
+
+    addPoint: function(x, y, size, density, type) {
+        this.vertices.push(vec3(x,y,size))
+        this.typeDensity.push(vec2(type, density))
+    },
+
+    sampleHeight : function(x,y,wid, hei){
+        if(!wid){wid = 1}
+        if(!hei){hei = 1}
+        gl.bindFramebuffer( gl.FRAMEBUFFER, this.framebuffer)
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.texture1, 0)
+        this.activateProgram1()
+        var ab = new ArrayBuffer(wid*hei*4)
+        var faFull = new Uint8Array(ab);
+        gl.readPixels(x,y,wid,hei, gl.RGBA, gl.UNSIGNED_BYTE, faFull);
+        return faFull;
+    },
+
+    sampleColorImg: function(x, y, wid, hei) {
+        this.render()
+        var ab = new ArrayBuffer(wid*hei*4)
+        var faFull = new Uint8Array(ab);
+        gl.readPixels(x,y,wid,hei, gl.RGBA, gl.UNSIGNED_BYTE, faFull);
+        return faFull;
     },
 
     iterations:0,
