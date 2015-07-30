@@ -46,7 +46,8 @@ var shapeShaders = {
             // lights
             fLight1 = projection * light1;
             // normal, must also be rotated
-            vec4 pn = vec4(0.0, vNormal.xyz);  // input point quaternion
+            vec3 norm = normalize(vNormal.xyz);
+            vec4 pn = vec4(0.0, norm);  // input point quaternion
             pn = multq(r, multq(pn, invq(r))); // rotated point quaternion
             pn = vec4( pn.yzw, 1.0); // convert back to homogeneous coordinates
             fNormal = projection*pn;
@@ -65,8 +66,8 @@ var shapeShaders = {
             vec3 specColor = vec3(1.0,1.0,1.0);
             vec3 normal = normalize(fNormal.xyz);
             vec3 lightDir = normalize(fLight1.xyz - eye);
-            vec3 reflectDir = reflect(fLight1.xyz, fNormal.xyz);
-            vec3 viewDir = normalize(eye.xyz);
+            vec3 reflectDir = reflect(-fLight1.xyz, fNormal.xyz);
+            vec3 viewDir = normalize(-eye.xyz);
             float lambertian = max(dot(fLight1.xyz,fNormal.xyz), 0.0);
             float specular = 0.0;
             if(lambertian > 0.0) {

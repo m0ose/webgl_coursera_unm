@@ -1,6 +1,9 @@
 var shapeTypes = {
-    sphere: function(x, theta) {
+    sphere: function(x, theta, dx) {
         var r = Math.sqrt(1-x*x)
+        if(x>1 || x<-1){ //this is only because of numerical error where sqrt(-0.00000000001) if bad.
+            r=0
+        }
         var y = Math.cos(theta) * r
         var z = Math.sin(theta) * r
         return {vertex:vec4(x,y,z,1), normal:vec4(-x,-y,-z,0)}
@@ -20,9 +23,7 @@ var shapeTypes = {
         var normal = vec4(2, -Math.cos(theta), -Math.sin(theta), 0)
         if( !useNormal){
             normal = undefined
-        } else {
-            normal = normalize(normal)
-        }
+        } 
         return {vertex:vec4(x,y,z,1), normal:normal}
     },
 
@@ -128,7 +129,7 @@ var shapeMaker = function(options){
         var pi = Math.PI
         var triangles = []
         var normals = []
-        for(var x = -1-dx; x <= 1+dx; x+=dx) {
+        for(var x = -1; x <= 1.01+dx; x+=dx) {
             for(var theta = -pi; theta <= pi; theta+=dt) {
                 var s1 = shapeFunction( x, theta, dx)
                 var s2 = shapeFunction( x, theta - dt, dx)
@@ -138,7 +139,6 @@ var shapeMaker = function(options){
                 var p2 = s2.vertex
                 var p3 = s3.vertex
                 var p4 = s4.vertex
-
                 if( this.isGoodTriangle(p1, p2, p3)) {
                     if(!this.isGoodTriangle(p1, p2, p3) ) {
                         console.log(p1,p2,p3)

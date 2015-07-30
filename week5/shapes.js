@@ -26,6 +26,7 @@ var glShapes = {
         gl.clearColor( 0.0, 0.0, 0.0, 1.0 )
         gl.enable(gl.DEPTH_TEST)
         gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+        gl.lineWidth(2)
         this.projMatrix = mat4()
         this.projMatrix[0][0] = this.projMatrix[1][1] = this.projMatrix[2][2] = 0.4
         //
@@ -106,16 +107,16 @@ test1 = function(){
     var sph = new shapeMaker({
         type:shapeTypes.sphere, 
         center:vec4(1,0,0,0),
-        axis:vec4(0,1,0,0),
-        stepsX:41,
-        //stepsTheta:100,
+        axis:vec4(0,-1,0,0),
+        stepsX:24,
+        stepsTheta:24,
     })
     var cone = new shapeMaker({type:shapeTypes.cone, 
         color:vec4(1,0,0,1), 
         center:vec4(-1,-1,0,0),
         axis:vec4(3,7,5,0),
         rotation:45,
-        stepsX:2,
+        stepsX:5,
     })
     var cyl = new shapeMaker({type:shapeTypes.cylinder, 
         color:vec4(0,1,0,1), 
@@ -124,6 +125,7 @@ test1 = function(){
         rotation:-45,
         stepsX:2,
     })
+
     glShapes.shapes.push(sph)
     glShapes.shapes.push(cone)
     glShapes.shapes.push(cyl)
@@ -133,7 +135,7 @@ test1 = function(){
     setInterval( function(){ 
         for(var i=0; i < glShapes.shapes.length; i++) {
             var sh = glShapes.shapes[i]
-            sh.rotation += 1
+            sh.rotation += 5
         }
         glShapes.render()
     }, 60)
