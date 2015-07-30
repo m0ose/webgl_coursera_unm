@@ -1,6 +1,16 @@
 var shapeTypes = {
     sphere: function(x, theta, dx) {
-        var r = Math.sqrt(1-x*x)
+        var r = Math.sqrt(1-x*x) 
+        if(x>1 || x<-1){ //this is only because of numerical error where sqrt(-0.00000000001) if bad.
+            r=0
+        }
+        var y = Math.cos(theta) * r
+        var z = Math.sin(theta) * r
+        return {vertex:vec4(x,y,z,1), normal:vec4(-x,-y,-z,0)}
+    },
+
+    shell: function(x, theta, dx) {
+        var r = Math.sqrt(1-x*x) + (theta+Math.PI)/6
         if(x>1 || x<-1){ //this is only because of numerical error where sqrt(-0.00000000001) if bad.
             r=0
         }

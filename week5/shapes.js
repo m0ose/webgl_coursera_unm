@@ -97,8 +97,8 @@ var glShapes = {
         gl.bufferData( gl.ARRAY_BUFFER, flatten(angles), gl.STATIC_DRAW)
         // call render
         gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
-        gl.drawArrays( gl.TRIANGLES, 0, vertices.length )
-        //gl.drawArrays( gl.LINES, 0, vertices.length )
+        //gl.drawArrays( gl.TRIANGLES, 0, vertices.length )
+        gl.drawArrays( gl.LINES, 0, vertices.length )
     }
 }
 
@@ -106,7 +106,7 @@ test1 = function(){
     var tri = new shapeMaker()
     var sph = new shapeMaker({
         type:shapeTypes.sphere, 
-        center:vec4(1,0,0,0),
+        center:vec4(1,-1,0,0),
         axis:vec4(0,-1,0,0),
         stepsX:24,
         stepsTheta:24,
@@ -125,10 +125,18 @@ test1 = function(){
         rotation:-45,
         stepsX:2,
     })
-
+    var shell = new shapeMaker({
+        type:shapeTypes.shell, 
+        center:vec4(1,1,0,0),
+        color:vec4(1,1,0,1), 
+        axis:vec4(1,1,0,0),
+        stepsX:12,
+        stepsTheta:12,
+    })
     glShapes.shapes.push(sph)
     glShapes.shapes.push(cone)
     glShapes.shapes.push(cyl)
+    glShapes.shapes.push(shell)
     //
     glShapes.render()
 
