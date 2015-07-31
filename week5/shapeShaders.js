@@ -10,12 +10,13 @@ var shapeShaders = {
         uniform vec4 vCenter;
         uniform float vRotation;
         uniform mat4 projection;
+        uniform float wireFrame;
         uniform vec4 light1;
         varying vec4 fColor;
         varying vec4 fLight1;
         varying vec4 fNormal;
         varying vec4 fPosition;
-
+        varying float fWireFrame;
         // quaternion multiplier
         vec4 multq(vec4 a, vec4 b)
         {
@@ -43,6 +44,7 @@ var shapeShaders = {
             fPosition = vec4(gl_Position);
             //color
             fColor = vColor;
+            fWireFrame = wireFrame;
             // lights
             fLight1 = projection * light1;
             // normal, must also be rotated
@@ -60,6 +62,7 @@ var shapeShaders = {
         varying vec4 fNormal;
         varying vec4 fLight1;
         varying vec4 fPosition;
+        varying float fWireFrame;
         void main() {
             vec3 eye = vec3(0.0,0.0,-10.0);
             vec3 diffuseColor = vec3(0.1,0.1,0.1);
@@ -68,13 +71,17 @@ var shapeShaders = {
             vec3 lightDir = normalize(fLight1.xyz - eye);
             vec3 reflectDir = reflect(-fLight1.xyz, fNormal.xyz);
             vec3 viewDir = normalize(-eye.xyz);
+            vec3 fColor2 = fColor.xyz;
             float lambertian = max(dot(fLight1.xyz,fNormal.xyz), 0.0);
             float specular = 0.0;
             if(lambertian > 0.0) {
                float specAngle = max(dot(reflectDir, viewDir), 0.0);
                specular = pow(specAngle, 4.0);
             }
-            gl_FragColor = vec4(0.6*fColor.xyz +
+            if( fWireFrame > 0.0) {
+                fColor2.xyz = vec3(0.0,1.0,0.0);
+            }
+            gl_FragColor = vec4(0.6*fColor2.xyz +
                               lambertian*diffuseColor +
                               specular*specColor, 1.0);
             

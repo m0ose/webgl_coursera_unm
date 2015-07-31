@@ -10,7 +10,7 @@ var shapeTypes = {
     },
 
     shell: function(x, theta, dx) {
-        var r = Math.sqrt(1-x*x) + (theta+Math.PI)/6 + Math.sin(15*theta)/6
+        var r = Math.sqrt(1-x*x) + (theta+Math.PI)/6 + Math.sin(15*theta)/12
         if(x>1 || x<-1){ //this is only because of numerical error where sqrt(-0.00000000001) if bad.
             r=0
         }

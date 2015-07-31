@@ -49,7 +49,8 @@ var glShapes = {
         gl.uniform1f( this.locaRotation, 0.0)
         this.locaCenter = gl.getUniformLocation( this.program1, "vCenter")
         gl.uniform4fv( this.locaCenter, vec4(0,0,0,1))
-
+        this.locaWireFrame = gl.getUniformLocation( this.program1, "wireFrame")
+        gl.uniform1f( this.locaWireFrame, 0) //not wireframe
         // add some lights
         var lightloc = 
         gl.uniform4fv(gl.getUniformLocation( this.program1, "light1" ), flatten([10,-10,0,1]))
@@ -83,9 +84,11 @@ var glShapes = {
             gl.uniform4fv( this.locaAxis, sh.axis)
             gl.uniform1f( this.locaRotation, sh.rotation)
             gl.uniform4fv( this.locaCenter, sh.center)
+            gl.uniform1f( this.locaWireFrame, 0)
             // call render
             gl.drawArrays( gl.TRIANGLES, 0, verts.vertices.length/4 )
-            //gl.drawArrays( gl.LINES, 0, verts.vertices.length )
+            gl.uniform1f( this.locaWireFrame, 1)
+            gl.drawArrays( gl.LINES, 0, verts.vertices.length/4 )
         }
     }
 }
