@@ -76,6 +76,7 @@ var shapeMaker = function(options){
             rotation:0,
             center:vec4(0,0,0,0),
             randomColor:false,
+            scale:vec4(1,1,1,0),
         }
         options = options || {}
         for(var x in options) {

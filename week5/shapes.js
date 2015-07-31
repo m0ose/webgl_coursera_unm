@@ -51,6 +51,7 @@ var glShapes = {
         gl.uniform4fv( this.locaCenter, vec4(0,0,0,1))
         this.locaWireFrame = gl.getUniformLocation( this.program1, "wireFrame")
         gl.uniform1f( this.locaWireFrame, 0) //not wireframe
+        this.locaScale = gl.getUniformLocation( this.program1, "scale")
         // add some lights
         var lightloc = 
         gl.uniform4fv(gl.getUniformLocation( this.program1, "light1" ), flatten([10,-10,0,1]))
@@ -84,6 +85,7 @@ var glShapes = {
             gl.uniform4fv( this.locaAxis, sh.axis)
             gl.uniform1f( this.locaRotation, sh.rotation)
             gl.uniform4fv( this.locaCenter, sh.center)
+            gl.uniform4fv( this.locaScale, sh.scale)
             gl.uniform1f( this.locaWireFrame, 0)
             // call render
             gl.drawArrays( gl.TRIANGLES, 0, verts.vertices.length/4 )
@@ -115,6 +117,7 @@ test1 = function(){
         axis:vec4(1,2,1,0),
         rotation:-45,
         stepsX:2,
+        scale:vec4(0.5,0.5,0.5,0)
     })
     var shell = new shapeMaker({
         type:shapeTypes.shell, 
@@ -123,6 +126,7 @@ test1 = function(){
         axis:vec4(1,1,0,0),
         stepsX:24,
         stepsTheta:48,
+        scale:vec4(0.5,0.5,0.5,0)
     })
     glShapes.shapes.push(sph)
     glShapes.shapes.push(cone)

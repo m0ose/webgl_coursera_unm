@@ -12,6 +12,7 @@ var shapeShaders = {
         uniform mat4 projection;
         uniform float wireFrame;
         uniform vec4 light1;
+        uniform vec4 scale;
         varying vec4 fColor;
         varying vec4 fLight1;
         varying vec4 fNormal;
@@ -38,6 +39,10 @@ var shapeShaders = {
             vec4 p = vec4(0.0, vPosition.xyz);  // input point quaternion
             p = multq(r, multq(p, invq(r))); // rotated point quaternion
             p = vec4( p.yzw, 1.0); // convert back to homogeneous coordinates
+            //scale
+            p.x = p.x * scale.x;
+            p.y = p.y * scale.y;
+            p.z = p.z * scale.z;
             // shift center
             p = p + vCenter;
             gl_Position = projection*p;
