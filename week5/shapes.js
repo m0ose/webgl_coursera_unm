@@ -73,19 +73,19 @@ var glShapes = {
         gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
         for(var i=0; i < this.shapes.length; i++) {
             var sh = this.shapes[i]
-            var verts = sh.generateVertices()
+            var verts = sh.generateVerticesFlat()
             gl.bindBuffer(gl.ARRAY_BUFFER, this.bufferVPos)
-            gl.bufferData( gl.ARRAY_BUFFER, flatten(verts.vertices), gl.STATIC_DRAW)
+            gl.bufferData( gl.ARRAY_BUFFER, verts.vertices, gl.STATIC_DRAW)
             gl.bindBuffer(gl.ARRAY_BUFFER, this.bufferVNormals)
-            gl.bufferData( gl.ARRAY_BUFFER, flatten(verts.normals), gl.STATIC_DRAW)
+            gl.bufferData( gl.ARRAY_BUFFER, verts.normals, gl.STATIC_DRAW)
             gl.bindBuffer(gl.ARRAY_BUFFER, this.bufferVColor)
-            gl.bufferData( gl.ARRAY_BUFFER, flatten(verts.colors), gl.STATIC_DRAW)
+            gl.bufferData( gl.ARRAY_BUFFER, verts.colors, gl.STATIC_DRAW)
             gl.uniform4fv( this.locaAxis, sh.axis)
             gl.uniform1f( this.locaRotation, sh.rotation)
             gl.uniform4fv( this.locaCenter, sh.center)
             // call render
-            //gl.drawArrays( gl.TRIANGLES, 0, verts.vertices.length )
-            gl.drawArrays( gl.LINES, 0, verts.vertices.length )
+            gl.drawArrays( gl.TRIANGLES, 0, verts.vertices.length/4 )
+            //gl.drawArrays( gl.LINES, 0, verts.vertices.length )
         }
     }
 }
@@ -118,8 +118,8 @@ test1 = function(){
         center:vec4(1,1,0,0),
         color:vec4(1,1,0,1), 
         axis:vec4(1,1,0,0),
-        stepsX:12,
-        stepsTheta:12,
+        stepsX:24,
+        stepsTheta:48,
     })
     glShapes.shapes.push(sph)
     glShapes.shapes.push(cone)
