@@ -5,10 +5,10 @@ var shapeShaders = {
         precision mediump float;
         attribute vec4 vPosition;
         attribute vec4 vColor;
-        attribute vec4 vAxis;
-        attribute vec4 vCenter;
         attribute vec4 vNormal;
-        attribute float vRotation;
+        uniform vec4 vAxis;
+        uniform vec4 vCenter;
+        uniform float vRotation;
         uniform mat4 projection;
         uniform vec4 light1;
         varying vec4 fColor;

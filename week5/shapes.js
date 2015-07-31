@@ -41,11 +41,15 @@ var glShapes = {
         this.bufferVPos = this.setupAttribute(4,"vPosition")
         this.bufferVNormals = this.setupAttribute(4,"vNormal")
         this.bufferVColor = this.setupAttribute(4,"vColor")
-        this.bufferVAxis = this.setupAttribute(4,"vAxis")
-        this.bufferVRotation = this.setupAttribute(1,"vRotation")
-        this.bufferVCenter = this.setupAttribute(4,"vCenter")
         // model view projection matrix or MVP
         gl.uniformMatrix4fv(gl.getUniformLocation( this.program1, "projection" ), false, flatten(this.projMatrix))
+        this.locaAxis = gl.getUniformLocation( this.program1, "vAxis")
+        gl.uniform4fv( this.locaAxis, vec4(1,0,0,0))
+        this.locaRotation = gl.getUniformLocation( this.program1, "vRotation")
+        gl.uniform1f( this.locaRotation, 0.0)
+        this.locaCenter = gl.getUniformLocation( this.program1, "vCenter")
+        gl.uniform4fv( this.locaCenter, vec4(0,0,0,1))
+
         // add some lights
         var lightloc = 
         gl.uniform4fv(gl.getUniformLocation( this.program1, "light1" ), flatten([10,-10,0,1]))
@@ -66,39 +70,23 @@ var glShapes = {
 
 
     render: function() {
-        var colors = []
-        var vertices = []
-        var centers = []
-        var axis = []
-        var angles = []
-        var normals = []
-        for(var i=0; i < this.shapes.length; i++) {
-            var sh = this.shapes[i].generateVertices()
-            for(var j=0; j<sh.vertices.length; j++) {
-                vertices.push(sh.vertices[j])
-                normals.push(sh.normals[j])
-                colors.push(sh.colors[j])
-                centers.push(sh.centers[j])
-                axis.push(sh.axis[j])
-                angles.push(sh.rotations[j])
-            }
-        }
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.bufferVPos)
-        gl.bufferData( gl.ARRAY_BUFFER, flatten(vertices), gl.STATIC_DRAW)
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.bufferVNormals)
-        gl.bufferData( gl.ARRAY_BUFFER, flatten(normals), gl.STATIC_DRAW)
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.bufferVColor)
-        gl.bufferData( gl.ARRAY_BUFFER, flatten(colors), gl.STATIC_DRAW)
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.bufferVCenter)
-        gl.bufferData( gl.ARRAY_BUFFER, flatten(centers), gl.STATIC_DRAW)
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.bufferVAxis)
-        gl.bufferData( gl.ARRAY_BUFFER, flatten(axis), gl.STATIC_DRAW)
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.bufferVRotation)
-        gl.bufferData( gl.ARRAY_BUFFER, flatten(angles), gl.STATIC_DRAW)
-        // call render
         gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
-        //gl.drawArrays( gl.TRIANGLES, 0, vertices.length )
-        gl.drawArrays( gl.LINES, 0, vertices.length )
+        for(var i=0; i < this.shapes.length; i++) {
+            var sh = this.shapes[i]
+            var verts = sh.generateVertices()
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.bufferVPos)
+            gl.bufferData( gl.ARRAY_BUFFER, flatten(verts.vertices), gl.STATIC_DRAW)
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.bufferVNormals)
+            gl.bufferData( gl.ARRAY_BUFFER, flatten(verts.normals), gl.STATIC_DRAW)
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.bufferVColor)
+            gl.bufferData( gl.ARRAY_BUFFER, flatten(verts.colors), gl.STATIC_DRAW)
+            gl.uniform4fv( this.locaAxis, sh.axis)
+            gl.uniform1f( this.locaRotation, sh.rotation)
+            gl.uniform4fv( this.locaCenter, sh.center)
+            // call render
+            //gl.drawArrays( gl.TRIANGLES, 0, verts.vertices.length )
+            gl.drawArrays( gl.LINES, 0, verts.vertices.length )
+        }
     }
 }
 

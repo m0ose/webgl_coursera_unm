@@ -10,7 +10,7 @@ var shapeTypes = {
     },
 
     shell: function(x, theta, dx) {
-        var r = Math.sqrt(1-x*x) + (theta+Math.PI)/6
+        var r = Math.sqrt(1-x*x) + (theta+Math.PI)/6 + Math.sin(20*theta)/6
         if(x>1 || x<-1){ //this is only because of numerical error where sqrt(-0.00000000001) if bad.
             r=0
         }
@@ -87,9 +87,6 @@ var shapeMaker = function(options){
         var result= {
             vertices:[],
             colors:[],
-            axis:[],
-            rotations:[],
-            centers:[],
             normals:[],
         }
         //_.extend(defaults, options)
@@ -102,9 +99,6 @@ var shapeMaker = function(options){
             } else {
                 result.colors.push(this.color)
             }
-            result.axis.push(this.axis)
-            result.rotations.push(this.rotation)
-            result.centers.push(this.center)
         }
         return result
     }

@@ -49,10 +49,14 @@ var particleScreenShaders = {
         attribute vec2 vTexCoord;
         varying vec2 fTexCoord;
         uniform sampler2D texture;
+        uniform float flipY;
         void main() {
             gl_Position = vPosition;
             gl_PointSize = 50.0;
             fTexCoord = vTexCoord;
+            if(flipY>0.0) {
+                fTexCoord.y = 1.0-fTexCoord.y;
+            }
         }
     `,
     

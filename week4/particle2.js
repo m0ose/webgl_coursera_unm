@@ -88,12 +88,12 @@ var particleScreen = {
 
     setupBlurProgram: function(canvas) {
         var texCoord = [
-            vec2(0, 1),
             vec2(0, 0),
-            vec2(1, 0),
-            vec2(1, 0),
+            vec2(0, 1),
             vec2(1, 1),
-            vec2(0, 1)
+            vec2(1, 1),
+            vec2(1, 0),
+            vec2(0, 0)
         ];
         var vertices = [
             vec2( -1, -1 ),
@@ -108,12 +108,12 @@ var particleScreen = {
         gl.useProgram( this.program2 )
         // vertices
         var vPosition = gl.getAttribLocation( this.program2, "vPosition" )
-        this.buffer21 = gl.createBuffer()
-        gl.bindBuffer( gl.ARRAY_BUFFER, this.buffer21)
+        this.bufferVpos = gl.createBuffer()
+        gl.bindBuffer( gl.ARRAY_BUFFER, this.bufferVpos)
         gl.bufferData(gl.ARRAY_BUFFER, flatten(vertices), gl.STATIC_DRAW)
         // tex coords
-        this.buffer32 = gl.createBuffer()
-        gl.bindBuffer( gl.ARRAY_BUFFER, this.buffer32)
+        this.bufferTexCoord = gl.createBuffer()
+        gl.bindBuffer( gl.ARRAY_BUFFER, this.bufferTexCoord)
         gl.bufferData( gl.ARRAY_BUFFER, flatten(texCoord), gl.STATIC_DRAW)
         var vTexCoord = gl.getAttribLocation( this.program2, "vTexCoord") 
         //
@@ -126,6 +126,7 @@ var particleScreen = {
         gl.uniform2fv(dims, [canvas.width/2, canvas.height/2] )
         this.applyColorMapLoc = gl.getUniformLocation( this.program2, "applyColorMap" )
         gl.uniform1i(this.applyColorMapLoc, 1)
+        gl.uniform1f(gl.getUniformLocation( this.program2, "flipY" ), 0);
         // ?
         gl.uniform1i( gl.getUniformLocation( this.program2, "texture"), 0)
     },
@@ -146,10 +147,10 @@ var particleScreen = {
 
     activateProgram2: function() {
         gl.useProgram( this.program2)
-        gl.bindBuffer( gl.ARRAY_BUFFER, this.buffer21)
+        gl.bindBuffer( gl.ARRAY_BUFFER, this.bufferVpos)
         gl.vertexAttribPointer( gl.getAttribLocation( this.program2, "vPosition" ), 2, gl.FLOAT, false, 0, 0 )
         gl.enableVertexAttribArray( gl.getAttribLocation( this.program2, "vPosition" ) )
-        gl.bindBuffer( gl.ARRAY_BUFFER, this.buffer32)
+        gl.bindBuffer( gl.ARRAY_BUFFER, this.bufferTexCoord)
         var vTexCoord = gl.getAttribLocation( this.program2, "vTexCoord") 
         gl.vertexAttribPointer( vTexCoord, 2, gl.FLOAT, false, 0, 0 )
         gl.enableVertexAttribArray( vTexCoord )
@@ -178,6 +179,7 @@ var particleScreen = {
         // render program2. blur
         //
         this.activateProgram2()
+        gl.uniform1f(gl.getUniformLocation( this.program2, "flipY" ), 0);
         gl.uniform1i(this.applyColorMapLoc, 1) //tell it to just blur
         var tex1 = this.texture1
         var tex2 = this.texture2
@@ -204,6 +206,7 @@ var particleScreen = {
         gl.bindTexture(gl.TEXTURE_2D, tex1)
         //
         this.activateProgram2()
+        gl.uniform1f(gl.getUniformLocation( this.program2, "flipY" ), 1);
         gl.uniform1i(this.applyColorMapLoc, 0) //tell it to render with color map
         //
         gl.clearColor( 0.0, 0.0, 0.0, 0.0 )
@@ -216,7 +219,7 @@ var particleScreen = {
     configTexture: function( tex, width, height) {
         gl.activeTexture( gl.TEXTURE0 )
         gl.bindTexture( gl.TEXTURE_2D, tex )
-        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true)
+        //gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false)
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null)
         gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR )
         gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR )
