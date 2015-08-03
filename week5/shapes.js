@@ -13,6 +13,8 @@ var glShapes = {
     vertex1prog: shapeShaders.vertex1,
     frag1prog: shapeShaders.fragment1,
     shapes: [],
+    DRAW_SURFACES:true,
+    DRAW_WIREFRAME:false,
 
     init: function() {
         console.log("Init")
@@ -86,11 +88,17 @@ var glShapes = {
             gl.uniform1f( this.locaRotation, sh.rotation)
             gl.uniform4fv( this.locaCenter, sh.center)
             gl.uniform4fv( this.locaScale, sh.scale)
-            gl.uniform1f( this.locaWireFrame, 0)
-            // call render
-            gl.drawArrays( gl.TRIANGLES, 0, verts.vertices.length/4 )
-            gl.uniform1f( this.locaWireFrame, 1)
-            gl.drawArrays( gl.LINES, 0, verts.vertices.length/4 )
+            // draw surface
+            if( this.DRAW_SURFACES) {
+                gl.uniform1f( this.locaWireFrame, 0)
+                gl.drawArrays( gl.TRIANGLES, 0, verts.vertices.length/4 )
+            }
+            // draw wireframe
+            if( this.DRAW_WIREFRAME) {
+                gl.uniform1f( this.locaWireFrame, 1)
+                gl.drawArrays( gl.LINES, 0, verts.vertices.length/4 )
+            }
+   
         }
     }
 }
@@ -112,11 +120,21 @@ test1 = function(){
         stepsX:5,
     })
     var cyl = new shapeMaker({type:shapeTypes.cylinder, 
-        color:vec4(0,1,0,1), 
-        center:vec4(-1,1,0,0),
+        color:vec4(0.1,0.1,0.1,1), 
+        center:vec4(0,0,0,0),
         axis:vec4(1,2,1,0),
         rotation:-45,
         stepsX:2,
+        scale:vec4(0.5,0.5,0.5,0)
+    })
+    var leaf = new shapeMaker({
+        type:shapeTypes.cannabis, 
+        color:vec4(0,1,0,1), 
+        center:vec4(-1,1,0,0),
+        axis:vec4(0,1,1,0),
+        rotation:-45,
+        stepsX:3,
+        stepsTheta:160,
         scale:vec4(0.5,0.5,0.5,0)
     })
     var shell = new shapeMaker({
@@ -124,14 +142,15 @@ test1 = function(){
         center:vec4(1,1,0,0),
         color:vec4(1,1,0,1), 
         axis:vec4(1,1,0,0),
-        stepsX:24,
-        stepsTheta:48,
+        stepsX:18,
+        stepsTheta:120,
         scale:vec4(0.5,0.5,0.5,0)
     })
     glShapes.shapes.push(sph)
     glShapes.shapes.push(cone)
     glShapes.shapes.push(cyl)
     glShapes.shapes.push(shell)
+    glShapes.shapes.push(leaf)
     //
     glShapes.render()
 

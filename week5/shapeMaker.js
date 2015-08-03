@@ -58,6 +58,16 @@ var shapeTypes = {
         }
         return {vertex:vec4(x,y,z,1), normal:normal}
     },
+    // a leaf
+    cannabis: function(x, theta, dx) {
+        var sin = Math.sin
+        var cos = Math.cos
+        var rad = 1-x*x
+        rad = Math.max(rad,0)
+        var r= ( 1+(9/10)*cos(8*theta) ) * (1+(1/10)*cos(24*theta)) * ((9/10)+(1/10)*cos(200*theta)) * (1+sin(theta)) 
+        r = r * rad
+        return { vertex:vec4(x/12,cos(theta)*r,sin(theta)*r) }
+    },
 }
 
 // parameterize a shape
