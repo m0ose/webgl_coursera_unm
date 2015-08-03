@@ -10,12 +10,13 @@ var shapeTypes = {
     },
 
     shell: function(x, theta, dx) {
-        var r = Math.sqrt(1-x*x) + (theta+Math.PI)/6 + Math.sin(15*theta)/12
+        var theta2 = 1.22*theta
+        var r = Math.sqrt(1-x*x) + (theta+Math.PI)/6 + Math.sin(15*theta2)/12
         if(x>1 || x<-1){ //this is only because of numerical error where sqrt(-0.00000000001) if bad.
             r=0
         }
-        var y = Math.cos(theta) * r
-        var z = Math.sin(theta) * r
+        var y = Math.cos(theta2) * r
+        var z = Math.sin(theta2) * r
         return {vertex:vec4(x,y,z,1), normal:vec4(-x,-y,-z,0)}
     },
 

@@ -13,8 +13,8 @@ var glShapes = {
     vertex1prog: shapeShaders.vertex1,
     frag1prog: shapeShaders.fragment1,
     shapes: [],
-    DRAW_SURFACES:true,
-    DRAW_WIREFRAME:false,
+    DRAW_SURFACES:false,
+    DRAW_WIREFRAME:true,
 
     init: function() {
         console.log("Init")
@@ -28,7 +28,7 @@ var glShapes = {
         gl.clearColor( 0.0, 0.0, 0.0, 1.0 )
         gl.enable(gl.DEPTH_TEST)
         gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
-        gl.lineWidth(2)
+        gl.lineWidth(1)
         this.projMatrix = mat4()
         this.projMatrix[0][0] = this.projMatrix[1][1] = this.projMatrix[2][2] = 0.4
         //
@@ -131,10 +131,10 @@ test1 = function(){
         type:shapeTypes.cannabis, 
         color:vec4(0,1,0,1), 
         center:vec4(-1,1,0,0),
-        axis:vec4(0,1,1,0),
+        axis:vec4(1,1,0.3,0),
         rotation:-45,
-        stepsX:3,
-        stepsTheta:160,
+        stepsX:5,
+        stepsTheta:200,
         scale:vec4(0.5,0.5,0.5,0)
     })
     var shell = new shapeMaker({
