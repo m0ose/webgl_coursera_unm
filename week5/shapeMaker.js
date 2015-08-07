@@ -59,7 +59,7 @@ var shapeTypes = {
         }
         return {vertex:vec4(x,y,z,1), normal:normal}
     },
-    // a leaf
+    // a leaf with 7 points
     cannabis: function(x, theta, dx) {
         var sin = Math.sin
         var cos = Math.cos
