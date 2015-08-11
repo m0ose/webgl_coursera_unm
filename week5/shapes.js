@@ -142,7 +142,7 @@ test1 = function(){
         center:vec4(1,1,0,0),
         color:vec4(1,1,0,1), 
         axis:vec4(1,1,0,0),
-        stepsX:18,
+        stepsX:24,
         stepsTheta:120,
         scale:vec4(0.5,0.5,0.5,0)
     })

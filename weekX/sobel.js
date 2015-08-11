@@ -1,7 +1,7 @@
 
 function glSobel() {
 
-    var texCoord = [
+    this.texCoord = [
         vec2(0, 0),
         vec2(0, 1),
         vec2(1, 1),
@@ -10,7 +10,7 @@ function glSobel() {
         vec2(0, 0)
     ];
 
-    var vertices = [
+    this.vertices = [
         vec2( -1, -1 ),
         vec2(  -1,  1 ),
         vec2(  1, 1 ),
@@ -36,14 +36,14 @@ function glSobel() {
         gl.useProgram(this.programSobel)
         this.bufferV = gl.createBuffer()
         gl.bindBuffer( gl.ARRAY_BUFFER, this.bufferV)
-        gl.bufferData(gl.ARRAY_BUFFER, flatten(vertices), gl.STATIC_DRAW)
+        gl.bufferData(gl.ARRAY_BUFFER, flatten(this.vertices), gl.STATIC_DRAW)
         var vPosition = gl.getAttribLocation( this.programSobel, "vPosition" )
         gl.vertexAttribPointer( vPosition, 2, gl.FLOAT, false, 0, 0 )
         gl.enableVertexAttribArray( vPosition )
         // texture cooridinates
         this.bufferTC = gl.createBuffer()
         gl.bindBuffer( gl.ARRAY_BUFFER, this.bufferTC)
-        gl.bufferData(gl.ARRAY_BUFFER, flatten(texCoord), gl.STATIC_DRAW)
+        gl.bufferData(gl.ARRAY_BUFFER, flatten(this.texCoord), gl.STATIC_DRAW)
         var vTexCoord = gl.getAttribLocation( this.programSobel, "vTexCoord") 
         gl.vertexAttribPointer( vTexCoord, 2, gl.FLOAT, false, 0, 0 )
         gl.enableVertexAttribArray( vTexCoord )
