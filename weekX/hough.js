@@ -163,25 +163,20 @@ houghShaders = {
 
         void main() {
             vec4 tcolor = texture2D( texture, fTexCoord.xy);
-            vec2 dp = 1.0/texDims;
             vec2 p0 = fTexCoord.xy;
-            //p0 = (p0*0.5)*200.0;
-            float theta = p0.y * 3.141593;
+            float theta = 1.0*p0.y * 3.141593;
             float r = (2.0*p0.x-1.0)*2.0;
             vec2 p1 = vec2(cos(theta)*r, sin(theta)*r);
-            vec2 t1 = texture2D( texture, p1.xy).xy - 0.5;
-            vec2 t1N = normalize(t1.xy);
-            float t1Mag = length(t1.xy);
             vec2 lineSlope = vec2(-p1.y, p1.x);
             vec2 lineSlopeNorm = normalize(lineSlope);
-            float parallel = dot(t1.xy, lineSlopeNorm.xy);
             float parallelSum = 0.0;
-            for (float i = -1.4 ; i <= 1.4 ; i+=0.002) {
+            for (float i = -1.4 ; i <= 1.4 ; i+=0.001) {
                 vec2 p3 = p1 + lineSlopeNorm * i;
                 vec2 t3 = 2.0*texture2D( texture, p3).xy - 1.0;
                 if( p3.x <= 1.0 && p3.y <= 1.0 && p3.x >= 0.0 && p3.y >= 0.0){
                     //float sobelMag = length(t3.xy);
-                    parallelSum += abs( dot(t3.xy, lineSlopeNorm))/2056.0;
+                    parallelSum += abs( dot(t3.yx, lineSlopeNorm))/8192.0;
+                    parallelSum += length(t3.xy)/8192.0;
                 }
             }
             gl_FragColor = vec4(parallelSum*16.0, parallelSum*8.0,parallelSum,1.0);//tcolor;
