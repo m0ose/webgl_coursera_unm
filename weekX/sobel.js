@@ -31,27 +31,30 @@ function glSobel() {
         this.texture1 = gl.createTexture()
         gl.activeTexture( gl.TEXTURE0 )
         //
-        this.programSobel = initShadersFromStrings( gl, sobelShaders.vertex, sobelShaders.fragment )
-        // vertices
-        gl.useProgram(this.programSobel)
-        this.bufferV = gl.createBuffer()
-        gl.bindBuffer( gl.ARRAY_BUFFER, this.bufferV)
-        gl.bufferData(gl.ARRAY_BUFFER, flatten(this.vertices), gl.STATIC_DRAW)
-        var vPosition = gl.getAttribLocation( this.programSobel, "vPosition" )
-        gl.vertexAttribPointer( vPosition, 2, gl.FLOAT, false, 0, 0 )
-        gl.enableVertexAttribArray( vPosition )
+        this.program = initShadersFromStrings( gl, sobelShaders.vertex, sobelShaders.fragment )
+         // vertices
+        this.setupVertexAttribute( this.vertices, 'vPosition', 2)
         // texture cooridinates
-        this.bufferTC = gl.createBuffer()
-        gl.bindBuffer( gl.ARRAY_BUFFER, this.bufferTC)
-        gl.bufferData(gl.ARRAY_BUFFER, flatten(this.texCoord), gl.STATIC_DRAW)
-        var vTexCoord = gl.getAttribLocation( this.programSobel, "vTexCoord") 
-        gl.vertexAttribPointer( vTexCoord, 2, gl.FLOAT, false, 0, 0 )
-        gl.enableVertexAttribArray( vTexCoord )
+        this.setupVertexAttribute( this.texCoord, 'vTexCoord', 2)
         //
-        gl.uniform1i( gl.getUniformLocation(this.programSobel, "texture"), 0)
+        gl.uniform1i( gl.getUniformLocation(this.program, "texture"), 0)
+        gl.bindFramebuffer( gl.FRAMEBUFFER, null)
     }
 
+    //set it up once is probably fine for this.
+    this.setupVertexAttribute =  function( data, name, size) {
+        gl.useProgram(this.program)
+        var bufferV = gl.createBuffer()
+        gl.bindBuffer( gl.ARRAY_BUFFER, bufferV)
+        gl.bufferData(gl.ARRAY_BUFFER, flatten(data), gl.STATIC_DRAW)
+        var vPosition = gl.getAttribLocation( this.program, name )
+        gl.vertexAttribPointer( vPosition, size, gl.FLOAT, false, 0, 0 )
+        gl.enableVertexAttribArray( vPosition )
+    }
+    
     this.changeImage = function(image) {
+        gl.useProgram(this.program)
+        gl.activeTexture( gl.TEXTURE0 )
         this.changeViewPort(image.width, image.height)
         this.configTexture( this.texture1, image)
         this.image = image
@@ -69,13 +72,14 @@ function glSobel() {
     }
 
     this.render = function() {
-        gl.bindFramebuffer( gl.FRAMEBUFFER, null)
+        gl.useProgram(this.program) 
+        gl.bindTexture(gl.TEXTURE_2D, this.texture1);
         gl.clear( gl.COLOR_BUFFER_BIT )
         gl.drawArrays(gl.TRIANGLES, 0, 6)
     }
 
     this.configTexture = function( tex, image) {
-        var td = gl.getUniformLocation(this.programSobel, 'texDimensions')
+        var td = gl.getUniformLocation(this.program, 'texDimensions')
         gl.uniform2fv(td, [image.width, image.height])
         gl.bindTexture(gl.TEXTURE_2D, tex);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
