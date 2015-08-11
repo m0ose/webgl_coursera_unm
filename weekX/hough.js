@@ -159,7 +159,8 @@ houghShaders = {
 
         void main() {
             vec4 tcolor = texture2D( texture, fTexCoord.xy);
-            gl_FragColor = vec4(tcolor.zyx,1.0);//tcolor + vec4(grad/3.0, 0.0, 0.0);
+            float direction = (tcolor.y, tcolor.x);
+            gl_FragColor = vec4(direction,0.0,0.0,1.0);//tcolor + vec4(grad/3.0, 0.0, 0.0);
         }
     `,
 }
