@@ -43,8 +43,9 @@ var sobelShaders = {
             vec2 grad;
             grad.x = t00 + 2.0 * t01 + t02 - t20 - 2.0 * t21 - t22;
             grad.y = t00 + 2.0 * t10 + t20 - t02 - 2.0 * t12 - t22;
-
-            gl_FragColor = vec4(grad,0.0,1.0);//tcolor + vec4(grad/3.0, 0.0, 0.0);
+            vec2 gradColor = (1.0+grad)/2.0;
+            float gradMag = 0.0;//sqrt(dot(grad,grad));
+            gl_FragColor = vec4(gradColor,gradMag,1.0);//tcolor + vec4(grad/3.0, 0.0, 0.0);
         }
     `,
 

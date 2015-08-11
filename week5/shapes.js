@@ -13,7 +13,7 @@ var glShapes = {
     vertex1prog: shapeShaders.vertex1,
     frag1prog: shapeShaders.fragment1,
     shapes: [],
-    DRAW_SURFACES:false,
+    DRAW_SURFACES:true,
     DRAW_WIREFRAME:true,
 
     init: function() {
@@ -109,7 +109,7 @@ test1 = function(){
         type:shapeTypes.sphere, 
         center:vec4(1,-1,0,0),
         axis:vec4(0,-1,0,0),
-        stepsX:24,
+        stepsX:36,
         stepsTheta:24,
     })
     var cone = new shapeMaker({type:shapeTypes.cone, 

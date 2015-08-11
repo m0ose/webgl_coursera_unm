@@ -1,5 +1,6 @@
 var shapeTypes = {
     sphere: function(x, theta, dx) {
+        x = Math.sin(Math.PI*x)
         var r = Math.sqrt(1-x*x) 
         if(x>1 || x<-1){ //this is only because of numerical error where sqrt(-0.00000000001) if bad.
             r=0
