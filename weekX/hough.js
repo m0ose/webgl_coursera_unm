@@ -173,8 +173,8 @@ houghShaders = {
             float parallelSum = 0.0;
             for (float i = -1.4 ; i <= 1.4 ; i+=0.001) {
                 vec2 p3 = p1 + lineSlopeNorm * i;
-                vec2 t3 = 2.0*texture2D( texture, p3).xy - 1.0;
                 if( p3.x <= 1.0 && p3.y <= 1.0 && p3.x >= 0.0 && p3.y >= 0.0){
+                    vec2 t3 = 2.0*texture2D( texture, p3).xy - 1.0;
                     parallelSum += abs( dot(t3, p1Norm))/8192.0;
                 }
             }
