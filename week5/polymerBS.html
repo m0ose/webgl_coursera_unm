@@ -1,5 +1,6 @@
-<link rel="import"
-      href="http://www.polymer-project.org/0.5/components/polymer/polymer.html">
+<link rel="import" href="http://www.polymer-project.org/1.0/components/polymer/polymer.html">
+<!--<link rel="import" href="https://www.polymer-project.org/0.5/components/core-resizable/core-resizable.html">
+-->
 
 <polymer-element name="shape-menu">  
   <template>
@@ -7,7 +8,7 @@
       <div>
       &#123;{ letter.name }}
       <ul>
-      <li>rotation: <input oninput="glShapes.render()" type="range" value="{{letter.rotation}}" min=0 max=360></li>
+        <li>rotation: <input oninput="glShapes.render()" type="range" value="{{letter.rotation}}" min=0 max=360></li>
         <li>scaleX: <input oninput="glShapes.render()" type="range" value="{{letter.scale[0]}}" min=0.1 max=3 step=0.000001></li>
         <li>scaleY: <input oninput="glShapes.render()" type="range" value="{{letter.scale[1]}}" min=0.1 max=3 step=0.000001></li>
         <li>scaleZ: <input oninput="glShapes.render()" type="range" value="{{letter.scale[2]}}" min=0.1 max=3 step=0.000001></li>
@@ -17,13 +18,13 @@
         <li>centerX: <input oninput="glShapes.render()" type="range" value="{{letter.center[0]}}" min=-1 max=1 step=0.000001></li>
         <li>centerY: <input oninput="glShapes.render()" type="range" value="{{letter.center[1]}}" min=-1 max=1 step=0.000001></li>
         <li>centerZ: <input oninput="glShapes.render()" type="range" value="{{letter.center[2]}}" min=-1 max=1 step=0.000001></li>
-        </ul>
+      </ul>
       </div>
     </template>
   </template>
   <script>
     Polymer('shape-menu', {
-      shapes: [],
+      shapes: ['a'],
       ready: function() {
         glShapes.init()
         //this.dung = glShapes.shapes 
