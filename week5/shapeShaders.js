@@ -31,18 +31,18 @@ var shapeShaders = {
         }
 
         void main() {
+            // scale
+            vec3 p1 = vPosition.xyz * scale.xyz;
+            // rotation
             float c = cos(radians(vRotation)/2.0);
             float s = sin(radians(vRotation)/2.0);
             vec4 axis = normalize(vAxis);
             vec4 r = vec4(c, s*axis);
             //vec4 p = vPosition;
-            vec4 p = vec4(0.0, vPosition.xyz);  // input point quaternion
+            vec4 p = vec4(0.0, p1);  // input point quaternion
             p = multq(r, multq(p, invq(r))); // rotated point quaternion
             p = vec4( p.yzw, 1.0); // convert back to homogeneous coordinates
-            //scale
-            p.x = p.x * scale.x;
-            p.y = p.y * scale.y;
-            p.z = p.z * scale.z;
+
             // shift center
             p = p + vCenter;
             gl_Position = projection*p;
