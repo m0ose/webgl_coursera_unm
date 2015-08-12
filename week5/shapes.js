@@ -118,6 +118,7 @@ test1 = function(){
         axis:vec4(3,7,5,0),
         rotation:45,
         stepsX:5,
+        name:'cone',
     })
     var cyl = new shapeMaker({type:shapeTypes.cylinder, 
         color:vec4(0.1,0.1,0.1,1), 
@@ -125,7 +126,8 @@ test1 = function(){
         axis:vec4(1,2,1,0),
         rotation:-45,
         stepsX:2,
-        scale:vec4(0.5,0.5,0.5,0)
+        scale:vec4(0.5,0.5,0.5,0),
+        name:'cylinder',
     })
     var leaf = new shapeMaker({
         type:shapeTypes.cannabis, 
@@ -135,7 +137,8 @@ test1 = function(){
         rotation:-45,
         stepsX:5,
         stepsTheta:200,
-        scale:vec4(0.5,0.5,0.5,0)
+        scale:vec4(0.5,0.5,0.5,0),
+        name:'leaf',
     })
     var shell = new shapeMaker({
         type:shapeTypes.shell, 
@@ -144,7 +147,8 @@ test1 = function(){
         axis:vec4(1,1,0,0),
         stepsX:24,
         stepsTheta:120,
-        scale:vec4(0.5,0.5,0.5,0)
+        scale:vec4(0.5,0.5,0.5,0),
+        name:'shell',
     })
     glShapes.shapes.push(sph)
     glShapes.shapes.push(cone)
@@ -154,20 +158,19 @@ test1 = function(){
     //
     glShapes.render()
 
-    setInterval( function(){ 
+    /*setInterval( function(){ 
         for(var i=0; i < glShapes.shapes.length; i++) {
             var sh = glShapes.shapes[i]
             sh.rotation += 5
+            sh.rotation = sh.rotation%360
         }
         glShapes.render()
-    }, 60)
+    }, 1500)
+*/
 }
 
 
 
 
-window.onload = function(){
-    glShapes.init()
-    test1()
-}
+
 
