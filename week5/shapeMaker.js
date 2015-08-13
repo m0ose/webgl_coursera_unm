@@ -78,6 +78,7 @@ var shapeMaker = function(options){
     this.init = function(options) {
         var defaults = {
             type:shapeTypes.sphere,
+            name:'sphere',
             color:vec4(0,0,1,1),
             stepsX:10,
             stepsTheta:10,

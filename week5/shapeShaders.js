@@ -30,19 +30,30 @@ var shapeShaders = {
            return(vec4(a.x, -a.yzw)/dot(a,a));
         }
 
+        vec4 rotateQuat(vec3 p, vec4 q1) {
+            vec4 p1 = vec4(0.0, p);  // input point quaternion
+            p1 = multq(q1, multq(p1, invq(q1))); // rotated point quaternion
+            p1 = vec4( p1.yzw, 1.0); // convert back to homogeneous coordinates
+            return p1;
+        }
+
+        vec4 rotateOnY(vec3 p, float angleDegrees) {
+            mat3 m;
+            float angle = radians(angleDegrees);
+            float c = cos(angle);
+            float s = sin(angle);
+            m[0] = vec3(c,0.0,-s);
+            m[1] = vec3(0.0,1.0,0.0);
+            m[2] = vec3(s,0.0,c);
+            return vec4(m*p,1.0);
+        }
+
         void main() {
             // scale
             vec3 p1 = vPosition.xyz * scale.xyz;
             // rotation
-            float c = cos(radians(vRotation)/2.0);
-            float s = sin(radians(vRotation)/2.0);
-            vec4 axis = normalize(vAxis);
-            vec4 r = vec4(c, s*axis);
-            //vec4 p = vPosition;
-            vec4 p = vec4(0.0, p1);  // input point quaternion
-            p = multq(r, multq(p, invq(r))); // rotated point quaternion
-            p = vec4( p.yzw, 1.0); // convert back to homogeneous coordinates
-
+            vec4 p1r = rotateOnY(p1, vRotation);
+            vec4 p = rotateQuat(p1r.xyz,vAxis);
             // shift center
             p = p + vCenter;
             gl_Position = projection*p;
@@ -54,9 +65,8 @@ var shapeShaders = {
             fLight1 = projection * light1;
             // normal, must also be rotated
             vec3 norm = normalize(vNormal.xyz);
-            vec4 pn = vec4(0.0, norm);  // input point quaternion
-            pn = multq(r, multq(pn, invq(r))); // rotated point quaternion
-            pn = vec4( pn.yzw, 1.0); // convert back to homogeneous coordinates
+            vec4 nr = rotateOnY(norm, vRotation);
+            vec4 pn = rotateQuat(normalize(nr.xyz), vAxis);
             fNormal = projection*pn;
         }
     `,
@@ -69,7 +79,7 @@ var shapeShaders = {
         varying vec4 fPosition;
         varying float fWireFrame;
         void main() {
-            vec3 eye = vec3(0.0,0.0,-10.0);
+            vec3 eye = vec3(0.0,0.0,-16.0);
             vec3 diffuseColor = vec3(0.1,0.1,0.1);
             vec3 specColor = vec3(1.0,1.0,1.0);
             vec3 normal = normalize(fNormal.xyz);
@@ -77,11 +87,11 @@ var shapeShaders = {
             vec3 reflectDir = reflect(-fLight1.xyz, fNormal.xyz);
             vec3 viewDir = normalize(-eye.xyz);
             vec3 fColor2 = fColor.xyz;
-            float lambertian = max(dot(fLight1.xyz,fNormal.xyz), 0.0);
+            float lambertian = 40.0*max(dot(fLight1.xyz,fNormal.xyz), 0.0);
             float specular = 0.0;
             if(lambertian > 0.0) {
                float specAngle = max(dot(reflectDir, viewDir), 0.0);
-               specular = pow(specAngle, 4.0);
+               specular = 10.0*pow(specAngle, 4.0);
             }
             if( fWireFrame > 0.0) {
                 fColor2.xyz = vec3(0.0,1.0,0.0);
