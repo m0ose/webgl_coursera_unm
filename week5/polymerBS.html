@@ -26,6 +26,9 @@
           <li>centerX: <input oninput="glShapes.render()" type="range" value="{{curr.center[0]}}" min=-10 max=10 step=0.000001></li>
           <li>centerY: <input oninput="glShapes.render()" type="range" value="{{curr.center[1]}}" min=-10 max=10 step=0.000001></li>
           <li>centerZ: <input oninput="glShapes.render()" type="range" value="{{curr.center[2]}}" min=-10 max=10 step=0.000001></li>
+          <section on-click={{rmSelected}} fuck="{{ curr.name }}">
+           <button>remove</button>
+         </section>
         </ul>
       </div>
     </template>
@@ -47,14 +50,28 @@
         return "block"
       },
       rowSelected: function(e, detail, sender) { 
-          var name = e.target.getAttribute('fuck')
+          var name = sender.getAttribute('fuck')
           for(var i=0; i<this.shapes.length; i++){
             var sh = this.shapes[i]
             if(sh.name == name){
               console.log('polymer sucks ass')
-              sh.selected = !sh.selected
+              sh.selected = true
+            } else {
+              sh.selected = false
             }
           }
+          glShapes.render()
+      },
+      rmSelected: function(e, detail, sender) { 
+          var name = sender.getAttribute('fuck')
+          for(var i=0; i<this.shapes.length; i++){
+            var sh = this.shapes[i]
+            if(sh.name == name){
+              console.log('polymer sucks ass')
+              this.shapes.splice(i, 1)
+            }
+          }
+          glShapes.render()
       }
     });
   </script>
