@@ -30,7 +30,8 @@ var glShapes = {
         gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
         gl.lineWidth(1)
         this.projMatrix = mat4()
-        this.projMatrix[0][0] = this.projMatrix[1][1] = this.projMatrix[2][2] = 0.4
+        // zoom out
+        this.projMatrix[0][0] = this.projMatrix[1][1] = this.projMatrix[2][2] = 0.1
         //
         this.setupProgram()
     },
@@ -100,11 +101,65 @@ var glShapes = {
             }
    
         }
+    },
+
+    addShape : function( type, options) {
+        var result 
+        for(var i=0; i<this.shapes.length; i++){
+            this.shapes[i].selected = false
+        }
+        if( type == 'sphere') {
+            var result = new shapeMaker({
+                selected:true,
+                type:shapeTypes.sphere, 
+                stepsX:36,
+                stepsTheta:24,
+            })
+        } else if( type == 'cylinder') {
+            var result = new shapeMaker({type:shapeTypes.cylinder, 
+                selected:true,
+                color:vec4(0.1,0.1,0.1,1), 
+                stepsX:2,
+                name:'cylinder',
+            })
+        } else if( type == 'cone') {
+            var result = new shapeMaker({type:shapeTypes.cone, 
+                selected:true,
+                color:vec4(1,0,0,1), 
+                stepsX:5,
+                name:'cone',
+            })
+        } else if( type == 'leaf') {
+            var result = new shapeMaker({
+                selected:true,
+                type:shapeTypes.cannabis, 
+                color:vec4(0,1,0,1), 
+                stepsX:5,
+                axis:vec4(0,1,1,0),
+                rotation:90,
+                stepsTheta:200,
+                name:'leaf',
+            })
+        } else if( type == 'shell') {
+            var result = new shapeMaker({
+                selected:true,
+                type:shapeTypes.shell, 
+                stepsX:24,
+                stepsTheta:120,
+                name:'shell',
+            })
+        } else {
+            throw('shape name not recognised')
+        }
+        this.shapes.push(result)
+        this.render()
+        //
+        return result
     }
 }
 
 test1 = function(){
-    var tri = new shapeMaker()
+    /*var tri = new shapeMaker()
     var sph = new shapeMaker({
         type:shapeTypes.sphere, 
         center:vec4(1,-1,0,0),
@@ -155,6 +210,7 @@ test1 = function(){
     glShapes.shapes.push(cyl)
     glShapes.shapes.push(shell)
     glShapes.shapes.push(leaf)
+    */
     //
     glShapes.render()
 
