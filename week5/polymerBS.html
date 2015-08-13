@@ -10,25 +10,23 @@
     <button onclick="glShapes.addShape('shell')">add shell</button>
     <button onclick="glShapes.addShape('leaf')">add leaf</button>
 
-    <template repeat="&#123;{ letter in shapes }}">
-      <div>
-      <template>
-        <div>Am I actually suprised this won't work? No. nothing in polymer works right</div>
-      </template>
-      <count-button></count-button>
-      &#123;{ letter.name }}
-      <ul style="display:{{letter.selected | fooBar}}" >
-        <li>rotation: <input oninput="glShapes.render()" type="range" value="{{letter.rotation}}" min=0 max=360></li>
-        <li>scaleX: <input oninput="glShapes.render()" type="range" value="{{letter.scale[0]}}" min=0.1 max=3 step=0.000001></li>
-        <li>scaleY: <input oninput="glShapes.render()" type="range" value="{{letter.scale[1]}}" min=0.1 max=3 step=0.000001></li>
-        <li>scaleZ: <input oninput="glShapes.render()" type="range" value="{{letter.scale[2]}}" min=0.1 max=3 step=0.000001></li>
-        <li>axisX: <input oninput="glShapes.render()" type="range" value="{{letter.axis[0]}}" min=-1 max=1 step=0.000001></li>
-        <li>axisY: <input oninput="glShapes.render()" type="range" value="{{letter.axis[1]}}" min=-1 max=1 step=0.000001></li>
-        <li>axisZ: <input oninput="glShapes.render()" type="range" value="{{letter.axis[2]}}" min=-1 max=1 step=0.000001></li>
-        <li>centerX: <input oninput="glShapes.render()" type="range" value="{{letter.center[0]}}" min=-1 max=1 step=0.000001></li>
-        <li>centerY: <input oninput="glShapes.render()" type="range" value="{{letter.center[1]}}" min=-1 max=1 step=0.000001></li>
-        <li>centerZ: <input oninput="glShapes.render()" type="range" value="{{letter.center[2]}}" min=-1 max=1 step=0.000001></li>
-      </ul>
+    <template repeat="{{ curr in shapes }}">
+      <div style="   border-style: solid; border-width: 1px; border-radius:10px">
+        <section on-click={{rowSelected}} fuck="{{ curr.name }}">
+           {{ curr.name }}
+         </section>
+        <ul style="display:{{curr.selected | fooBar}}" >
+          <li>rotation: <input oninput="glShapes.render()" type="range" value="{{curr.rotation}}" min=0 max=360></li>
+          <li>scaleX: <input oninput="glShapes.render()" type="range" value="{{curr.scale[0]}}" min=0.1 max=3 step=0.000001></li>
+          <li>scaleY: <input oninput="glShapes.render()" type="range" value="{{curr.scale[1]}}" min=0.1 max=3 step=0.000001></li>
+          <li>scaleZ: <input oninput="glShapes.render()" type="range" value="{{curr.scale[2]}}" min=0.1 max=3 step=0.000001></li>
+          <li>axisX: <input oninput="glShapes.render()" type="range" value="{{curr.axis[0]}}" min=-1 max=1 step=0.000001></li>
+          <li>axisY: <input oninput="glShapes.render()" type="range" value="{{curr.axis[1]}}" min=-1 max=1 step=0.000001></li>
+          <li>axisZ: <input oninput="glShapes.render()" type="range" value="{{curr.axis[2]}}" min=-1 max=1 step=0.000001></li>
+          <li>centerX: <input oninput="glShapes.render()" type="range" value="{{curr.center[0]}}" min=-10 max=10 step=0.000001></li>
+          <li>centerY: <input oninput="glShapes.render()" type="range" value="{{curr.center[1]}}" min=-10 max=10 step=0.000001></li>
+          <li>centerZ: <input oninput="glShapes.render()" type="range" value="{{curr.center[2]}}" min=-10 max=10 step=0.000001></li>
+        </ul>
       </div>
     </template>
   </template>
@@ -41,9 +39,6 @@
         test1()
         this.shapes = glShapes.shapes
       },
-      selectShape: function(type) {
-        console.log('add')
-      },
       fooBar: function(value) {
         console.log('value', value)
         if (!value) {
@@ -51,7 +46,16 @@
         }
         return "block"
       },
-      increment: function(e, detail, sender) { console.log('funky',e,detail,sender) }
+      rowSelected: function(e, detail, sender) { 
+          var name = e.target.getAttribute('fuck')
+          for(var i=0; i<this.shapes.length; i++){
+            var sh = this.shapes[i]
+            if(sh.name == name){
+              console.log('polymer sucks ass')
+              sh.selected = !sh.selected
+            }
+          }
+      }
     });
   </script>
 </polymer-element>  

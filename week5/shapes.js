@@ -15,6 +15,7 @@ var glShapes = {
     shapes: [],
     DRAW_SURFACES:true,
     DRAW_WIREFRAME:true,
+    shapeCount:0,
 
     init: function() {
         console.log("Init")
@@ -105,6 +106,8 @@ var glShapes = {
 
     addShape : function( type, options) {
         var result 
+        this.shapeCount += 1; //this is for stupid polymer. Im done trying to learn this stupid framework. waste of time.
+        var sc = this.shapeCount
         for(var i=0; i<this.shapes.length; i++){
             this.shapes[i].selected = false
         }
@@ -114,20 +117,21 @@ var glShapes = {
                 type:shapeTypes.sphere, 
                 stepsX:36,
                 stepsTheta:24,
+                name:'sphere_' + sc
             })
         } else if( type == 'cylinder') {
             var result = new shapeMaker({type:shapeTypes.cylinder, 
                 selected:true,
                 color:vec4(0.1,0.1,0.1,1), 
                 stepsX:2,
-                name:'cylinder',
+                name:'cylinder_' + sc,
             })
         } else if( type == 'cone') {
             var result = new shapeMaker({type:shapeTypes.cone, 
                 selected:true,
                 color:vec4(1,0,0,1), 
                 stepsX:5,
-                name:'cone',
+                name:'cone_' + sc,
             })
         } else if( type == 'leaf') {
             var result = new shapeMaker({
@@ -138,7 +142,7 @@ var glShapes = {
                 axis:vec4(0,1,1,0),
                 rotation:90,
                 stepsTheta:200,
-                name:'leaf',
+                name:'leaf_' + sc,
             })
         } else if( type == 'shell') {
             var result = new shapeMaker({
@@ -146,7 +150,7 @@ var glShapes = {
                 type:shapeTypes.shell, 
                 stepsX:24,
                 stepsTheta:120,
-                name:'shell',
+                name:'shell_' + sc,
             })
         } else {
             throw('shape name not recognised')
