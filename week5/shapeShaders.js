@@ -51,10 +51,8 @@ var shapeShaders = {
         void main() {
             // scale
             vec3 p1 = vPosition.xyz * scale.xyz;
-
             // rotation
             vec4 p1r = rotateOnY(p1, vRotation);
-
             vec4 p = rotateQuat(p1r.xyz,vAxis);
             // shift center
             p = p + vCenter;
@@ -67,7 +65,8 @@ var shapeShaders = {
             fLight1 = projection * light1;
             // normal, must also be rotated
             vec3 norm = normalize(vNormal.xyz);
-            vec4 pn = rotateQuat(norm, vAxis);
+            vec4 nr = rotateOnY(norm, vRotation);
+            vec4 pn = rotateQuat(normalize(nr.xyz), vAxis);
             fNormal = projection*pn;
         }
     `,
@@ -88,7 +87,7 @@ var shapeShaders = {
             vec3 reflectDir = reflect(-fLight1.xyz, fNormal.xyz);
             vec3 viewDir = normalize(-eye.xyz);
             vec3 fColor2 = fColor.xyz;
-            float lambertian = 10.0*max(dot(fLight1.xyz,fNormal.xyz), 0.0);
+            float lambertian = 40.0*max(dot(fLight1.xyz,fNormal.xyz), 0.0);
             float specular = 0.0;
             if(lambertian > 0.0) {
                float specAngle = max(dot(reflectDir, viewDir), 0.0);
