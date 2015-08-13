@@ -1,5 +1,4 @@
 <link rel="import" href="http://www.polymer-project.org/0.5/components/polymer/polymer.html">
-<link rel="import" href="./polymerSucks.html">
 
 
 <polymer-element name="shape-menu">  
@@ -17,15 +16,24 @@
          </section>
         <ul style="display:{{curr.selected | fooBar}}" >
           <li>rotation: <input oninput="glShapes.render()" type="range" value="{{curr.rotation}}" min=0 max=360></li>
-          <li>scaleX: <input oninput="glShapes.render()" type="range" value="{{curr.scale[0]}}" min=0.1 max=3 step=0.000001></li>
-          <li>scaleY: <input oninput="glShapes.render()" type="range" value="{{curr.scale[1]}}" min=0.1 max=3 step=0.000001></li>
-          <li>scaleZ: <input oninput="glShapes.render()" type="range" value="{{curr.scale[2]}}" min=0.1 max=3 step=0.000001></li>
-          <li>axisX: <input oninput="glShapes.render()" type="range" value="{{curr.axis[0]}}" min=-1 max=1 step=0.000001></li>
-          <li>axisY: <input oninput="glShapes.render()" type="range" value="{{curr.axis[1]}}" min=-1 max=1 step=0.000001></li>
-          <li>axisZ: <input oninput="glShapes.render()" type="range" value="{{curr.axis[2]}}" min=-1 max=1 step=0.000001></li>
-          <li>centerX: <input oninput="glShapes.render()" type="range" value="{{curr.center[0]}}" min=-10 max=10 step=0.000001></li>
-          <li>centerY: <input oninput="glShapes.render()" type="range" value="{{curr.center[1]}}" min=-10 max=10 step=0.000001></li>
-          <li>centerZ: <input oninput="glShapes.render()" type="range" value="{{curr.center[2]}}" min=-10 max=10 step=0.000001></li>
+          <li>scaleX: <input oninput="glShapes.render()" type="range" value="{{curr.scale[0]}}" min=0.1 max=3 step=0.000001>
+            {{curr.scale[0]}}</li>
+          <li>scaleY: <input oninput="glShapes.render()" type="range" value="{{curr.scale[1]}}" min=0.1 max=3 step=0.000001>
+            {{curr.scale[1]}}</li>
+          <li>scaleZ: <input oninput="glShapes.render()" type="range" value="{{curr.scale[2]}}" min=0.1 max=3 step=0.000001>
+            {{curr.scale[2]}}</li>
+          <li>axisX: <input oninput="glShapes.render()" type="range" value="{{curr.axis[0]}}" min=-1 max=1 step=0.000001>
+            {{curr.axis[0]}}</li>
+          <li>axisY: <input oninput="glShapes.render()" type="range" value="{{curr.axis[1]}}" min=-1 max=1 step=0.000001>
+            {{curr.axis[1]}}</li>
+          <li>axisZ: <input oninput="glShapes.render()" type="range" value="{{curr.axis[2]}}" min=-1 max=1 step=0.000001>
+            {{curr.axis[2]}}</li>
+          <li>centerX: <input oninput="glShapes.render()" type="range" value="{{curr.center[0]}}" min=-10 max=10 step=0.000001>
+            {{curr.center[0]}}</li>
+          <li>centerY: <input oninput="glShapes.render()" type="range" value="{{curr.center[1]}}" min=-10 max=10 step=0.000001>
+            {{curr.center[1]}}</li>
+          <li>centerZ: <input oninput="glShapes.render()" type="range" value="{{curr.center[2]}}" min=-10 max=10 step=0.000001>
+            {{curr.center[2]}}</li>
           <section on-click={{rmSelected}} fuck="{{ curr.name }}">
            <button>remove</button>
          </section>
