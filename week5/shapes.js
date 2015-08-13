@@ -15,6 +15,7 @@ var glShapes = {
     shapes: [],
     DRAW_SURFACES:true,
     DRAW_WIREFRAME:true,
+    shapeCount:0,
 
     init: function() {
         console.log("Init")
@@ -30,7 +31,8 @@ var glShapes = {
         gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
         gl.lineWidth(1)
         this.projMatrix = mat4()
-        this.projMatrix[0][0] = this.projMatrix[1][1] = this.projMatrix[2][2] = 0.4
+        // zoom out
+        this.projMatrix[0][0] = this.projMatrix[1][1] = this.projMatrix[2][2] = 0.1
         //
         this.setupProgram()
     },
@@ -100,11 +102,68 @@ var glShapes = {
             }
    
         }
+    },
+
+    addShape : function( type, options) {
+        var result 
+        this.shapeCount += 1; //this is for stupid polymer. Im done trying to learn this stupid framework. waste of time.
+        var sc = this.shapeCount
+        for(var i=0; i<this.shapes.length; i++){
+            this.shapes[i].selected = false
+        }
+        if( type == 'sphere') {
+            var result = new shapeMaker({
+                selected:true,
+                type:shapeTypes.sphere, 
+                stepsX:36,
+                stepsTheta:24,
+                name:'sphere_' + sc
+            })
+        } else if( type == 'cylinder') {
+            var result = new shapeMaker({type:shapeTypes.cylinder, 
+                selected:true,
+                color:vec4(0.1,0.1,0.1,1), 
+                stepsX:2,
+                name:'cylinder_' + sc,
+            })
+        } else if( type == 'cone') {
+            var result = new shapeMaker({type:shapeTypes.cone, 
+                selected:true,
+                color:vec4(1,0,0,1), 
+                stepsX:5,
+                name:'cone_' + sc,
+            })
+        } else if( type == 'leaf') {
+            var result = new shapeMaker({
+                selected:true,
+                type:shapeTypes.cannabis, 
+                color:vec4(0,1,0,1), 
+                stepsX:5,
+                axis:vec4(0,1,1,0),
+                rotation:90,
+                stepsTheta:200,
+                name:'leaf_' + sc,
+            })
+        } else if( type == 'shell') {
+            var result = new shapeMaker({
+                selected:true,
+                type:shapeTypes.shell, 
+                stepsX:24,
+                stepsTheta:120,
+                name:'shell_' + sc,
+            })
+        } else {
+            throw('shape name not recognised')
+        }
+        this.shapes.push(result)
+        this.render()
+        //
+        return result
     }
 }
 
 test1 = function(){
-    var tri = new shapeMaker()
+    /*var tri = new shapeMaker()
     var sph = new shapeMaker({
         type:shapeTypes.sphere, 
         center:vec4(1,-1,0,0),
@@ -118,6 +177,7 @@ test1 = function(){
         axis:vec4(3,7,5,0),
         rotation:45,
         stepsX:5,
+        name:'cone',
     })
     var cyl = new shapeMaker({type:shapeTypes.cylinder, 
         color:vec4(0.1,0.1,0.1,1), 
@@ -125,7 +185,8 @@ test1 = function(){
         axis:vec4(1,2,1,0),
         rotation:-45,
         stepsX:2,
-        scale:vec4(0.5,0.5,0.5,0)
+        scale:vec4(0.5,0.5,0.5,0),
+        name:'cylinder',
     })
     var leaf = new shapeMaker({
         type:shapeTypes.cannabis, 
@@ -135,7 +196,8 @@ test1 = function(){
         rotation:-45,
         stepsX:5,
         stepsTheta:200,
-        scale:vec4(0.5,0.5,0.5,0)
+        scale:vec4(0.5,0.5,0.5,0),
+        name:'leaf',
     })
     var shell = new shapeMaker({
         type:shapeTypes.shell, 
@@ -144,30 +206,31 @@ test1 = function(){
         axis:vec4(1,1,0,0),
         stepsX:24,
         stepsTheta:120,
-        scale:vec4(0.5,0.5,0.5,0)
+        scale:vec4(0.5,0.5,0.5,0),
+        name:'shell',
     })
     glShapes.shapes.push(sph)
     glShapes.shapes.push(cone)
     glShapes.shapes.push(cyl)
     glShapes.shapes.push(shell)
     glShapes.shapes.push(leaf)
+    */
     //
     glShapes.render()
 
-    setInterval( function(){ 
+    /*setInterval( function(){ 
         for(var i=0; i < glShapes.shapes.length; i++) {
             var sh = glShapes.shapes[i]
             sh.rotation += 5
+            sh.rotation = sh.rotation%360
         }
         glShapes.render()
-    }, 60)
+    }, 1500)
+*/
 }
 
 
 
 
-window.onload = function(){
-    glShapes.init()
-    test1()
-}
+
 
