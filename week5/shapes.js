@@ -14,7 +14,7 @@ var glShapes = {
     frag1prog: shapeShaders.fragment1,
     shapes: [],
     DRAW_SURFACES:true,
-    DRAW_WIREFRAME:true,
+    //DRAW_WIREFRAME:true,
     shapeCount:0,
     lightDir:[12,-12,6,1],
 
@@ -97,11 +97,10 @@ var glShapes = {
                 gl.drawArrays( gl.TRIANGLES, 0, verts.vertices.length/4 )
             }
             // draw wireframe
-            if( this.DRAW_WIREFRAME) {
+            if( sh.wireframe) {
                 gl.uniform1f( this.locaWireFrame, 1)
                 gl.drawArrays( gl.LINES, 0, verts.vertices.length/4 )
             }
-   
         }
     },
 
@@ -114,7 +113,6 @@ var glShapes = {
         }
         if( type == 'sphere') {
             var result = new shapeMaker({
-                selected:true,
                 type:shapeTypes.sphere, 
                 stepsX:36,
                 stepsTheta:24,
@@ -122,21 +120,18 @@ var glShapes = {
             })
         } else if( type == 'cylinder') {
             var result = new shapeMaker({type:shapeTypes.cylinder, 
-                selected:true,
                 color:vec4(0.1,0.1,0.1,1), 
                 stepsX:2,
                 name:'cylinder_' + sc,
             })
         } else if( type == 'cone') {
             var result = new shapeMaker({type:shapeTypes.cone, 
-                selected:true,
                 color:vec4(1,0,0,1), 
                 stepsX:5,
                 name:'cone_' + sc,
             })
         } else if( type == 'leaf') {
             var result = new shapeMaker({
-                selected:true,
                 type:shapeTypes.cannabis, 
                 color:vec4(0,1,0,1), 
                 stepsX:5,
@@ -147,7 +142,6 @@ var glShapes = {
             })
         } else if( type == 'shell') {
             var result = new shapeMaker({
-                selected:true,
                 type:shapeTypes.shell, 
                 stepsX:24,
                 stepsTheta:120,

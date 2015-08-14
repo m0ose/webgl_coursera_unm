@@ -92,17 +92,15 @@ var shapeShaders = {
             vec3 viewDir = normalize(eye.xyz-fPosition.xyz);
             float specAngle = max(dot(r,viewDir), 0.0);
             float specular = 0.12*pow(specAngle, 4.0);
-            //
-            vec3 fColor2 = fColor.xyz;
+            // wireframe
+            vec3 wireColor = vec3(0.0,0.0,0.0);
             if( fWireFrame > 0.0) {
-                fColor2.xyz = vec3(0.0,1.0,0.0);
+                wireColor = vec3(0.0,0.8,0.0);
             }
-            gl_FragColor = vec4(0.3*fColor2.xyz +
+            gl_FragColor = vec4( wireColor +
+                              0.3*fColor.xyz +
                               diffuse*diffuseColor +
                               specular*specColor, 1.0);
-            
-
-            //gl_FragColor = vec4(fNormal.xyz, 1.0);//fColor;
         }
     `,
 
