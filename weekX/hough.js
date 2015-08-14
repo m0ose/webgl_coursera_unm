@@ -134,6 +134,14 @@ function glHough() {
         }
     }
 
+    this.readPixels = function() {
+        gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer)
+        var pixels = new Uint8Array(this.canvas.width*this.canvas.height * 4);
+        gl.readPixels(0, 0, this.canvas.width, this.canvas.height, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+        return pixels
+        //pixels = new Float32Array(pixels.buffer);
+    }
+
     this.init()
 }
 

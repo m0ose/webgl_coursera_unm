@@ -91,7 +91,7 @@ var shapeShaders = {
             vec3 r = I - 2.0 * dot(N,I) * N;
             vec3 viewDir = normalize(eye.xyz-fPosition.xyz);
             float specAngle = max(dot(r,viewDir), 0.0);
-            float specular = 0.12*pow(specAngle, 4.0);
+            float specular = 0.12*pow(specAngle, 3.0);
             // wireframe
             vec3 wireColor = vec3(0.0,0.0,0.0);
             if( fWireFrame > 0.0) {
