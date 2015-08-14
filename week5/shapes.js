@@ -75,8 +75,12 @@ var glShapes = {
         return buff
     },
 
-
     render: function() {
+        // this keeps events from piling up as much
+        requestAnimationFrame(this.__render.bind(this))
+    },
+
+    __render: function() {
         gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
         for(var i=0; i < this.shapes.length; i++) {
             var sh = this.shapes[i]
@@ -97,7 +101,7 @@ var glShapes = {
                 gl.drawArrays( gl.TRIANGLES, 0, verts.vertices.length/4 )
             }
             // draw wireframe
-            if( sh.wireframe) {
+            if( sh.wireFrame == true) {
                 gl.uniform1f( this.locaWireFrame, 1)
                 gl.drawArrays( gl.LINES, 0, verts.vertices.length/4 )
             }
@@ -144,7 +148,7 @@ var glShapes = {
             var result = new shapeMaker({
                 type:shapeTypes.shell, 
                 stepsX:24,
-                stepsTheta:120,
+                stepsTheta:60,
                 name:'shell_' + sc,
             })
         } else {

@@ -88,7 +88,7 @@ var shapeMaker = function(options){
             randomColor:false,
             scale:vec4(1,1,1,0),
             selected:true,
-            wireFrame:false,
+            wireFrame:true,
         }
         options = options || {}
         for(var x in options) {

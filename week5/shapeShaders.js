@@ -81,7 +81,7 @@ var shapeShaders = {
         void main() {
             vec3 eye = vec3(-10.0,10.0,-10.0);
             vec3 diffuseColor = vec3(1.0,1.0,1.0);
-            vec3 specColor = vec3(1.0,1.0,1.0);
+            vec3 specColor = vec3(0.5,0.5,0.5);
             // diffuse
             vec3 lightDir = normalize(fLight1.xyz-eye);
             float diffuse = 0.3*max(dot(normalize(lightDir), normalize(fNormal.xyz)), 0.0);

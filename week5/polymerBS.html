@@ -10,9 +10,9 @@
     <button onclick="glShapes.addShape('leaf')">add leaf</button>
 
     <template repeat="{{ curr in shapes }}">
-      <div style="   border-style: solid; border-width: 1px; border-radius:10px">
-        <section on-click={{rowSelected}} fuck="{{ curr.name }}">
-          <div style=" padding: 10px; background-color: lightgrey">
+      <div style="   border-style: solid; border-width: 1px; border-radius:10px;">
+        <section on-click={{rowSelected}} descript="{{ curr.name }}">
+          <div style=" padding: 10px; background-color: #222">
                        {{ curr.name }}
           </div>
          </section>
@@ -37,7 +37,14 @@
             {{curr.center[1]}}</li>
           <li>centerZ: <input oninput="glShapes.render()" type="range" value="{{curr.center[2]}}" min=-10 max=10 step=0.000001>
             {{curr.center[2]}}</li>
-          <section on-click={{rmSelected}} fuck="{{ curr.name }}">
+          <li>
+              <!--<template if="{{!curr.wireFrame}}">Wireframe</template>
+              <template if="{{curr.wireFrame}}">No Wireframe</template>
+              -->
+              WireFrame:
+              <input onclick="glShapes.render()" type="checkbox" checked="{{curr.wireFrame}}">
+          </li>
+          <section on-click={{rmSelected}} descript="{{ curr.name }}">
            <button>remove</button>
          </section>
         </ul>
@@ -61,7 +68,7 @@
         return "block"
       },
       rowSelected: function(e, detail, sender) { 
-          var name = sender.getAttribute('fuck')
+          var name = sender.getAttribute('descript')
           for(var i=0; i<this.shapes.length; i++){
             var sh = this.shapes[i]
             if(sh.name == name){
@@ -74,7 +81,7 @@
           glShapes.render()
       },
       rmSelected: function(e, detail, sender) { 
-          var name = sender.getAttribute('fuck')
+          var name = sender.getAttribute('descript')
           for(var i=0; i<this.shapes.length; i++){
             var sh = this.shapes[i]
             if(sh.name == name){
