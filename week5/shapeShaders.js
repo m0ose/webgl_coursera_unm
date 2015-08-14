@@ -79,25 +79,26 @@ var shapeShaders = {
         varying vec4 fPosition;
         varying float fWireFrame;
         void main() {
-            vec3 eye = vec3(0.0,0.0,-16.0);
-            vec3 diffuseColor = vec3(0.1,0.1,0.1);
+            vec3 eye = vec3(-10.0,10.0,-10.0);
+            vec3 diffuseColor = vec3(1.0,1.0,1.0);
             vec3 specColor = vec3(1.0,1.0,1.0);
-            vec3 normal = normalize(fNormal.xyz);
-            vec3 lightDir = normalize(fLight1.xyz - eye);
-            vec3 reflectDir = reflect(-fLight1.xyz, fNormal.xyz);
-            vec3 viewDir = normalize(-eye.xyz);
+            // diffuse
+            vec3 lightDir = normalize(fLight1.xyz-eye);
+            float diffuse = 0.3*max(dot(normalize(lightDir), normalize(fNormal.xyz)), 0.0);
+            // specular
+            vec3 I = fLight1.xyz - fPosition.xyz;
+            vec3 N = normalize(fNormal.xyz);
+            vec3 r = I - 2.0 * dot(N,I) * N;
+            vec3 viewDir = normalize(eye.xyz-fPosition.xyz);
+            float specAngle = max(dot(r,viewDir), 0.0);
+            float specular = 0.12*pow(specAngle, 4.0);
+            //
             vec3 fColor2 = fColor.xyz;
-            float lambertian = 40.0*max(dot(fLight1.xyz,fNormal.xyz), 0.0);
-            float specular = 0.0;
-            if(lambertian > 0.0) {
-               float specAngle = max(dot(reflectDir, viewDir), 0.0);
-               specular = 10.0*pow(specAngle, 4.0);
-            }
             if( fWireFrame > 0.0) {
                 fColor2.xyz = vec3(0.0,1.0,0.0);
             }
-            gl_FragColor = vec4(0.6*fColor2.xyz +
-                              lambertian*diffuseColor +
+            gl_FragColor = vec4(0.3*fColor2.xyz +
+                              diffuse*diffuseColor +
                               specular*specColor, 1.0);
             
 

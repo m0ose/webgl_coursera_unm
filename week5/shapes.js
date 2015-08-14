@@ -16,6 +16,7 @@ var glShapes = {
     DRAW_SURFACES:true,
     DRAW_WIREFRAME:true,
     shapeCount:0,
+    lightDir:[12,-12,6,1],
 
     init: function() {
         console.log("Init")
@@ -58,7 +59,7 @@ var glShapes = {
         this.locaScale = gl.getUniformLocation( this.program1, "scale")
         // add some lights
         var lightloc = 
-        gl.uniform4fv(gl.getUniformLocation( this.program1, "light1" ), flatten([10,-10,0,1]))
+        gl.uniform4fv(gl.getUniformLocation( this.program1, "light1" ), flatten(this.lightDir))
     },
 
     setupAttribute: function(length, location) {
