@@ -71,7 +71,7 @@
   }
 
   function lookForBrightSpots( imgdata) {
-    var threshold = 300
+    var threshold = 250
     var points=[]
     for( var y=0; y<imgdata.height; y++) {
       for(var x=0; x<imgdata.width; x++) {
@@ -134,15 +134,16 @@
       var p2 = [p1[0]*w, p1[1]*h]
       var lineSlope = [-Math.sin(theta), Math.cos(theta)]//perpindicular to vector to p1
       //normalize(lineSlope);
-      var pL = add(p2, scale(-400,lineSlope))
-      var pR = add(p2, scale(400,lineSlope))
+      var pL = add(p2, scale(-1000,lineSlope))
+      var pR = add(p2, scale(1000,lineSlope))
       //
-      ctx.beginPath()
+    /*  ctx.beginPath()
       ctx.moveTo(0,h)
       ctx.strokeStyle = '#0000ff';
       ctx.lineTo(p2[0], h-p2[1])
       ctx.closePath()
       ctx.stroke()
+      */
       //
       ctx.beginPath()
       ctx.strokeStyle = '#ff0000';
