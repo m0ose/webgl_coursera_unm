@@ -18,6 +18,9 @@ function glHough() {
         vec2(  -1, -1 )
     ];
 
+    this.rgbEncodeOutput = true
+    this.thresholdOutput = 0.0//365// everything above the threshold is kept. make it <= 0 to turn off
+
     this.init = function() {
         //setup webgl
         this.canvas = document.getElementById( "gl-canvas" )
@@ -118,6 +121,8 @@ function glHough() {
         gl.bindTexture(gl.TEXTURE_2D, this.texture1)
         var td = gl.getUniformLocation(this.houghProgram, 'texDimensions')
         gl.uniform2fv(td, [this.image.width, this.image.height])
+        gl.uniform1f(gl.getUniformLocation(this.houghProgram, 'rgbEncode'), 1*this.rgbEncodeOutput);
+        gl.uniform1f(gl.getUniformLocation(this.houghProgram, 'threshold'), 1*this.thresholdOutput);
         gl.drawArrays( gl.TRIANGLES, 0, 6 )
     }
 
@@ -166,8 +171,20 @@ houghShaders = {
     fragment:`
         precision highp float;
         uniform sampler2D texture;
+        uniform float rgbEncode;
+        uniform float threshold;
         varying vec2 fTexCoord;
         varying vec2 texDims;
+
+        vec4 number2Color( float n2) {
+            float n = floor(n2);
+            float bs = 255.0;
+            float r = floor(mod(n,bs*bs*bs)/(bs*bs));
+            float g = floor(mod(n,bs*bs)/(bs));
+            float b = floor(mod(n,bs));
+            vec3 result = vec3(r,g,b)/bs;
+            return vec4(result, 1.0);
+        }
 
         void main() {
             vec4 tcolor = texture2D( texture, fTexCoord.xy);
@@ -183,10 +200,21 @@ houghShaders = {
                 vec2 p3 = p1 + lineSlopeNorm * i;
                 if( p3.x <= 1.0 && p3.y <= 1.0 && p3.x >= 0.0 && p3.y >= 0.0){
                     vec2 t3 = 2.0*texture2D( texture, p3).xy - 1.0;
-                    parallelSum += abs( dot(t3, p1Norm))/8192.0;
+                    parallelSum += abs( dot(t3, p1Norm));
                 }
             }
-            gl_FragColor = vec4(parallelSum*16.0, parallelSum*8.0,parallelSum,1.0);//tcolor;
+            // color the final image
+            gl_FragColor = vec4(parallelSum*16.0, parallelSum*8.0,parallelSum,1.0)/8192.0;//tcolor;
+            if(rgbEncode > 0.0) {
+                gl_FragColor = number2Color(parallelSum);// multiply it so its actually visible
+            }
+            if(threshold > 0.0) {
+                if( parallelSum > threshold){
+                    //gl_FragColor = vec4(1.0,1.0,1.0,1.0);
+                } else {
+                    gl_FragColor = vec4(0.0,0.0,0.0,1.0);
+                }
+            }
         }
     `,
 }
