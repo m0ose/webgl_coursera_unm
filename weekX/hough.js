@@ -66,7 +66,6 @@ function glHough() {
         var status = gl.checkFramebufferStatus(gl.FRAMEBUFFER)
         if(status != gl.FRAMEBUFFER_COMPLETE) alert('Frame Buffer Not Complete')
         gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer)
-        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.texture1, 0)
         //
         //gl.bindFramebuffer(gl.FRAMEBUFFER, null)
     }
@@ -106,7 +105,7 @@ function glHough() {
         }
     }
 
-    this.render = function() {
+    this.render = function( renderToTexture) {
         //draw sobel to texture1 in frame buffer, and texture0 as input
         gl.useProgram(this.sobelProgram) 
         gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer)
@@ -117,7 +116,12 @@ function glHough() {
         gl.drawArrays( gl.TRIANGLES, 0, 6 )
         // draw hough with texture1 as input
         gl.useProgram(this.houghProgram) 
-        gl.bindFramebuffer(gl.FRAMEBUFFER, null)
+        if( renderToTexture ) { 
+            gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer)
+            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.texture0, 0)
+        } else {
+            gl.bindFramebuffer(gl.FRAMEBUFFER, null)
+        }
         gl.bindTexture(gl.TEXTURE_2D, this.texture1)
         var td = gl.getUniformLocation(this.houghProgram, 'texDimensions')
         gl.uniform2fv(td, [this.image.width, this.image.height])
@@ -130,6 +134,7 @@ function glHough() {
         var td = gl.getUniformLocation(this.sobelProgram, 'texDimensions')
         gl.bindTexture(gl.TEXTURE_2D, tex);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+       // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAX_FILTER, gl.LINEAR);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
         gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
@@ -140,6 +145,7 @@ function glHough() {
     }
 
     this.readPixels = function() {
+        this.render(true)
         gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer)
         var pixels = new Uint8Array(this.canvas.width*this.canvas.height * 4);
         gl.readPixels(0, 0, this.canvas.width, this.canvas.height, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
@@ -189,18 +195,17 @@ houghShaders = {
         void main() {
             vec4 tcolor = texture2D( texture, fTexCoord.xy);
             vec2 p0 = fTexCoord.xy;
-            float theta = 1.0*p0.y * 3.141593;
+            float theta = 1.0*p0.y * 3.141592653589;
             float r = (2.0*p0.x-1.0)*2.0;
             vec2 p1 = vec2(cos(theta)*r, sin(theta)*r);
-            vec2 p1Norm = normalize(p1);
-            vec2 lineSlope = vec2(-p1.y, p1.x);//perpindicular to vector to p1
-            vec2 lineSlopeNorm = normalize(lineSlope);
+            vec2 lineSlope = vec2(-sin(theta), cos(theta));//perpindicular to vector to p1
+            vec2 lineSlopeNorm = lineSlope;//normalize(lineSlope);
             float parallelSum = 0.0;
             for (float i = -1.4 ; i <= 1.4 ; i+=0.001) {
                 vec2 p3 = p1 + lineSlopeNorm * i;
                 if( p3.x <= 1.0 && p3.y <= 1.0 && p3.x >= 0.0 && p3.y >= 0.0){
-                    vec2 t3 = 2.0*texture2D( texture, p3).xy - 1.0;
-                    parallelSum += abs( dot(t3, p1Norm));
+                    vec2 sobelGradient = 2.0*texture2D( texture, p3).xy - 1.0;
+                    parallelSum += abs( dot(sobelGradient, normalize(p1)));
                 }
             }
             // color the final image
@@ -209,9 +214,7 @@ houghShaders = {
                 gl_FragColor = number2Color(parallelSum);// multiply it so its actually visible
             }
             if(threshold > 0.0) {
-                if( parallelSum > threshold){
-                    //gl_FragColor = vec4(1.0,1.0,1.0,1.0);
-                } else {
+                if( parallelSum < threshold) {
                     gl_FragColor = vec4(0.0,0.0,0.0,1.0);
                 }
             }

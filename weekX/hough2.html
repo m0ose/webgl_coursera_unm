@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+
+<title>hough transform 2</title>
+
+<!--<script src="../Common/analytics.js"></script>-->
+<script type="text/javascript" src="../Common/webgl-utils.js"></script>
+<script type="text/javascript" src="../Common/initShaders.js"></script>
+<script type="text/javascript" src="../Common/MV.js"></script>
+<script type="text/javascript" src="sobelShaders.js"></script>
+<script type="text/javascript" src="sobel.js"></script>
+<script type="text/javascript" src="hough.js"></script>
+
+
+<body style="background-color:grey;">
+
+<br>
+<div style="float:right">
+  <div>
+      Cody Smith <br>
+      Interactive Computer Graphics with WebGL <br>
+      July 2015 <br>
+  </div>
+  <br>
+
+<script type="text/javascript">
+  window.onload = function() {
+    window.sob = new glHough()
+    loadImage("goboard.jpg")
+  }
+
+  function loadImage( url) {
+    var img = new Image()
+    img.onload = function(){
+      console.time('render')
+      sob.changeImage.bind(sob)(this)
+      //sob.render()
+      console.timeEnd('render')
+      imageLoaded(sob)
+    }
+    img.src = url
+  }
+
+  function imageLoaded( acc) {
+    console.log('image loaded called')
+    var pix = acc.readPixels()
+    var can = document.getElementById('can2d')
+    can.width = acc.canvas.width
+    can.height = acc.canvas.height
+    var ctx = can.getContext('2d')
+    var imgd = ctx.getImageData(0,0,can.width, can.height)
+    imgd.data.set(pix)
+    ctx.putImageData(imgd, 0,0)
+    //
+    var points = lookForBrightSpots(imgd)
+    console.log('points',points)
+    drawPoints(points, ctx)
+    drawLines(acc, points)
+  }
+
+  function color2number(r,g,b,a) {
+    var bs = 255.0;//base
+    var r = Math.floor(r*bs*bs);
+    var g = Math.floor(g*bs);
+    var b = Math.floor(b);
+    var val = r+g+b;
+    if(a < 1.0 || val > bs*bs) {
+      return 0.0;
+    }
+    return val;
+  }
+
+  function lookForBrightSpots( imgdata) {
+    var threshold = 300
+    var points=[]
+    for( var y=0; y<imgdata.height; y++) {
+      for(var x=0; x<imgdata.width; x++) {
+        var index = 4*(y*imgdata.width + x)
+        var r = imgdata.data[index]
+        var g = imgdata.data[index+1]
+        var b = imgdata.data[index+2]
+        var a = imgdata.data[index+3]
+        var val = color2number(r,g,b,a)
+        if(val > threshold) {
+          points.push([x,y])
+        }
+      }
+    }
+    return points
+  }
+
+  function drawPoints(points, context) {
+    context.beginPath()
+    var radius = 5
+    for(p of points) {
+      context.moveTo(p[0],p[1])
+      context.arc(p[0], p[1], radius, 0, 2 * Math.PI, false);
+    }
+    context.lineWidth = 1;
+    context.strokeStyle = '#ff0000';
+    context.stroke();
+  }
+
+  function drawLines( acc, points) {
+    var can = document.getElementById('can2db')
+    var w = can.width = acc.canvas.width
+    var h = can.height = acc.canvas.height
+    var ctx = can.getContext('2d')
+    ctx.drawImage(acc.image,0,0)
+    ctx.beginPath()
+    ctx.strokeStyle = '#ff0000';
+    ctx.fillStyle = '#00ff00'
+    ctx.lineWidth = 1
+    /* // from the shader
+     float theta = 1.0*p0.y * 3.141593;
+            float r = (2.0*p0.x-1.0)*2.0;
+            vec2 p1 = vec2(cos(theta)*r, sin(theta)*r);
+            vec2 p1Norm = normalize(p1);
+            vec2 lineSlope = vec2(-p1.y, p1.x);//perpindicular to vector to p1
+            vec2 lineSlopeNorm = normalize(lineSlope);
+            float parallelSum = 0.0;
+            for (float i = -1.4 ; i <= 1.4 ; i+=0.001) {
+                vec2 p3 = p1 + lineSlopeNorm * i;
+                if( p3.x <= 1.0 && p3.y <= 1.0 && p3.x >= 0.0 && p3.y >= 0.0){
+                    vec2 t3 = 2.0*texture2D( texture, p3).xy - 1.0;
+                    parallelSum += abs( dot(t3, p1Norm));
+                }
+    */
+    for(var p of points) {
+      var pUnit = [p[0]/w, p[1]/(h)]
+      var theta = 1*(pUnit[1] * Math.PI);
+      var r = (2.0*pUnit[0]-1.0)*2.0;
+      var p1 = [Math.cos(theta)*r, Math.sin(theta)*r]
+      var p2 = [p1[0]*w, p1[1]*h]
+      var lineSlope = [-Math.sin(theta), Math.cos(theta)]//perpindicular to vector to p1
+      //normalize(lineSlope);
+      var pL = add(p2, scale(-400,lineSlope))
+      var pR = add(p2, scale(400,lineSlope))
+      //
+      ctx.beginPath()
+      ctx.moveTo(0,h)
+      ctx.strokeStyle = '#0000ff';
+      ctx.lineTo(p2[0], h-p2[1])
+      ctx.closePath()
+      ctx.stroke()
+      //
+      ctx.beginPath()
+      ctx.strokeStyle = '#ff0000';
+      ctx.moveTo(p2[0], h-p2[1])
+      ctx.lineTo(pR[0], h-pR[1])
+      ctx.moveTo(p2[0], h-p2[1])
+      ctx.lineTo(pL[0], h-pL[1])
+      ctx.closePath()
+      ctx.stroke()
+      ctx.fillRect(p2[0], h-p2[1], 12,12)
+    }
+    ctx.stroke()
+  }
+</script>
+  
+</div>
+<button onclick="loadImage('goboard.jpg')">goboard.jpg</button>
+<button onclick="loadImage('diags.png')">diags.png</button>
+<button onclick="loadImage('diags2.png')">diags2.png</button>
+<button onclick="loadImage('lines.png')">lines.png</button>
+<button onclick="loadImage('verts.png')">verts.png</button>
+<button onclick="loadImage('parking.jpg')">parking.jpg</button>
+<br>
+<canvas id='can2d'></canvas>
+<canvas id='can2db'></canvas>
+<canvas id="gl-canvas" width="800" height="768" style=" border-style: solid; border-width: 5px;"></canvas>
+
+Oops ... your browser doesn't support the HTML5 canvas element
+</canvas>
+<br>
+</body>
+</html>
