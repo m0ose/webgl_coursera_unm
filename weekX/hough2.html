@@ -34,15 +34,21 @@
     img.onload = function(){
       console.time('render')
       sob.changeImage.bind(sob)(this)
-      //sob.render()
+      sob.rgbEncodeOutput = false
+      sob.thresholdOutput = 0
+      sob.render()
       console.timeEnd('render')
       imageLoaded(sob)
     }
     img.src = url
   }
 
+  var threshold = 300
+
   function imageLoaded( acc) {
     console.log('image loaded called')
+    acc.rgbEncodeOutput = false
+    acc.thresholdOutput = threshold
     var pix = acc.readPixels()
     var can = document.getElementById('can2d')
     can.width = acc.canvas.width
@@ -52,36 +58,18 @@
     imgd.data.set(pix)
     ctx.putImageData(imgd, 0,0)
     //
-    //var points = lookForBrightSpots(imgd)
     var points = lookForBlobs(imgd, 350)
     //console.log('points',points)
     drawPoints(points, ctx)
     drawLines(acc, points)
   }
 
-  function color2number(r,g,b,a) {
-    var bs = 255.0;//base
-    var r = Math.floor(r*bs*bs);
-    var g = Math.floor(g*bs);
-    var b = Math.floor(b);
-    var val = r+g+b;
-    if(a < 1.0 || val > bs*bs) {
-      return 0.0;
-    }
-    return val;
-  }
-
-  function lookForBlobs(imgdata, threshold) {
-    threshold = threshold || 300
+  function lookForBlobs(imgdata) {
     //mask for blob detector
     var masked = new Int32Array(imgdata.data.length/4)
     for( var i=0; i<imgdata.data.length; i+=4) {
       var r = imgdata.data[i]
-      var g = imgdata.data[i+1]
-      var b = imgdata.data[i+2]
-      var a = imgdata.data[i+3]
-      var val = color2number(r,g,b,a)
-      if( val > threshold) {
+      if( r > 0) {
         masked[Math.floor(i/4)] = 1
       } else {
         masked[Math.floor(i/4)] = -1
@@ -96,25 +84,6 @@
       points.push(b.centroid())
     }
     console.log(blobs)
-    return points
-  }
-
-  function lookForBrightSpots(imgdata) {
-    var threshold = 300
-    var points=[]
-    for( var y=0; y<imgdata.height; y++) {
-      for(var x=0; x<imgdata.width; x++) {
-        var index = 4*(y*imgdata.width + x)
-        var r = imgdata.data[index]
-        var g = imgdata.data[index+1]
-        var b = imgdata.data[index+2]
-        var a = imgdata.data[index+3]
-        var val = color2number(r,g,b,a)
-        if(val > threshold) {
-          points.push([x,y])
-        }
-      }
-    }
     return points
   }
 
@@ -165,14 +134,6 @@
       //normalize(lineSlope);
       var pL = add(p2, scale(-1000,lineSlope))
       var pR = add(p2, scale(1000,lineSlope))
-      //
-    /*  ctx.beginPath()
-      ctx.moveTo(0,h)
-      ctx.strokeStyle = '#0000ff';
-      ctx.lineTo(p2[0], h-p2[1])
-      ctx.closePath()
-      ctx.stroke()
-      */
       //
       ctx.beginPath()
       ctx.strokeStyle = '#ff0000';
