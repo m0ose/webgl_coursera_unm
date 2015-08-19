@@ -10,7 +10,7 @@
 <script type="text/javascript" src="sobelShaders.js"></script>
 <script type="text/javascript" src="sobel.js"></script>
 <script type="text/javascript" src="hough.js"></script>
-
+<script src="../libs/connectedComponents.js"></script>
 
 <body style="background-color:grey;">
 
@@ -52,8 +52,9 @@
     imgd.data.set(pix)
     ctx.putImageData(imgd, 0,0)
     //
-    var points = lookForBrightSpots(imgd)
-    console.log('points',points)
+    //var points = lookForBrightSpots(imgd)
+    var points = lookForBlobs(imgd, 350)
+    //console.log('points',points)
     drawPoints(points, ctx)
     drawLines(acc, points)
   }
@@ -70,8 +71,36 @@
     return val;
   }
 
-  function lookForBrightSpots( imgdata) {
-    var threshold = 250
+  function lookForBlobs(imgdata, threshold) {
+    threshold = threshold || 300
+    //mask for blob detector
+    var masked = new Int32Array(imgdata.data.length/4)
+    for( var i=0; i<imgdata.data.length; i+=4) {
+      var r = imgdata.data[i]
+      var g = imgdata.data[i+1]
+      var b = imgdata.data[i+2]
+      var a = imgdata.data[i+3]
+      var val = color2number(r,g,b,a)
+      if( val > threshold) {
+        masked[Math.floor(i/4)] = 1
+      } else {
+        masked[Math.floor(i/4)] = -1
+      }
+    }
+    //
+    console.log(masked)
+    var blobDetector = new connectedComponentLabeler( imgdata.width, imgdata.height, masked)
+    var blobs = blobDetector.connectAll()
+    var points = []
+    for(b of blobs){
+      points.push(b.centroid())
+    }
+    console.log(blobs)
+    return points
+  }
+
+  function lookForBrightSpots(imgdata) {
+    var threshold = 300
     var points=[]
     for( var y=0; y<imgdata.height; y++) {
       for(var x=0; x<imgdata.width; x++) {
@@ -128,7 +157,7 @@
     */
     for(var p of points) {
       var pUnit = [p[0]/w, p[1]/(h)]
-      var theta = 1*(pUnit[1] * Math.PI);
+      var theta = 2*(pUnit[1] * Math.PI);
       var r = (2.0*pUnit[0]-1.0)*2.0;
       var p1 = [Math.cos(theta)*r, Math.sin(theta)*r]
       var p2 = [p1[0]*w, p1[1]*h]

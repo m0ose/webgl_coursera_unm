@@ -195,7 +195,7 @@ houghShaders = {
         void main() {
             vec4 tcolor = texture2D( texture, fTexCoord.xy);
             vec2 p0 = fTexCoord.xy;
-            float theta = 1.0*p0.y * 3.141592653589;
+            float theta = 2.0*p0.y * 3.141592653589;
             float r = (2.0*p0.x-1.0)*2.0;
             vec2 p1 = vec2(cos(theta)*r, sin(theta)*r);
             vec2 lineSlope = vec2(-sin(theta), cos(theta));//perpindicular to vector to p1
