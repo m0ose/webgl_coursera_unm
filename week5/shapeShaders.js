@@ -58,6 +58,7 @@ var shapeShaders = {
             p = p + vCenter;
             gl_Position = projection*p;
             fPosition = vec4(gl_Position);
+            fPosition.z = fPosition.z;
             //color
             fColor = vColor;
             fWireFrame = wireFrame;

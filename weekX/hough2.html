@@ -51,11 +51,11 @@
     acc.thresholdOutput = threshold
     var pix = acc.readPixels()
     var can = document.getElementById('can2d')
-    can.width = acc.canvas.width
-    can.height = acc.canvas.height
+    can.width = pix.width
+    can.height = pix.height
     var ctx = can.getContext('2d')
     var imgd = ctx.getImageData(0,0,can.width, can.height)
-    imgd.data.set(pix)
+    imgd.data.set(pix.data)
     ctx.putImageData(imgd, 0,0)
     //
     var points = lookForBlobs(imgd, 350)
@@ -101,8 +101,10 @@
 
   function drawLines( acc, points) {
     var can = document.getElementById('can2db')
-    var w = can.width = acc.canvas.width
-    var h = can.height = acc.canvas.height
+    var cw = can.width = acc.image.width
+    var ch = can.height = acc.image.height
+    var w = acc.accumulatorDims[0]
+    var h = acc.accumulatorDims[1]
     var ctx = can.getContext('2d')
     ctx.drawImage(acc.image,0,0)
     ctx.beginPath()
@@ -126,10 +128,10 @@
     */
     for(var p of points) {
       var pUnit = [p[0]/w, p[1]/(h)]
-      var theta = 2*(pUnit[1] * Math.PI);
-      var r = (2.0*pUnit[0]-1.0)*2.0;
+      var theta = 1*(pUnit[1] * Math.PI);
+      var r = (2.0*pUnit[0]-1.0)*1.0;
       var p1 = [Math.cos(theta)*r, Math.sin(theta)*r]
-      var p2 = [p1[0]*w, p1[1]*h]
+      var p2 = [p1[0]*cw, p1[1]*ch]
       var lineSlope = [-Math.sin(theta), Math.cos(theta)]//perpindicular to vector to p1
       //normalize(lineSlope);
       var pL = add(p2, scale(-1000,lineSlope))
@@ -137,13 +139,13 @@
       //
       ctx.beginPath()
       ctx.strokeStyle = '#ff0000';
-      ctx.moveTo(p2[0], h-p2[1])
-      ctx.lineTo(pR[0], h-pR[1])
-      ctx.moveTo(p2[0], h-p2[1])
-      ctx.lineTo(pL[0], h-pL[1])
+      ctx.moveTo(p2[0], ch-p2[1])
+      ctx.lineTo(pR[0], ch-pR[1])
+      ctx.moveTo(p2[0], ch-p2[1])
+      ctx.lineTo(pL[0], ch-pL[1])
       ctx.closePath()
       ctx.stroke()
-      ctx.fillRect(p2[0], h-p2[1], 12,12)
+      ctx.fillRect(p2[0], ch-p2[1], 12,12)
     }
     ctx.stroke()
   }

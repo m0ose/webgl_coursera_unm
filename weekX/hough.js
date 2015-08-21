@@ -1,5 +1,7 @@
 function glHough() {
 
+    this.accumulatorDims = [400,400]
+
     this.texCoord = [
         vec2(0, 0),
         vec2(0, 1),
@@ -83,6 +85,9 @@ function glHough() {
     }
 
     this.changeImage = function(image) {
+        // this is is just temporary untill I can figure out why smaller accumulators are not working
+        this.accumulatorDims = [image.width, image.height]
+        //
         this.changeViewPort(image.width, image.height)
         this.image = image
         // send to sobel program
@@ -125,6 +130,7 @@ function glHough() {
         gl.bindTexture(gl.TEXTURE_2D, this.texture1)
         var td = gl.getUniformLocation(this.houghProgram, 'texDimensions')
         gl.uniform2fv(td, [this.image.width, this.image.height])
+        gl.uniform2fv(gl.getUniformLocation(this.houghProgram, 'accumulatorDims'), this.accumulatorDims)
         gl.uniform1f(gl.getUniformLocation(this.houghProgram, 'rgbEncode'), 1*this.rgbEncodeOutput);
         gl.uniform1f(gl.getUniformLocation(this.houghProgram, 'threshold'), 1*this.thresholdOutput);
         gl.drawArrays( gl.TRIANGLES, 0, 6 )
@@ -147,9 +153,11 @@ function glHough() {
     this.readPixels = function() {
         this.render(true)
         gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer)
-        var pixels = new Uint8Array(this.canvas.width*this.canvas.height * 4);
-        gl.readPixels(0, 0, this.canvas.width, this.canvas.height, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
-        return pixels
+        var pixels = new Uint8Array(this.accumulatorDims[0]*this.accumulatorDims[1] * 4)
+        var x = (this.canvas.width - this.accumulatorDims[0])/2
+        var y = (this.canvas.height - this.accumulatorDims[1])/2
+        gl.readPixels(x,y, this.accumulatorDims[0], this.accumulatorDims[1], gl.RGBA, gl.UNSIGNED_BYTE, pixels)
+        return {width:this.accumulatorDims[0], height:this.accumulatorDims[1], data:pixels}
         //pixels = new Float32Array(pixels.buffer);
     }
 
@@ -164,13 +172,15 @@ houghShaders = {
         attribute vec4 vPosition;
         attribute vec2 vTexCoord;
         uniform vec2 texDimensions;
+        uniform vec2 accumulatorDims;
         varying vec2 texDims;
         varying vec2 fTexCoord;
 
         void main() {
             fTexCoord = vTexCoord;
             texDims = texDimensions;
-            gl_Position = vPosition;
+            vec2 ratio = accumulatorDims/texDims;
+            gl_Position = vec4(ratio*vPosition.xy, 0.0, 1.0);
         }
     `,
 
@@ -179,6 +189,7 @@ houghShaders = {
         uniform sampler2D texture;
         uniform float rgbEncode;
         uniform float threshold;
+        uniform vec2 accumulatorDims;
         varying vec2 fTexCoord;
         varying vec2 texDims;
 
@@ -193,10 +204,12 @@ houghShaders = {
         }
 
         void main() {
+            vec2 temp = accumulatorDims;//not in use yet. But need to
+            //
             vec4 tcolor = texture2D( texture, fTexCoord.xy);
             vec2 p0 = fTexCoord.xy;
-            float theta = 2.0*p0.y * 3.141592653589;
-            float r = (2.0*p0.x-1.0)*2.0;
+            float theta = 1.0*p0.y * 3.141592653589;
+            float r = (2.0*p0.x-1.0)*1.0;
             vec2 p1 = vec2(cos(theta)*r, sin(theta)*r);
             vec2 lineSlope = vec2(-sin(theta), cos(theta));//perpindicular to vector to p1
             vec2 lineSlopeNorm = normalize(lineSlope/texDims); // it turns out texture dimensions do matter
