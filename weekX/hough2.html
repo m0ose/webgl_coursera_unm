@@ -64,6 +64,26 @@
     drawLines(acc, points)
   }
 
+  function spread(w,h,data) {
+    var dirs = [[0,0],[1,0],[-1,0],[0,1],[0,-1]]
+    var d2 = new Int32Array(w*h)
+    for(var i=0;i<d2.length;i++){
+      d2[i] = -1
+    }
+    for(var y=0; y<h;y++){
+      for(var x=0; x<w; x++) {
+        var index = w*y + x
+        if( data[index] > 0){
+          for(var d of dirs) {
+            var indx2 = (y + d[1])*w + x + d[0]
+            d2[indx2] = 1
+          }
+        }
+      }
+    }
+    return d2
+  }
+
   function lookForBlobs(imgdata) {
     //mask for blob detector
     var masked = new Int32Array(imgdata.data.length/4)
@@ -75,15 +95,16 @@
         masked[Math.floor(i/4)] = -1
       }
     }
+    masked = spread(imgdata.width, imgdata.height, masked)
     //
-    console.log(masked)
+    //console.log(masked)
     var blobDetector = new connectedComponentLabeler( imgdata.width, imgdata.height, masked)
     var blobs = blobDetector.connectAll()
     var points = []
     for(b of blobs){
       points.push(b.centroid())
     }
-    console.log(blobs)
+    //console.log(blobs)
     return points
   }
 
@@ -161,10 +182,10 @@
 <br>
 <canvas id='can2d'></canvas>
 <canvas id='can2db'></canvas>
-<canvas id="gl-canvas" width="800" height="768" style=" border-style: solid; border-width: 5px;"></canvas>
-
-Oops ... your browser doesn't support the HTML5 canvas element
+<canvas id="gl-canvas" width="800" height="768" style=" border-style: solid; border-width: 5px;">
+  Oops ... your browser doesn't support the HTML5 canvas element
 </canvas>
+
 <br>
 </body>
 </html>
