@@ -16,7 +16,7 @@ var lighting = {
 
     makeLight : function( options) {
         var sh = glShapes.addShape('light',options)
-        console.log(sh.center, options.center)
+//        console.log(sh.center, options.center)
         this.lights.push(sh)
     },
 }

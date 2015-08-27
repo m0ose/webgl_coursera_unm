@@ -40,6 +40,8 @@ var glShapes = {
         this.makeLights()
         //
         this.setupProgram()
+        //
+        this.startAnimation()
     },
 
     setupProgram: function() {
@@ -87,6 +89,7 @@ var glShapes = {
     startAnimation : function() {
         this._animating = true
         this.render()
+        console.log('starting animation')
     },
 
     renderOnce: function() {
@@ -206,7 +209,7 @@ var glShapes = {
         }
         var result = new shapeMaker(params)
         this.shapes.push(result)
-        this.render()
+        this.renderOnce()
         //
         return result
     },
@@ -219,7 +222,7 @@ var glShapes = {
     },
 
     moveLights :  function() {
-        var k = 1/400
+        var k = 1/200
         var r = 10
         for(var li of lighting.lights) {
             // there was a problem when animating
