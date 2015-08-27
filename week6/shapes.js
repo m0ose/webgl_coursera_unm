@@ -89,10 +89,14 @@ var glShapes = {
         this.render()
     },
 
+    renderOnce: function() {
+        requestAnimationFrame(this.__render.bind(this))
+    },
+
     render: function() {
         // this keeps events from piling up as much
         if( !this._animating){
-            requestAnimationFrame(this.__render.bind(this))
+            this.renderOnce()
         } else {
             this.moveLights()
             this.__render()
@@ -215,9 +219,13 @@ var glShapes = {
     },
 
     moveLights :  function() {
-        var k = 1/800
+        var k = 1/400
         var r = 10
         for(var li of lighting.lights) {
+            // there was a problem when animating
+            for(var lc=0; lc<li.center.length; lc++){
+                li.center[lc] = Number(li.center[lc])
+            }
             //move lights in a figure 8
             li.center[0] += -k*r*Math.sin(this.renderCount*k)
             li.center[1] += 2*k*r*Math.cos(2*this.renderCount*k)
