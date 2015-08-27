@@ -190,16 +190,18 @@ var glShapes = {
 
     makeLights : function() {
         lighting.makeLight({ center:[4,0,-6,1], color:[1,0,0,1] })
-        lighting.makeLight({ center:[-4,-4,-6,1], color:[0,1,0,1] })
+        lighting.makeLight({ center:[0,-4,-6,1], color:[0,1,0,1] })
         lighting.makeLight({ center:[-4,0,-6,1], color:[0,0,1,1] })
-        lighting.makeLight({ center:[0,0,-6,1], color:[1,1,1,0.4] })
+        lighting.makeLight({ center:[0,4,-6,1], color:[1,1,1,0.6] })
     },
 
     moveLights :  function() {
+        var k = 1/200
+        var r = 10
         for(var li of lighting.lights) {
-            li.center[0] += Math.cos(this.renderCount/790) / 200
-            li.center[1] += Math.sin(this.renderCount/3410) / 400
-            li.center[2] = 10
+            //move lights in a figure 8
+            li.center[0] += -k*r*Math.sin(this.renderCount*k)
+            li.center[1] += 2*k*r*Math.cos(2*this.renderCount*k)
         }
     },
 }
