@@ -108,14 +108,14 @@ var shapeShaders = {
                 vec3 viewDir = normalize(eye.xyz-fPosition.xyz);
                 float distance = length(lightDir);
                 // diffuse
-                float diffuse = 0.7*max(dot(normalize(lightDir), normalize(-fNormal.xyz)), 0.0);
+                float diffuse = 0.3*max(dot(normalize(lightDir), normalize(fNormal.xyz)), 0.0);
                 diffuse = diffuse/(distance*distance);
                 // specular
                 //vec3 I = light.xyz - fPosition.xyz;
                 vec3 N = normalize(fNormal.xyz);
                 vec3 r = 2.0 * dot(lightDir,N) * N - lightDir;
                 float specAngle = max(dot(r,viewDir), 0.0);
-                float specular = 0.8*pow(specAngle, 12.0);
+                float specular = 1.0*pow(specAngle, 12.0);
                 // colors
                 vec3 diffuseColor = lightColor*strength; //vec3(1.0,1.0,1.0);
                 vec3 specColor = lightColor*strength; //vec3(0.5,0.5,0.5);

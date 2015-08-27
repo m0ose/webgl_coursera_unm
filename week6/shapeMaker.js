@@ -71,10 +71,6 @@ var shapeTypes = {
 
 // parameterize a shape
 var shapeMaker = function(options){
-    this._cachedVertices = undefined
-    this._cachedNormals = undefined
-    this._cachedColors = undefined
-
     this.init = function(options) {
         var defaults = {
             type:shapeTypes.sphere,
@@ -117,20 +113,16 @@ var shapeMaker = function(options){
                 result.colors.push(this.color)
             }
         }
+        console.log('generated',result.vertices.length, 'vertices' )
         return result
     }
 
     this.generateVerticesFlat = function( forceCalculation) {
-        if( forceCalculation || !this._cachedColors){
-            var verts = this.generateVertices()
-            this._cachedColors = flatten(verts.colors)
-            this._cachedVertices = flatten(verts.vertices)
-            this._cachedNormals = flatten(verts.normals)
-        } 
+        var verts = this.generateVertices()
         return {
-            colors:this._cachedColors,
-            vertices:this._cachedVertices,
-            normals:this._cachedNormals
+            colors:flatten(verts.colors),
+            vertices:flatten(verts.vertices),
+            normals:flatten(verts.vertices)
         }
     }
 
