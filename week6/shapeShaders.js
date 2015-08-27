@@ -94,27 +94,34 @@ var shapeShaders = {
             if( fWireFrame > 0.0) {
                 wireColor = vec3(0.0,0.8,0.0);
             }
-            vec3 ambient = fColor.xyz * 0.2;
+            vec3 ambient = fColor.xyz * 0.4;
             gl_FragColor = vec4(wireColor + ambient, 1.0); 
+            //
+            // loop throught the lights
             for(int i=0; i<4; i++) {
                 vec4 fLight1 = fLightPos[i];
                 vec3 lightColor = fLightColor[i].xyz;
                 float strength = fLightColor[i].a;
+                // parameters
                 vec3 eye = vec3(0.0,0.0,-10.0);
+                vec3 lightDir = normalize(fLight1.xyz-fPosition.xyz);
+                vec3 viewDir = normalize(eye.xyz-fPosition.xyz);
+                float distance = length(lightDir);
+                // diffuse
+                float diffuse = 0.7*max(dot(normalize(lightDir), normalize(-fNormal.xyz)), 0.0);
+                //diffuse = diffuse/(distance*distance);
+                // specular
+                //vec3 I = fLight1.xyz - fPosition.xyz;
+                vec3 N = normalize(fNormal.xyz);
+                vec3 r = 2.0 * dot(lightDir,N) * N - lightDir;
+                float specAngle = max(dot(r,viewDir), 0.0);
+                float specular = 0.5*pow(specAngle, 4.0);
+                // colors
                 vec3 diffuseColor = lightColor*strength; //vec3(1.0,1.0,1.0);
                 vec3 specColor = lightColor*strength; //vec3(0.5,0.5,0.5);
-                // diffuse
-                vec3 lightDir = normalize(fLight1.xyz-eye);
-                float diffuse = 0.3*max(dot(normalize(lightDir), normalize(fNormal.xyz)), 0.0);
-                // specular
-                vec3 I = fLight1.xyz - fPosition.xyz;
-                vec3 N = normalize(fNormal.xyz);
-                vec3 r = I - 2.0 * dot(N,I) * N;
-                vec3 viewDir = normalize(eye.xyz-fPosition.xyz);
-                float specAngle = max(dot(r,viewDir), 0.0);
-                float specular = 0.12*pow(specAngle, 3.0);
                 //
-                gl_FragColor += vec4( diffuse*diffuseColor + specular*specColor, 1.0);
+                vec3 lightContrib = vec3(diffuse*diffuseColor + specular*specColor);
+                gl_FragColor += vec4( lightContrib, 1.0);
             }
             
         }

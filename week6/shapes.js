@@ -17,6 +17,8 @@ var glShapes = {
     //DRAW_WIREFRAME:true,
     shapeCount:0,
     lightDir:[12,-12,6,1],
+    renderCount: 0,
+    _animating:false,
 
     init: function() {
         console.log("Init")
@@ -76,12 +78,24 @@ var glShapes = {
         return buff
     },
 
+    startAnimation : function() {
+        this._animating = true
+        this.render()
+    },
+
     render: function() {
         // this keeps events from piling up as much
-        requestAnimationFrame(this.__render.bind(this))
+        if( !this._animating){
+            requestAnimationFrame(this.__render.bind(this))
+        } else {
+            this.moveLights()
+            this.__render()
+            requestAnimationFrame(this.render.bind(this))
+        }
     },
 
     __render: function() {
+        this.renderCount++
         gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
         for(var i=0; i < this.shapes.length; i++) {
             var sh = this.shapes[i]
@@ -103,7 +117,7 @@ var glShapes = {
                 gl.drawArrays( gl.TRIANGLES, 0, verts.vertices.length/4 )
             }
             // draw wireframe
-            if( (sh.wireFrame || sh.selected) == true) {
+            if( (sh.wireFrame ) == true) {
                 gl.uniform1f( this.locaWireFrame, 1)
                 gl.drawArrays( gl.LINES, 0, verts.vertices.length/4 )
             }
@@ -117,27 +131,28 @@ var glShapes = {
         for(var i=0; i<this.shapes.length; i++){
             this.shapes[i].selected = false
         }
+        var params = {}
         if( type == 'sphere') {
-            var result = new shapeMaker({
+            params = {
                 type:shapeTypes.sphere, 
                 stepsX:36,
                 stepsTheta:24,
                 name:'sphere_' + sc
-            })
+            }
         } else if( type == 'cylinder') {
-            var result = new shapeMaker({type:shapeTypes.cylinder, 
+            params = {type:shapeTypes.cylinder, 
                 color:vec4(0.1,0.1,0.1,1), 
                 stepsX:2,
                 name:'cylinder_' + sc,
-            })
+            }
         } else if( type == 'cone') {
-            var result = new shapeMaker({type:shapeTypes.cone, 
+            params = {type:shapeTypes.cone, 
                 color:vec4(1,0,0,1), 
                 stepsX:5,
                 name:'cone_' + sc,
-            })
+            }
         } else if( type == 'leaf') {
-            var result = new shapeMaker({
+            params = {
                 type:shapeTypes.cannabis, 
                 color:vec4(0,1,0,1), 
                 stepsX:5,
@@ -145,17 +160,29 @@ var glShapes = {
                 rotation:90,
                 stepsTheta:200,
                 name:'leaf_' + sc,
-            })
+            }
         } else if( type == 'shell') {
-            var result = new shapeMaker({
+            params = {
                 type:shapeTypes.shell, 
                 stepsX:24,
                 stepsTheta:60,
                 name:'shell_' + sc,
-            })
-        } else {
+            }
+        } else if( type == 'light') {
+            params = {
+                type:shapeTypes.sphere, 
+                stepsX:12,
+                stepsTheta:12,
+                isLight:true,
+                name:'shell_' + sc,
+            }
+        }else {
             throw('shape name not recognised')
         }
+        for(var x in options) {
+            params[x] = options[x]
+        }
+        var result = new shapeMaker(params)
         this.shapes.push(result)
         this.render()
         //
@@ -163,11 +190,19 @@ var glShapes = {
     },
 
     makeLights : function() {
-        lighting.makeLight({ position:[12,0,0,1], color:[1,0,0,1] })
-        lighting.makeLight({ position:[-12,-12,0,1], color:[0,1,0,1] })
-        lighting.makeLight({ position:[-12,0,0,1], color:[0,0,1,1] })
-        lighting.makeLight({ position:[-12,-12,1,1], color:[0,1,1,1] })
-    }
+        lighting.makeLight({ center:[4,0,0,1], color:[1,0,0,1] })
+        lighting.makeLight({ center:[-4,-4,0,1], color:[0,1,0,1] })
+        lighting.makeLight({ center:[-4,0,0,1], color:[0,0,1,1] })
+        lighting.makeLight({ center:[0,0,0,1], color:[1,1,1,0.4] })
+    },
+
+    moveLights :  function() {
+        for(var li of lighting.lights) {
+            li.center[0] += Math.cos(this.renderCount/790) / 200
+            li.center[1] += Math.sin(this.renderCount/3410) / 400
+            li.center[2] = 10
+        }
+    },
 }
 
 

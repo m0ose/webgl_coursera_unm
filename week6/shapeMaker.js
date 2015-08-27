@@ -89,6 +89,7 @@ var shapeMaker = function(options){
             scale:vec4(1,1,1,0),
             selected:true,
             wireFrame:false,
+            isLight:false,
         }
         options = options || {}
         for(var x in options) {
@@ -212,6 +213,15 @@ var shapeMaker = function(options){
             }
         }
         return {vertices:triangles, normals:normals}
+    }
+
+    this.getLightMat4 = function() {
+        var mat = mat4()
+        mat[0] = this.center
+        mat[1] = this.color
+        mat[2] = [1,1,1,1]
+        mat[3] = [1,1,1,1]
+        return transpose(mat)
     }
 
     this.init(options)
