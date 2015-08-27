@@ -72,7 +72,7 @@ var shapeShaders = {
                 fLightColor[i] = vLightPosition[i][1];
             }
             // normal, must also be rotated
-            vec3 norm = normalize(vNormal.xyz);
+            vec3 norm = normalize(vNormal.xyz/scale.xyz);
             vec4 nr = rotateOnY(norm, vRotation);
             vec4 pn = rotateQuat(normalize(nr.xyz), vAxis);
             fNormal = projection*pn;
@@ -99,23 +99,23 @@ var shapeShaders = {
             //
             // loop throught the lights
             for(int i=0; i<4; i++) {
-                vec4 fLight1 = fLightPos[i];
+                vec4 light = fLightPos[i];
                 vec3 lightColor = fLightColor[i].xyz;
                 float strength = fLightColor[i].a;
                 // parameters
                 vec3 eye = vec3(0.0,0.0,-10.0);
-                vec3 lightDir = normalize(fLight1.xyz-fPosition.xyz);
+                vec3 lightDir = normalize(light.xyz-fPosition.xyz);
                 vec3 viewDir = normalize(eye.xyz-fPosition.xyz);
                 float distance = length(lightDir);
                 // diffuse
                 float diffuse = 0.7*max(dot(normalize(lightDir), normalize(-fNormal.xyz)), 0.0);
-                //diffuse = diffuse/(distance*distance);
+                diffuse = diffuse/(distance*distance);
                 // specular
-                //vec3 I = fLight1.xyz - fPosition.xyz;
+                //vec3 I = light.xyz - fPosition.xyz;
                 vec3 N = normalize(fNormal.xyz);
                 vec3 r = 2.0 * dot(lightDir,N) * N - lightDir;
                 float specAngle = max(dot(r,viewDir), 0.0);
-                float specular = 0.5*pow(specAngle, 4.0);
+                float specular = 0.8*pow(specAngle, 12.0);
                 // colors
                 vec3 diffuseColor = lightColor*strength; //vec3(1.0,1.0,1.0);
                 vec3 specColor = lightColor*strength; //vec3(0.5,0.5,0.5);

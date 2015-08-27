@@ -171,10 +171,9 @@ var glShapes = {
         } else if( type == 'light') {
             params = {
                 type:shapeTypes.sphere, 
-                stepsX:12,
-                stepsTheta:12,
                 isLight:true,
-                name:'shell_' + sc,
+                name:'Light_' + sc,
+                scale:vec4(0.4,0.4,0.4,0),
             }
         }else {
             throw('shape name not recognised')
@@ -190,10 +189,10 @@ var glShapes = {
     },
 
     makeLights : function() {
-        lighting.makeLight({ center:[4,0,0,1], color:[1,0,0,1] })
-        lighting.makeLight({ center:[-4,-4,0,1], color:[0,1,0,1] })
-        lighting.makeLight({ center:[-4,0,0,1], color:[0,0,1,1] })
-        lighting.makeLight({ center:[0,0,0,1], color:[1,1,1,0.4] })
+        lighting.makeLight({ center:[4,0,-6,1], color:[1,0,0,1] })
+        lighting.makeLight({ center:[-4,-4,-6,1], color:[0,1,0,1] })
+        lighting.makeLight({ center:[-4,0,-6,1], color:[0,0,1,1] })
+        lighting.makeLight({ center:[0,0,-6,1], color:[1,1,1,0.4] })
     },
 
     moveLights :  function() {
