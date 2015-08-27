@@ -116,6 +116,7 @@ var shapeShaders = {
                 vec3 r = 2.0 * dot(lightDir,N) * N - lightDir;
                 float specAngle = max(dot(r,viewDir), 0.0);
                 float specular = 1.0*pow(specAngle, 12.0);
+                specular = specular/(distance*distance);
                 // colors
                 vec3 diffuseColor = lightColor*strength; //vec3(1.0,1.0,1.0);
                 vec3 specColor = lightColor*strength; //vec3(0.5,0.5,0.5);

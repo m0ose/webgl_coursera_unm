@@ -40,6 +40,8 @@ var glShapes = {
         this.makeLights()
         //
         this.setupProgram()
+        // add shape so lighting is visible.
+        this.addShape('sphere')
         //
         this.startAnimation()
     },
@@ -224,14 +226,17 @@ var glShapes = {
     moveLights :  function() {
         var k = 1/200
         var r = 10
+        var count = 1
         for(var li of lighting.lights) {
             // there was a problem when animating
             for(var lc=0; lc<li.center.length; lc++){
                 li.center[lc] = Number(li.center[lc])
             }
             //move lights in a figure 8
+            var k = count*1/400
             li.center[0] += -k*r*Math.sin(this.renderCount*k)
             li.center[1] += 2*k*r*Math.cos(2*this.renderCount*k)
+            count++
         }
     },
 }
