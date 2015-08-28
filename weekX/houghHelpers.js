@@ -75,7 +75,11 @@ var houghHelpers = {
     var w = acc.accumulatorDims[0]
     var h = acc.accumulatorDims[1]
     var ctx = can.getContext('2d')
-    ctx.drawImage(acc.image,0,0)
+    if( acc.image.data){ //imagedata
+      ctx.putImageData(acc.image,0,0)
+    } else{//image element
+      ctx.drawImage(acc.image,0,0)
+    }
     ctx.beginPath()
     ctx.strokeStyle = '#ff0000';
     ctx.fillStyle = '#00ff00'

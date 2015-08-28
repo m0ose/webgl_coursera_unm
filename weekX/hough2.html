@@ -44,10 +44,10 @@
     img.src = url
   }
 
-  var threshold = 300
+  var threshold = 410
 
   function imageLoaded( acc) {
-    console.log('image loaded called')
+    //console.log('image loaded called')
     var blobs = houghHelpers.findBlobs(acc, threshold)
     houghHelpers.drawLines(acc, blobs.points, document.getElementById('can2db'))
     drawBlobDetection(blobs)
@@ -60,9 +60,66 @@
     var ctx = can.getContext('2d')
     ctx.putImageData(blobs.imagedata, 0,0)
     //
-    houghHelpers.drawPoints(blobs.points, ctx)
+    //houghHelpers.drawPoints(blobs.points, ctx)
   }
 
+
+
+</script>
+
+<script type="text/javascript">
+function initVideo() {
+  video      = document.createElement('video');
+  video.width    = 400;
+  video.height   = 400;
+  video.autoplay = true;
+  var hasUserMedia = navigator.webkitGetUserMedia ? true : false;
+  console.log('has user media', hasUserMedia)
+
+  navigator.webkitGetUserMedia({'video':true}, gotStream, function(error){
+    console.log("Failed to get a stream due to", error);
+  });
+
+  //document.body.appendChild(video)
+}
+
+function gotStream( stream ) {
+  console.log( 'Connected to stream. Starting decoding...')
+  if( window.URL ) {
+    video.src = window.URL.createObjectURL( stream );
+  } else {
+    video.src = stream;
+  }
+  video.onerror = function () {
+    stream.stop();
+    streamError();
+  };
+  video.onloadedmetadata = function(e) {
+    //start();
+    console.log('meta data loaded. whatever that means???')
+    animate()
+  }
+}
+
+function animate() {
+  //console.log('.')
+  var can = document.getElementById('can2dc')
+  can.width = video.width
+  can.height = video.height
+  var ctx = can.getContext('2d')
+  ctx.drawImage(video, 0, 0, video.width, video.height)
+  img = ctx.getImageData(0, 0, can.width, can.height)
+  buffer = img.data.buffer
+  //
+  sob.changeImage.bind(sob)(img)
+    sob.rgbEncodeOutput = false
+    sob.thresholdOutput = 0
+    sob.render()
+    imageLoaded(sob)
+  //
+  requestAnimationFrame(animate)
+  //setTimeout(animate, 120)
+}
 
 
 </script>
@@ -74,12 +131,15 @@
 <button onclick="loadImage('lines.png')">lines.png</button>
 <button onclick="loadImage('verts.png')">verts.png</button>
 <button onclick="loadImage('parking.jpg')">parking.jpg</button>
+<button onclick="initVideo()">VIDEO</button>
 <br>
-<canvas id='can2d'></canvas>
-<canvas id='can2db'></canvas>
 <canvas id="gl-canvas" width="800" height="768" style=" border-style: solid; border-width: 5px;">
   Oops ... your browser doesn't support the HTML5 canvas element
 </canvas>
+<canvas id='can2db'></canvas>
+<canvas id='can2dc'></canvas>
+<canvas id='can2d'></canvas>
+
 
 <br>
 </body>
