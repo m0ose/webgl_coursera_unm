@@ -48,22 +48,21 @@
 
   function imageLoaded( acc) {
     console.log('image loaded called')
-    acc.rgbEncodeOutput = false
-    acc.thresholdOutput = threshold
-    var pix = acc.readPixels()
-    var can = document.getElementById('can2d')
-    can.width = pix.width
-    can.height = pix.height
-    var ctx = can.getContext('2d')
-    var imgd = ctx.getImageData(0,0,can.width, can.height)
-    imgd.data.set(pix.data)
-    ctx.putImageData(imgd, 0,0)
-    //
-    var points = houghHelpers.lookForBlobs(imgd, 350)
-    //console.log('points',points)
-    houghHelpers.drawPoints(points, ctx)
-    houghHelpers.drawLines(acc, points)
+    var blobs = houghHelpers.findBlobs(acc, threshold)
+    houghHelpers.drawLines(acc, blobs.points, document.getElementById('can2db'))
+    drawBlobDetection(blobs)
   }
+
+  function drawBlobDetection(blobs) {
+    var can = document.getElementById('can2d')
+    can.width = blobs.imagedata.width
+    can.height = blobs.imagedata.height
+    var ctx = can.getContext('2d')
+    ctx.putImageData(blobs.imagedata, 0,0)
+    //
+    houghHelpers.drawPoints(blobs.points, ctx)
+  }
+
 
 
 </script>

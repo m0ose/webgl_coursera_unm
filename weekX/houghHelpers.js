@@ -22,7 +22,17 @@ var houghHelpers = {
     return d2
   },
 
-  lookForBlobs : function(imgdata) {
+  findBlobs : function( acc, threshold) {
+    acc.rgbEncodeOutput = false
+    acc.thresholdOutput = threshold
+    var pix = acc.readPixels()
+    var imgdat = new ImageData(pix.width, pix.height)
+    imgdat.data.set(pix.data)
+    var points = houghHelpers._lookForBlobs(imgdat)
+    return {imagedata:imgdat, points:points}
+  },
+
+  _lookForBlobs : function(imgdata) {
     //mask for blob detector
     var masked = new Int32Array(imgdata.data.length/4)
     for( var i=0; i<imgdata.data.length; i+=4) {
@@ -58,8 +68,8 @@ var houghHelpers = {
     context.stroke();
   },
 
-  drawLines : function( acc, points) {
-    var can = document.getElementById('can2db')
+  drawLines : function( acc, points, canvas) {
+    var can = canvas
     var cw = can.width = acc.image.width
     var ch = can.height = acc.image.height
     var w = acc.accumulatorDims[0]
