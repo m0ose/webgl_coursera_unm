@@ -103,7 +103,7 @@ var shapeShaders = {
                 vec3 lightColor = fLightColor[i].xyz;
                 float strength = fLightColor[i].a;
                 // parameters
-                vec3 eye = vec3(0.0,0.0,-10.0);
+                vec3 eye = vec3(0.0,0.0,-40.0);
                 vec3 lightDir = normalize(light.xyz-fPosition.xyz);
                 vec3 viewDir = normalize(eye.xyz-fPosition.xyz);
                 float distance = length(lightDir);
@@ -118,8 +118,9 @@ var shapeShaders = {
                 float specular = 1.0*pow(specAngle, 12.0);
                 specular = specular/(distance*distance);
                 // colors
-                vec3 diffuseColor = lightColor*strength; //vec3(1.0,1.0,1.0);
-                vec3 specColor = lightColor*strength; //vec3(0.5,0.5,0.5);
+                vec3 fColor2 = min( vec3(1.0,1.0,1.0), fColor.xyz + vec3(0.2,0.2,0.2));
+                vec3 diffuseColor = fColor2.xyz*lightColor*strength; //vec3(1.0,1.0,1.0);
+                vec3 specColor = fColor2.xyz*lightColor*strength; //vec3(0.5,0.5,0.5);
                 //
                 vec3 lightContrib = vec3(diffuse*diffuseColor + specular*specColor);
                 gl_FragColor += vec4( lightContrib, 1.0);
