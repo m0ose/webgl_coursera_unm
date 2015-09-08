@@ -1,0 +1,99 @@
+<link rel="import" href="http://www.polymer-project.org/0.5/components/polymer/polymer.html">
+
+
+<polymer-element name="shape-menu">  
+  <template>
+    <button onclick="glShapes.addShape('sphere')">add sphere</button>
+   <!-- <button onclick="glShapes.addShape('cone')">add cone</button>
+    <button onclick="glShapes.addShape('cylinder')">add cylinder</button>
+    <button onclick="glShapes.addShape('shell')">add shell</button>
+    <button onclick="glShapes.addShape('leaf')">add leaf</button>
+    -->
+
+    <template repeat="{{ curr in shapes }}">
+      <div style="   border-style: solid; border-width: 1px; border-radius:10px;">
+        <section on-click={{rowSelected}} descript="{{ curr.name }}">
+          <div style=" padding: 10px; background-color: #222">
+                       {{ curr.name }}
+          </div>
+         </section>
+        <ul style="display:{{curr.selected | fooBar}}" >
+          <div style="display:{{!curr.isLight | fooBar}}">
+            <li>rotation: <input oninput="glShapes.renderOnce()" type="range" value="{{curr.rotation}}" min=-360 max=360>
+              {{curr.rotation}}</li>
+            <li>scaleX: <input oninput="glShapes.renderOnce()" type="range" value="{{curr.scale[0]}}" min=0.1 max=3 step=0.000001>
+              {{curr.scale[0]}}</li>
+            <li>scaleY: <input oninput="glShapes.renderOnce()" type="range" value="{{curr.scale[1]}}" min=0.1 max=3 step=0.000001>
+              {{curr.scale[1]}}</li>
+            <li>scaleZ: <input oninput="glShapes.renderOnce()" type="range" value="{{curr.scale[2]}}" min=0.1 max=3 step=0.000001>
+              {{curr.scale[2]}}</li>
+            <li>axisX: <input oninput="glShapes.renderOnce()" type="range" value="{{curr.axis[0]}}" min=-1 max=1 step=0.000001>
+              {{curr.axis[0]}}</li>
+            <li>axisY: <input oninput="glShapes.renderOnce()" type="range" value="{{curr.axis[1]}}" min=-1 max=1 step=0.000001>
+              {{curr.axis[1]}}</li>
+            <li>axisZ: <input oninput="glShapes.renderOnce()" type="range" value="{{curr.axis[2]}}" min=-1 max=1 step=0.000001>
+              {{curr.axis[2]}}</li>
+          </div>
+          
+          <li>centerX: <input oninput="glShapes.renderOnce()" type="range" value="{{curr.center[0]}}" min=-10 max=10 step=0.000001>
+            {{curr.center[0]}}</li>
+          <li>centerY: <input oninput="glShapes.renderOnce()" type="range" value="{{curr.center[1]}}" min=-10 max=10 step=0.000001>
+            {{curr.center[1]}}</li>
+          <li>centerZ: <input oninput="glShapes.renderOnce()" type="range" value="{{curr.center[2]}}" min=-10 max=10 step=0.000001>
+            {{curr.center[2]}}</li>
+          <li>
+              <!--<template if="{{!curr.wireFrame}}">Wireframe</template>
+              <template if="{{curr.wireFrame}}">No Wireframe</template>
+              -->
+              WireFrame:
+              <input onclick="glShapes.renderOnce()" type="checkbox" checked="{{curr.wireFrame}}">
+          </li>
+          <section on-click={{rmSelected}} descript="{{ curr.name }}" style="display:{{!curr.isLight | fooBar}}">
+           <button>remove</button>
+         </section>
+        </ul>
+      </div>
+    </template>
+  </template>
+  <script>
+    Polymer('shape-menu', {
+      shapes: ['a'],
+      ready: function() {
+        glShapes.init()
+        //this.dung = glShapes.shapes 
+        //test1()
+        this.shapes = glShapes.shapes
+      },
+      fooBar: function(value) {
+        //console.log('value', value)
+        if (!value) {
+          return "none";
+        }
+        return "block"
+      },
+      rowSelected: function(e, detail, sender) { 
+          var name = sender.getAttribute('descript')
+          for(var i=0; i<this.shapes.length; i++){
+            var sh = this.shapes[i]
+            if(sh.name == name){
+              sh.selected = true
+            } else {
+              sh.selected = false
+            }
+          }
+          glShapes.renderOnce()
+      },
+      rmSelected: function(e, detail, sender) { 
+          var name = sender.getAttribute('descript')
+          for(var i=0; i<this.shapes.length; i++){
+            var sh = this.shapes[i]
+            if(sh.name == name){
+              this.shapes.splice(i, 1)
+            }
+          }
+          if(this.shapes.length > 0 ){ this.shapes[this.shapes.length-1].selected = true}
+          glShapes.renderOnce()
+      }
+    });
+  </script>
+</polymer-element>  
