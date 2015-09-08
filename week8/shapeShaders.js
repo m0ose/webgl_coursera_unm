@@ -19,7 +19,7 @@ var shapeShaders = {
         varying float fWireFrame;
         varying vec4 fTexCoord;
         //lights
-        const int cNumLight = 4;  
+        const int cNumLight = 5;  
         uniform mat4 vLightPosition[cNumLight]; 
         varying vec4 fLightPos[cNumLight];
         varying vec4 fLightColor[cNumLight];
@@ -92,8 +92,8 @@ var shapeShaders = {
         varying vec4 fPosition;
         varying float fWireFrame;
         varying vec4 fTexCoord;
-        varying vec4 fLightPos[4];
-        varying vec4 fLightColor[4];
+        varying vec4 fLightPos[5];
+        varying vec4 fLightColor[5];
 
         void main() {
             vec4 fColor2 = fColor;
@@ -111,7 +111,7 @@ var shapeShaders = {
             gl_FragColor = vec4(wireColor + ambient, 1.0); 
             //
             // loop throught the lights
-            for(int i=0; i<4; i++) {
+            for(int i=0; i<5; i++) {
                 vec4 light = fLightPos[i];
                 vec3 lightColor = fLightColor[i].xyz;
                 float strength = fLightColor[i].a;
@@ -131,9 +131,9 @@ var shapeShaders = {
                 float specular = 0.4*pow(specAngle, 22.0);
                 specular = specular/(distance*distance);
                 // colors
-                //fColor2 = min( vec3(1.0,1.0,1.0), fColor2.xyz + vec3(0.2,0.2,0.2));
-                vec3 diffuseColor = fColor2.xyz*lightColor*strength; //vec3(1.0,1.0,1.0);
-                vec3 specColor = fColor2.xyz*lightColor*strength; //vec3(0.5,0.5,0.5);
+                vec3 fColor3 = min( vec3(1.0,1.0,1.0), fColor2.xyz + vec3(0.3,0.3,0.3)); // add some reflection to the colors that arent exactly the same
+                vec3 diffuseColor = fColor3.xyz*lightColor*strength; //vec3(1.0,1.0,1.0);
+                vec3 specColor = fColor3.xyz*lightColor*strength; //vec3(0.5,0.5,0.5);
                 //
                 vec3 lightContrib = vec3(diffuse*diffuseColor + specular*specColor);
                 gl_FragColor += vec4( lightContrib, 1.0);
