@@ -15,7 +15,7 @@ var shapeTypes = {
         }
         var y = Math.cos(theta2) * r
         var z = Math.sin(theta2) * r
-        return {vertex:vec4(x,y,z,1), normal:vec4(-x,-y,-z,0)}
+        return {vertex:vec4(x,y,z,1)}
     },
 
     cone: function(x, theta, dx) {
@@ -122,7 +122,7 @@ var shapeMaker = function(options){
         return {
             colors:flatten(verts.colors),
             vertices:flatten(verts.vertices),
-            normals:flatten(verts.vertices)
+            normals:flatten(verts.normals)
         }
     }
 

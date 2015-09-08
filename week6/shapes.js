@@ -133,7 +133,6 @@ var glShapes = {
                 this.bindAndEnableAttribute(sh.bufferVNormals)
                 this.bindAndEnableAttribute(sh.bufferVColor)
             }
-            
             gl.uniform4fv( this.locaAxis, sh.axis)
             gl.uniform1f( this.locaRotation, sh.rotation)
             gl.uniform4fv( this.locaCenter, sh.center)
@@ -217,9 +216,9 @@ var glShapes = {
     },
 
     makeLights : function() {
-        lighting.makeLight({ center:[10,0,-6,1], color:[1,0,0,1] })
-        lighting.makeLight({ center:[0,-10,-6,1], color:[0,1,0,1] })
-        lighting.makeLight({ center:[-10,0,-6,1], color:[0,0,1,1] })
+        lighting.makeLight({ center:[10,0,-6,1], color:[1,0,0,0.5] })
+        lighting.makeLight({ center:[0,-10,-6,1], color:[0,1,0,0.5] })
+        lighting.makeLight({ center:[-10,0,-6,1], color:[0,0,1,0.5] })
         lighting.makeLight({ center:[0,10,-6,1], color:[1,1,1,0.6] })
     },
 
