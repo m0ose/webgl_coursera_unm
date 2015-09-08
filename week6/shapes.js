@@ -168,13 +168,13 @@ var glShapes = {
             }
         } else if( type == 'cylinder') {
             params = {type:shapeTypes.cylinder, 
-                color:vec4(0.1,0.1,0.1,1), 
+                //color:vec4(0.1,0.1,0.1,1), 
                 stepsX:2,
                 name:'cylinder_' + sc,
             }
         } else if( type == 'cone') {
             params = {type:shapeTypes.cone, 
-                color:vec4(1,0,0,1), 
+                //color:vec4(1,0,0,1), 
                 stepsX:5,
                 name:'cone_' + sc,
             }
