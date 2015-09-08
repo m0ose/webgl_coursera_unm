@@ -31,24 +31,21 @@ var textureMaker = {
         return image2
     },
 
-    loadImageAsTexture: function( image) {
-
-    },
-
     configureTexture: function( gl, image) {
-        if( typeOf(image) == 'string'){
+        if( image.toLowerCase() == "checkerboard"){
+            this.textureCount++
+            return this.configureTextureCheckerBoard(gl, this.makeCheckerBoard(64))
+        } else{
             this.textureCount++
             return this.configureTextureImgURL(gl, image)
-        } else {
-            this.textureCount++
-            return this.configureTextureSquares(gl,image)
-        }
+        } 
     },
 
     //
     // configure texture for squares
     //
-    configureTextureSquares: function(gl, image) {
+    configureTextureCheckerBoard: function(gl, image) {
+        console.log('making checker board')
         var texture = gl.createTexture();
         var textureLocation = gl.TEXTURE0 + this.textureCount
         gl.activeTexture( textureLocation);
@@ -57,16 +54,6 @@ var textureMaker = {
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, image.width, image.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, image);
         //gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA,gl.UNSIGNED_BYTE, image)
         gl.generateMipmap( gl.TEXTURE_2D );
-        var ext = gl.getExtension("WEBKIT_EXT_texture_filter_anisotropic") || gl.getExtension("MOZ_EXT_texture_filter_anisotropic")
-       /* if(ext) {
-            console.log('using anisotropic filter')
-            gl.texParameterf(gl.TEXTURE_2D, ext.TEXTURE_MAX_ANISOTROPY_EXT, 4)
-        } else {
-                    //gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, 
-        //    gl.NEAREST_MIPMAP_LINEAR );
-        //  gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST );
-        }
-        */
         return {texture:texture, activeLocation:textureLocation}
     },
 
@@ -82,6 +69,11 @@ var textureMaker = {
         gl.bindTexture(gl.TEXTURE_2D, texture);
         // Fill the texture with a 1x1 blue pixel.
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([0, 0, 255, 255]));
+        var ext = gl.getExtension("WEBKIT_EXT_texture_filter_anisotropic") || gl.getExtension("MOZ_EXT_texture_filter_anisotropic")
+        if(ext) {
+            console.log('using anisotropic filter')
+            gl.texParameterf(gl.TEXTURE_2D, ext.TEXTURE_MAX_ANISOTROPY_EXT, 4)
+        }
         // Asynchronously load an image
         var image = new Image();
         image.onload = function() {

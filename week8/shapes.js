@@ -189,14 +189,14 @@ var glShapes = {
                 //color:vec4(0.1,0.1,0.1,1), 
                 stepsX:2,
                 name:'cylinder_' + sc,
-                texture: textureMaker.makeCheckerBoard()
+                texture: "checkerBoard"
             }
         } else if( type == 'cone') {
             params = {type:shapeTypes.cone, 
                 color:vec4(1,0,0,1), 
                 stepsX:5,
                 name:'cone_' + sc,
-                texture: textureMaker.makeCheckerBoard()
+                texture: "checkerBoard"
             }
         } else if( type == 'leaf') {
             params = {
@@ -214,7 +214,7 @@ var glShapes = {
                 stepsX:24,
                 stepsTheta:60,
                 name:'shell_' + sc,
-                texture: textureMaker.makeCheckerBoard()
+                texture: "checkerBoard"
             }
         } else if( type == 'light') {
             params = {
