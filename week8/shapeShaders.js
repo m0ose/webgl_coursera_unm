@@ -96,18 +96,20 @@ var shapeShaders = {
         varying vec4 fLightColor[4];
 
         void main() {
+            vec4 fColor2 = fColor;
             // wireframe
             vec3 wireColor = vec3(0.0,0.0,0.0);
             if( fWireFrame > 0.0) {
                 wireColor = vec3(0.0,0.8,0.0);
             }
-            vec3 ambient = fColor.xyz * 0.4;
-            gl_FragColor = vec4(wireColor + ambient, 1.0); 
             // texture
             if( useTexture == 1) {
-                gl_FragColor = vec4(wireColor + fTexCoord.xyz, 1.0); ; //vec4(1.0,1.0,0.0,1.0);
-                //gl_FragColor = texture2D( texture, fTexCoord.xy );
+                //gl_FragColor = vec4(wireColor + fTexCoord.xyz, 1.0); ; //vec4(1.0,1.0,0.0,1.0);
+                fColor2 = vec4(texture2D( texture, fTexCoord.xy ).xyz, 1.0);
             }
+            // ambient color
+            vec3 ambient = fColor2.xyz * 0.4;
+            gl_FragColor = vec4(wireColor + ambient, 1.0); 
             //
             // loop throught the lights
             for(int i=0; i<4; i++) {
@@ -130,15 +132,14 @@ var shapeShaders = {
                 float specular = 0.4*pow(specAngle, 22.0);
                 specular = specular/(distance*distance);
                 // colors
-                vec3 fColor2 = min( vec3(1.0,1.0,1.0), fColor.xyz + vec3(0.2,0.2,0.2));
-                vec3 diffuseColor = fColor2.xyz*lightColor*strength; //vec3(1.0,1.0,1.0);
-                vec3 specColor = fColor2.xyz*lightColor*strength; //vec3(0.5,0.5,0.5);
+                vec3 fColor3 = min( vec3(1.0,1.0,1.0), fColor2.xyz + vec3(0.2,0.2,0.2));
+                vec3 diffuseColor = fColor3.xyz*lightColor*strength; //vec3(1.0,1.0,1.0);
+                vec3 specColor = fColor3.xyz*lightColor*strength; //vec3(0.5,0.5,0.5);
                 //
                 vec3 lightContrib = vec3(diffuse*diffuseColor + specular*specColor);
                 gl_FragColor += vec4( lightContrib, 1.0);
                 //gl_FragColor = vec4(N,1.0);
             }
-            
         }
     `,
 

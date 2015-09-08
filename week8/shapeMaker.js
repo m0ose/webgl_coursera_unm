@@ -1,10 +1,10 @@
 var shapeTypes = {
     sphere: function(x, theta, dx) {
-        x = Math.sin(Math.PI*x)//makes for much better looking ends
-        var r = Math.sqrt(1-x*x) 
+        var x2 = Math.sin(Math.PI*x)//makes for much better looking ends
+        var r = Math.sqrt(1-x2*x2) 
         var y = Math.cos(theta) * r
         var z = Math.sin(theta) * r
-        return {vertex:vec4(x,y,z,1), normal:vec4(-x,-y,-z,0)}
+        return {vertex:vec4(x2,y,z,1), normal:vec4(-x2,-y,-z,0), uv:vec4((x2+1)/2, (theta+Math.PI)/Math.PI, 0, 0) }
     },
 
     shell: function(x, theta, dx) {
@@ -106,6 +106,7 @@ var shapeMaker = function(options){
         }
         //_.extend(defaults, options)
         var params = this.parameterizeShape(this.type, this.stepsX, this.stepsTheta)
+        // prepare object
         result.vertices = params.vertices
         result.normals = params.normals
         result.texCoords = params.texCoords
@@ -159,6 +160,7 @@ var shapeMaker = function(options){
         var texUVs = []
         for(var x = -1; x <= 1.01+dx; x+=dx) {
             var xtmp = Number(x)
+            var dx2 = Number(dx)
             //console.log(xtmp)
             for(var theta = -pi; theta <= pi; theta+=dt) {
                 var s1 = shapeFunction( x, theta, dx)
@@ -186,6 +188,17 @@ var shapeMaker = function(options){
                         normals.push(this.findNormal(p2,p3,p2,p1))
                         normals.push(this.findNormal(p3,p1,p3,p2))
                     }
+                    // texture coords
+                    if( s1.uv && s2.uv && s3.uv) {
+                        texUVs.push(s1.uv)
+                        texUVs.push(s2.uv)
+                        texUVs.push(s3.uv)
+                    } else {
+                        texUVs.push(this.getUVfromXt(xtmp, theta)) //s1
+                        texUVs.push(this.getUVfromXt(xtmp, theta - dt)) //s2
+                        texUVs.push(this.getUVfromXt(xtmp-dx2, theta-dt)) //s3
+                    }
+             
                 }
                 if( this.isGoodTriangle(p3, p4, p1)) {
                     if(!this.isGoodTriangle(p3,p4,p1) ) {
@@ -204,18 +217,17 @@ var shapeMaker = function(options){
                         normals.push(this.findNormal(p4,p1,p4,p3))
                         normals.push(this.findNormal(p1,p3,p1,p4))
                     }
+                    // texture coords
+                    if( s3.uv && s4.uv && s1.uv) {
+                        texUVs.push(s3.uv)
+                        texUVs.push(s4.uv)
+                        texUVs.push(s1.uv)
+                    } else {
+                        texUVs.push(this.getUVfromXt(xtmp-dx2, theta-dt)) //s3
+                        texUVs.push(this.getUVfromXt(xtmp-dx2, theta)) //s4
+                        texUVs.push(this.getUVfromXt(xtmp, theta)) //s1
+                    }
                 }
-                // texture coordinates
-                //if(!(s1.uv && s2.uv && s3.uv && s4.uv) ) {
-                    texUVs.push(this.getUVfromXt(xtmp, theta)) //s1
-                    texUVs.push(this.getUVfromXt(xtmp, theta - dt)) //s2
-                    texUVs.push(this.getUVfromXt(xtmp-dx, theta-dt)) //s3
-                    //triangle 2 (3,4,1)
-                    texUVs.push(this.getUVfromXt(xtmp-dx, theta-dt)) //s3
-                    texUVs.push(this.getUVfromXt(xtmp-dx, theta)) //s4
-                    texUVs.push(this.getUVfromXt(xtmp, theta)) //s1
-
-                //}
             }
             console.log(xtmp)
         }
@@ -223,9 +235,9 @@ var shapeMaker = function(options){
     }
 
     this.getUVfromXt = function(xx, theta) {
-        var u2 = 0//xx//(xx+1)/2
-        var v2 = 0//(theta + Math.PI)/(2*Math.PI)//Math.cos(theta)
-        return vec4(u2,v2,Number(xx),0)
+        var u2 = (xx+1)/2
+        var v2 = (theta + Math.PI)/(2*Math.PI)//Math.cos(theta)
+        return vec4(u2,v2,0,0)
     }
 
     this.getLightMat4 = function() {

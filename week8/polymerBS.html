@@ -4,11 +4,10 @@
 <polymer-element name="shape-menu">  
   <template>
     <button onclick="glShapes.addShape('sphere')">add sphere</button>
-   <!-- <button onclick="glShapes.addShape('cone')">add cone</button>
+    <button onclick="glShapes.addShape('cone')">add cone</button>
     <button onclick="glShapes.addShape('cylinder')">add cylinder</button>
     <button onclick="glShapes.addShape('shell')">add shell</button>
     <button onclick="glShapes.addShape('leaf')">add leaf</button>
-    -->
 
     <template repeat="{{ curr in shapes }}">
       <div style="   border-style: solid; border-width: 1px; border-radius:10px;">
