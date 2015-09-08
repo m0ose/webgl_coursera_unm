@@ -46,6 +46,11 @@
               -->
               WireFrame:
               <input onclick="glShapes.renderOnce()" type="checkbox" checked="{{curr.wireFrame}}">
+              <br>
+          </li>
+          <li>
+            Use Texture
+              <input onclick="glShapes.renderOnce()" type="checkbox" checked="{{curr.useTexture}}">
           </li>
           <section on-click={{rmSelected}} descript="{{ curr.name }}" style="display:{{!curr.isLight | fooBar}}">
            <button>remove</button>

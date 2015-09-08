@@ -4,7 +4,7 @@ var shapeTypes = {
         var r = Math.sqrt(1-x2*x2) 
         var y = Math.cos(theta) * r
         var z = Math.sin(theta) * r
-        return {vertex:vec4(x2,y,z,1), normal:vec4(-x2,-y,-z,0), uv:vec4((x2+1)/2, (theta+Math.PI)/Math.PI, 0, 0) }
+        return {vertex:vec4(x2,y,z,1), normal:vec4(-x2,-y,-z,0), uv:vec4( (theta+Math.PI)/Math.PI, (x2+1)/2, 0, 0) }
     },
 
     shell: function(x, theta, dx) {
@@ -75,7 +75,7 @@ var shapeMaker = function(options){
         var defaults = {
             type:shapeTypes.sphere,
             name:'sphere',
-            color:vec4(0.6,0.6,0.6,1),
+            color:vec4(0.9,0.9,0.9,1),
             stepsX:10,
             stepsTheta:10,
             axis:vec4(1,0,0,0),
@@ -86,7 +86,21 @@ var shapeMaker = function(options){
             selected:true,
             wireFrame:false,
             isLight:false,
-            texture:null,
+            useTexture:false,
+            __texture:null,
+            get texture() {
+                return this.__texture
+            },
+            set texture(val) { //for some reason this only works once
+                if(!val){
+                    this.useTexture = false
+                } else {
+                    this.useTexture = true
+                }
+                this.__texture = val
+                this.glTexture = null
+                console.log('texture set')
+            },
         }
         options = options || {}
         for(var x in options) {
@@ -229,7 +243,6 @@ var shapeMaker = function(options){
                     }
                 }
             }
-            console.log(xtmp)
         }
         return {vertices:triangles, normals:normals, texCoords:texUVs}
     }

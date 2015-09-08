@@ -145,9 +145,14 @@ var glShapes = {
             gl.uniformMatrix4fv(gl.getUniformLocation( this.program1, "vLightPosition" ), false, lighting.getFlatArray())
             // apply textures
             if(sh.texture && !sh.glTexture) {
-                sh.glTexture = textureMaker.configureTexture(gl, sh.texture)
+                var tex = textureMaker.configureTexture(gl, sh.texture)
+                sh.glTexture = tex.texture
+                //sh.activeLocation = tex.activeLocation
+                console.log(tex)
             }
-            if( sh.texture) {
+            if( sh.glTexture && sh.useTexture) {
+                gl.activeTexture(gl.TEXTURE0)
+                gl.bindTexture(gl.TEXTURE_2D, sh.glTexture);
                 gl.uniform1i( gl.getUniformLocation(this.program1, 'useTexture'), true)
             }
             // draw surface
@@ -177,11 +182,11 @@ var glShapes = {
                 stepsX:24,
                 stepsTheta:18,
                 name:'sphere_' + sc,
-                texture: textureMaker.makeCheckerBoard()
+                texture: "../imgs/earth2.jpg"
             }
         } else if( type == 'cylinder') {
             params = {type:shapeTypes.cylinder, 
-                color:vec4(0.1,0.1,0.1,1), 
+                //color:vec4(0.1,0.1,0.1,1), 
                 stepsX:2,
                 name:'cylinder_' + sc,
                 texture: textureMaker.makeCheckerBoard()
@@ -202,7 +207,6 @@ var glShapes = {
                 rotation:90,
                 stepsTheta:200,
                 name:'leaf_' + sc,
-                texture: textureMaker.makeCheckerBoard()
             }
         } else if( type == 'shell') {
             params = {

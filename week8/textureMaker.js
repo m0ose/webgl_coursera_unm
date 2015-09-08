@@ -1,4 +1,9 @@
+function typeOf (obj) {
+  return ({}).toString.call(obj).match(/\s([a-zA-Z]+)/)[1].toLowerCase()
+}
+
 var textureMaker = {
+    textureCount:-1,
     //
     // This code was taken exactly as is from Ed Angel's Week7 example called textureCubev2.html from his website. 
     //   todo: find correct URL
@@ -26,18 +31,68 @@ var textureMaker = {
         return image2
     },
 
-    configureTexture: function(gl, image) {
+    loadImageAsTexture: function( image) {
+
+    },
+
+    configureTexture: function( gl, image) {
+        if( typeOf(image) == 'string'){
+            this.textureCount++
+            return this.configureTextureImgURL(gl, image)
+        } else {
+            this.textureCount++
+            return this.configureTextureSquares(gl,image)
+        }
+    },
+
+    //
+    // configure texture for squares
+    //
+    configureTextureSquares: function(gl, image) {
         var texture = gl.createTexture();
-        gl.activeTexture( gl.TEXTURE0 );
+        var textureLocation = gl.TEXTURE0 + this.textureCount
+        gl.activeTexture( textureLocation);
         gl.bindTexture( gl.TEXTURE_2D, texture );
         gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, image.width, image.height, 0, 
-            gl.RGBA, gl.UNSIGNED_BYTE, image);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, image.width, image.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, image);
+        //gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA,gl.UNSIGNED_BYTE, image)
         gl.generateMipmap( gl.TEXTURE_2D );
-        gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, 
-            gl.NEAREST_MIPMAP_LINEAR );
-        gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST );
-        return texture
+        var ext = gl.getExtension("WEBKIT_EXT_texture_filter_anisotropic") || gl.getExtension("MOZ_EXT_texture_filter_anisotropic")
+       /* if(ext) {
+            console.log('using anisotropic filter')
+            gl.texParameterf(gl.TEXTURE_2D, ext.TEXTURE_MAX_ANISOTROPY_EXT, 4)
+        } else {
+                    //gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, 
+        //    gl.NEAREST_MIPMAP_LINEAR );
+        //  gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST );
+        }
+        */
+        return {texture:texture, activeLocation:textureLocation}
+    },
+
+    //
+    // if image is url
+    //
+    configureTextureImgURL: function(gl, url) {
+        console.log('configure texture from url')
+        // Create a texture.
+        var textureLocation = gl.TEXTURE0 + this.textureCount
+        gl.activeTexture( textureLocation);
+        var texture = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        // Fill the texture with a 1x1 blue pixel.
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([0, 0, 255, 255]));
+        // Asynchronously load an image
+        var image = new Image();
+        image.onload = function() {
+            console.log('image loaded', url)
+            // Now that the image has loaded make copy it to the texture.
+            gl.bindTexture(gl.TEXTURE_2D, texture);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA,gl.UNSIGNED_BYTE, image);
+            gl.generateMipmap(gl.TEXTURE_2D);
+        }
+        image.src = url;
+        return {texture:texture, activeLocation:textureLocation}
     },
 
 }

@@ -104,7 +104,6 @@ var shapeShaders = {
             }
             // texture
             if( useTexture == 1) {
-                //gl_FragColor = vec4(wireColor + fTexCoord.xyz, 1.0); ; //vec4(1.0,1.0,0.0,1.0);
                 fColor2 = vec4(texture2D( texture, fTexCoord.xy ).xyz, 1.0);
             }
             // ambient color
@@ -132,9 +131,9 @@ var shapeShaders = {
                 float specular = 0.4*pow(specAngle, 22.0);
                 specular = specular/(distance*distance);
                 // colors
-                vec3 fColor3 = min( vec3(1.0,1.0,1.0), fColor2.xyz + vec3(0.2,0.2,0.2));
-                vec3 diffuseColor = fColor3.xyz*lightColor*strength; //vec3(1.0,1.0,1.0);
-                vec3 specColor = fColor3.xyz*lightColor*strength; //vec3(0.5,0.5,0.5);
+                //fColor2 = min( vec3(1.0,1.0,1.0), fColor2.xyz + vec3(0.2,0.2,0.2));
+                vec3 diffuseColor = fColor2.xyz*lightColor*strength; //vec3(1.0,1.0,1.0);
+                vec3 specColor = fColor2.xyz*lightColor*strength; //vec3(0.5,0.5,0.5);
                 //
                 vec3 lightContrib = vec3(diffuse*diffuseColor + specular*specColor);
                 gl_FragColor += vec4( lightContrib, 1.0);
