@@ -36,6 +36,11 @@
                     <option value="checkerBoard">checkerBoard</option>
                   </select>
                 </template>
+                <template if="{{!curr.useTexture}}">
+                  <li>
+                    Color: <input type="color" name="favcolor" value="#ff0000" descript="{{ curr.name }}" on-change={{changeColor}}>
+                  </li>
+                </template>
             </li>
             <li>rotation: <input oninput="glShapes.renderOnce()" type="range" value="{{curr.rotation}}" min=-360 max=360>
               {{curr.rotation}}</li>
@@ -112,16 +117,31 @@
       },
       changeTex: function(e, detail, sender){
         console.log(sender)
-          var name = sender.getAttribute('descript')
+        var sh = this.getShape(sender)
+        sh.texture = sender.options[ sender.selectedIndex ].value
+      },
+      changeColor: function(e, detail, sender){
+        var sh = this.getShape(sender)
+        sh.color = this.colorFromString(sender.value)
+      },
+      getShape: function(sender) {
+        var name = sender.getAttribute('descript')
           for(var i=0; i<this.shapes.length; i++){
             var sh = this.shapes[i]
             if(sh.name == name){
-              //console.log('hello')
-              //console.log( sender.options[ sender.selectedIndex ].value )
-              sh.texture = sender.options[ sender.selectedIndex ].value
+              return sh
             }
-          }  
+          }
       },
+      colorFromString: function(color) {
+        if( color) {
+            var r = parseInt(color.substr(1,2),16) / 256
+            var g = parseInt(color.substr(3,2),16) / 256
+            var b = parseInt(color.substr(5,2),16) / 256
+            //console.log(r,g,b)
+            return vec4(r,g,b,1.0)
+        }
+      }
     });
   </script>
 </polymer-element>  

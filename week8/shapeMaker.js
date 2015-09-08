@@ -75,7 +75,7 @@ var shapeMaker = function(options){
         var defaults = {
             type:shapeTypes.sphere,
             name:'sphere',
-            color:vec4(0.9,0.9,0.9,1),
+            __color:vec4(0.9,0.9,0.9,1),
             stepsX:10,
             stepsTheta:10,
             axis:vec4(1,0,0,0),
@@ -88,6 +88,7 @@ var shapeMaker = function(options){
             isLight:false,
             useTexture:false,
             __texture:null,
+            __dirtyFlag:true,
         }
         options = options || {}
         for(var x in options) {
@@ -110,6 +111,15 @@ var shapeMaker = function(options){
             this.__texture = val
             this.glTexture = null
             console.log('texture set')
+         }
+    });
+
+    Object.defineProperty(this, "color", {
+      get: function() {return this.__color },
+      set: function(val) { 
+            this.__color = val
+            this.__dirtyFlag = true
+            console.log('color set')
          }
     });
 

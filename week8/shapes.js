@@ -115,7 +115,7 @@ var glShapes = {
         for(var i=0; i < this.shapes.length; i++) {
             var sh = this.shapes[i]
             // cache the buffers. hopefully this will speed things up
-            if(!sh._cachedBuffers) {
+            if(!sh._cachedBuffers || sh.__dirtyFlag) {
                 sh._cachedBuffers = true
                 sh.bufferVPos = this.setupAttribute(4,"vPosition")
                 sh.bufferVNormals = this.setupAttribute(4,"vNormal")
@@ -131,6 +131,7 @@ var glShapes = {
                 gl.bufferData( gl.ARRAY_BUFFER, verts.colors, gl.STATIC_DRAW)
                 gl.bindBuffer(gl.ARRAY_BUFFER, sh.bufferVtexCoords.buffer)
                 gl.bufferData( gl.ARRAY_BUFFER, verts.texCoords, gl.STATIC_DRAW)
+                sh.__dirtyFlag = false
             } else {
                 this.bindAndEnableAttribute(sh.bufferVPos)
                 this.bindAndEnableAttribute(sh.bufferVNormals)
