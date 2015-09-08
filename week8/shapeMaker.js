@@ -88,19 +88,6 @@ var shapeMaker = function(options){
             isLight:false,
             useTexture:false,
             __texture:null,
-            get texture() {
-                return this.__texture
-            },
-            set texture(val) { //for some reason this only works once
-                if(!val){
-                    this.useTexture = false
-                } else {
-                    this.useTexture = true
-                }
-                this.__texture = val
-                this.glTexture = null
-                console.log('texture set')
-            },
         }
         options = options || {}
         for(var x in options) {
@@ -109,7 +96,22 @@ var shapeMaker = function(options){
         for(var x in defaults) {
             this[x] = defaults[x]
         }
+
     }
+
+    Object.defineProperty(this, "texture", {
+      get: function() {return this.__texture },
+      set: function(val) { 
+            if(!val){
+                this.useTexture = false
+            } else {
+                this.useTexture = true
+            }
+            this.__texture = val
+            this.glTexture = null
+            console.log('texture set')
+         }
+    });
 
     this.generateVertices = function() {
         var result= {
@@ -250,7 +252,7 @@ var shapeMaker = function(options){
     this.getUVfromXt = function(xx, theta) {
         var u2 = (xx+1)/2
         var v2 = (theta + Math.PI)/(2*Math.PI)//Math.cos(theta)
-        return vec4(u2,v2,0,0)
+        return vec4(v2,u2,0,0)
     }
 
     this.getLightMat4 = function() {

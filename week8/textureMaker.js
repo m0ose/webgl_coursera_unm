@@ -31,14 +31,26 @@ var textureMaker = {
         return image2
     },
 
-    configureTexture: function( gl, image) {
-        if( image.toLowerCase() == "checkerboard"){
+    memos:{},
+
+    configureTexture: function( gl, imageURL) {
+        if(this.memos[imageURL]){
+            console.log('memoize found', imageURL)
+            return this.memos[imageURL]
+        }
+        var tex = undefined
+        if( imageURL.toLowerCase() == "checkerboard"){
             this.textureCount++
-            return this.configureTextureCheckerBoard(gl, this.makeCheckerBoard(64))
+            tex = this.configureTextureCheckerBoard(gl, this.makeCheckerBoard(64))
         } else{
             this.textureCount++
-            return this.configureTextureImgURL(gl, image)
+            tex = this.configureTextureImgURL(gl, imageURL)
         } 
+        // memoize 
+        if(tex){
+            this.memos[imageURL] = tex
+        }
+        return tex
     },
 
     //
