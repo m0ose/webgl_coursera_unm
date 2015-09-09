@@ -1,3 +1,9 @@
+var getUVfromXt = function(xx, theta) { //unfortunate global
+    var u2 = (xx+1)/2
+    var v2 = (theta + Math.PI)/(2*Math.PI)//Math.cos(theta)
+    return vec4(v2,u2,0,0)
+}
+
 var shapeTypes = {
     sphere: function(x, theta, dx) {
         var x2 = Math.sin(Math.PI*x)//makes for much better looking ends
@@ -39,15 +45,18 @@ var shapeTypes = {
     cylinder: function( x, theta, dx) {
         var r = 1
         var useNormal = true
+        var uv = getUVfromXt(x,theta)
         if(x>1) { //right end cap
             r=0
             x=x-dx
             useNormal = false
+            uv = vec4(uv[1], uv[0], 0, 0) //give swirl to wood on ends
         }
         if(x<-1) { // left end cap
             r=0
             x=x+dx
             useNormal = false
+            uv = vec4(uv[1], uv[0], 0, 0)
         }
         var y = Math.cos(theta) * r
         var z = Math.sin(theta) * r
@@ -55,7 +64,7 @@ var shapeTypes = {
         if( !useNormal){
             normal = undefined
         }
-        return {vertex:vec4(x,y,z,1), normal:normal}
+        return {vertex:vec4(x,y,z,1), normal:normal, uv:uv}
     },
     // a leaf with 7 points
     cannabis: function(x, theta, dx) {
@@ -220,9 +229,9 @@ var shapeMaker = function(options){
                         texUVs.push(s2.uv)
                         texUVs.push(s3.uv)
                     } else {
-                        texUVs.push(this.getUVfromXt(xtmp, theta)) //s1
-                        texUVs.push(this.getUVfromXt(xtmp, theta - dt)) //s2
-                        texUVs.push(this.getUVfromXt(xtmp-dx2, theta-dt)) //s3
+                        texUVs.push(getUVfromXt(xtmp, theta)) //s1
+                        texUVs.push(getUVfromXt(xtmp, theta - dt)) //s2
+                        texUVs.push(getUVfromXt(xtmp-dx2, theta-dt)) //s3
                     }
              
                 }
@@ -249,20 +258,14 @@ var shapeMaker = function(options){
                         texUVs.push(s4.uv)
                         texUVs.push(s1.uv)
                     } else {
-                        texUVs.push(this.getUVfromXt(xtmp-dx2, theta-dt)) //s3
-                        texUVs.push(this.getUVfromXt(xtmp-dx2, theta)) //s4
-                        texUVs.push(this.getUVfromXt(xtmp, theta)) //s1
+                        texUVs.push(getUVfromXt(xtmp-dx2, theta-dt)) //s3
+                        texUVs.push(getUVfromXt(xtmp-dx2, theta)) //s4
+                        texUVs.push(getUVfromXt(xtmp, theta)) //s1
                     }
                 }
             }
         }
         return {vertices:triangles, normals:normals, texCoords:texUVs}
-    }
-
-    this.getUVfromXt = function(xx, theta) {
-        var u2 = (xx+1)/2
-        var v2 = (theta + Math.PI)/(2*Math.PI)//Math.cos(theta)
-        return vec4(v2,u2,0,0)
     }
 
     this.getLightMat4 = function() {
