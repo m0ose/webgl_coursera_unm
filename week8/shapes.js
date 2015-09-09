@@ -35,7 +35,8 @@ var glShapes = {
         gl.lineWidth(1)
         this.projMatrix = mat4()
         // zoom out
-        this.projMatrix[0][0] = this.projMatrix[1][1] = this.projMatrix[2][2] = 0.1
+        //this.projMatrix[0][0] = this.projMatrix[1][1] = this.projMatrix[2][2] = 0.3
+        this.projMatrix = perspective(90,1, 0.01, 40)
         //
         this.makeLights()
         //
@@ -238,16 +239,16 @@ var glShapes = {
     },
 
     makeLights : function() {
-        lighting.makeLight({ center:[15,0,-6,1], color:[1,0.2,0.2,0.7] })
-        lighting.makeLight({ center:[5,-10,-6,1], color:[0.2,1,0.2,0.7] })
-        lighting.makeLight({ center:[-5,0,-6,1], color:[0.2,0.2,1,0.7] })
-        lighting.makeLight({ center:[5,10,-6,1], color:[1,1,1,0.6] })
-        lighting.makeLight({ center:[15,10,-6,1], color:[1,1,1,0.6] })
+        lighting.makeLight({ center:[15,0,-5,1], color:[1,0.2,0.2,0.7] })
+        lighting.makeLight({ center:[5,-10,-5,1], color:[0.2,1,0.2,0.7] })
+        lighting.makeLight({ center:[-5,0,-5,1], color:[0.2,0.2,1,0.7] })
+        lighting.makeLight({ center:[5,10,-5,1], color:[1,1,1,0.6] })
+        lighting.makeLight({ center:[15,10,-5,1], color:[1,1,1,0.6] })
     },
 
     moveLights :  function() {
         //var k = 1/200
-        var r = 10
+        var r = 8
         var count = 1
         for(var li of lighting.lights) {
             // there was a problem when animating

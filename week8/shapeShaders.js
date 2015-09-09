@@ -107,7 +107,7 @@ var shapeShaders = {
                 fColor2 = vec4(texture2D( texture, fTexCoord.xy ).xyz, 1.0);
             }
             // ambient color
-            vec3 ambient = fColor2.xyz * 0.4;
+            vec3 ambient = fColor2.xyz * 0.7;
             gl_FragColor = vec4(wireColor + ambient, 1.0); 
             //
             // loop throught the lights

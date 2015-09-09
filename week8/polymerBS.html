@@ -44,11 +44,11 @@
             </li>
             <li>rotation: <input oninput="glShapes.renderOnce()" type="range" value="{{curr.rotation}}" min=-360 max=360>
               {{curr.rotation}}</li>
-            <li>scaleX: <input oninput="glShapes.renderOnce()" type="range" value="{{curr.scale[0]}}" min=0.1 max=5 step=0.000001>
+            <li>scaleX: <input oninput="glShapes.renderOnce()" type="range" value="{{curr.scale[0]}}" min=0.1 max=10 step=0.000001>
               {{curr.scale[0]}}</li>
-            <li>scaleY: <input oninput="glShapes.renderOnce()" type="range" value="{{curr.scale[1]}}" min=0.1 max=5 step=0.000001>
+            <li>scaleY: <input oninput="glShapes.renderOnce()" type="range" value="{{curr.scale[1]}}" min=0.1 max=10 step=0.000001>
               {{curr.scale[1]}}</li>
-            <li>scaleZ: <input oninput="glShapes.renderOnce()" type="range" value="{{curr.scale[2]}}" min=0.1 max=5 step=0.000001>
+            <li>scaleZ: <input oninput="glShapes.renderOnce()" type="range" value="{{curr.scale[2]}}" min=0.1 max=10 step=0.000001>
               {{curr.scale[2]}}</li>
             <li>axisX: <input oninput="glShapes.renderOnce()" type="range" value="{{curr.axis[0]}}" min=-1 max=1 step=0.000001>
               {{curr.axis[0]}}</li>
@@ -62,7 +62,7 @@
             {{curr.center[0]}}</li>
           <li>centerY: <input oninput="glShapes.renderOnce()" type="range" value="{{curr.center[1]}}" min=-10 max=10 step=0.000001>
             {{curr.center[1]}}</li>
-          <li>centerZ: <input oninput="glShapes.renderOnce()" type="range" value="{{curr.center[2]}}" min=-10 max=10 step=0.000001>
+          <li>centerZ: <input oninput="glShapes.renderOnce()" type="range" value="{{curr.center[2]}}" min=-30 max=0 step=0.000001>
             {{curr.center[2]}}</li>
           <li>
               WireFrame:
