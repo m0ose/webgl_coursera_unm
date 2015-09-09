@@ -22,25 +22,25 @@
           </div>
          </section>
         <ul style="display:{{curr.selected | fooBar}}" >
+          <template if="{{!curr.useTexture}}">
+            <li>
+              Color: <input type="color" name="favcolor" value="#ff0000" descript="{{ curr.name }}" on-change={{changeColor}}>
+            </li>
+          </template>
           <div style="display:{{!curr.isLight | fooBar}}">
             <li>
               Use Texture
-                <input onclick="glShapes.renderOnce()" type="checkbox" checked="{{curr.useTexture}}">
-                <!--<template if="{{!curr.useTexture}}"> </template>-->
-                <template if="{{curr.useTexture}}">
-                  <select id="comboA" descript="{{ curr.name }}" on-change={{changeTex}}>
-                    <option value="../imgs/earth2.jpg">earth</option>
-                    <option value="../imgs/brick.jpg">brick</option>
-                    <option value="../imgs/wood.jpg">wood</option>
-                    <option value="../imgs/rubber.jpg">rubber</option>
-                    <option value="checkerBoard">checkerBoard</option>
-                  </select>
-                </template>
-                <template if="{{!curr.useTexture}}">
-                  <li>
-                    Color: <input type="color" name="favcolor" value="#ff0000" descript="{{ curr.name }}" on-change={{changeColor}}>
-                  </li>
-                </template>
+              <input onclick="glShapes.renderOnce()" type="checkbox" checked="{{curr.useTexture}}">
+              <!--<template if="{{!curr.useTexture}}"> </template>-->
+              <template if="{{curr.useTexture}}">
+                <select id="comboA" descript="{{ curr.name }}" on-change={{changeTex}}>
+                  <option value="../imgs/earth2.jpg">earth</option>
+                  <option value="../imgs/brick.jpg">brick</option>
+                  <option value="../imgs/wood.jpg">wood</option>
+                  <option value="../imgs/rubber.jpg">rubber</option>
+                  <option value="checkerBoard">checkerBoard</option>
+                </select>
+              </template>
             </li>
             <li>rotation: <input oninput="glShapes.renderOnce()" type="range" value="{{curr.rotation}}" min=-360 max=360>
               {{curr.rotation}}</li>
