@@ -238,11 +238,11 @@ var glShapes = {
     },
 
     makeLights : function() {
-        lighting.makeLight({ center:[15,0,-6,1], color:[1,0.2,0.2,0.9] })
-        lighting.makeLight({ center:[5,-10,-6,1], color:[0.2,1,0.2,0.9] })
-        lighting.makeLight({ center:[-5,0,-6,1], color:[0.2,0.2,1,0.9] })
-        lighting.makeLight({ center:[5,10,-6,1], color:[1,1,1,0.8] })
-        lighting.makeLight({ center:[15,10,-6,1], color:[1,1,1,0.8] })
+        lighting.makeLight({ center:[15,0,-6,1], color:[1,0.2,0.2,0.7] })
+        lighting.makeLight({ center:[5,-10,-6,1], color:[0.2,1,0.2,0.7] })
+        lighting.makeLight({ center:[-5,0,-6,1], color:[0.2,0.2,1,0.7] })
+        lighting.makeLight({ center:[5,10,-6,1], color:[1,1,1,0.6] })
+        lighting.makeLight({ center:[15,10,-6,1], color:[1,1,1,0.6] })
     },
 
     moveLights :  function() {
