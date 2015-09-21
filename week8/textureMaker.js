@@ -41,10 +41,10 @@ var textureMaker = {
         var tex = undefined
         if( imageURL.toLowerCase() == "checkerboard"){
             this.textureCount++
-            tex = this.configureTextureCheckerBoard(gl, this.makeCheckerBoard(64))
+            tex = this._configureTextureCheckerBoard(gl, this.makeCheckerBoard(64))
         } else{
             this.textureCount++
-            tex = this.configureTextureImgURL(gl, imageURL)
+            tex = this._configureTextureImgURL(gl, imageURL)
         } 
         // memoize 
         if(tex){
@@ -56,7 +56,7 @@ var textureMaker = {
     //
     // configure texture for squares
     //
-    configureTextureCheckerBoard: function(gl, image) {
+    _configureTextureCheckerBoard: function(gl, image) {
         console.log('making checker board')
         var texture = gl.createTexture();
         var textureLocation = gl.TEXTURE0 + this.textureCount
@@ -72,7 +72,7 @@ var textureMaker = {
     //
     // if image is url
     //
-    configureTextureImgURL: function(gl, url) {
+    _configureTextureImgURL: function(gl, url) {
         console.log('configure texture from url')
         // Create a texture.
         var textureLocation = gl.TEXTURE0 + this.textureCount
