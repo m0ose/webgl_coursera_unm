@@ -193,14 +193,19 @@ houghShaders = {
         varying vec2 fTexCoord;
         varying vec2 texDims;
 
-        vec4 number2Color( float n2) {
-            float n = floor(n2);
-            float bs = 255.0;
-            float r = floor(mod(n,bs*bs*bs)/(bs*bs));
-            float g = floor(mod(n,bs*bs)/(bs));
-            float b = floor(mod(n,bs));
-            vec3 result = vec3(r,g,b)/bs;
-            return vec4(result, 1.0);
+        //  Function from Iñigo Quiles
+        //  https://www.shadertoy.com/view/MsS3Wc
+        vec3 hsb2rgb( vec3 c ){
+            vec3 rgb = clamp(abs(mod(c.x*6.0+vec3(0.0,4.0,2.0),
+                                    6.0)-3.0)-1.0,
+                            0.0,
+                            1.0 );
+            rgb = rgb*rgb*(3.0-2.0*rgb);
+            return c.z * mix(vec3(1.0), rgb, c.y);
+        }
+
+        vec4 number2Color( float n) {
+            return vec4(hsb2rgb(vec3(0.5+n/1024.0, 0.8, 1.0)) , 1.0);
         }
 
         void main() {

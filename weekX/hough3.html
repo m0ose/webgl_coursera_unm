@@ -35,9 +35,7 @@
     img.onload = function(){
       console.time('render')
       sob.changeImage.bind(sob)(this)
-      sob.rgbEncodeOutput = false
-      sob.thresholdOutput = 0
-      sob.render()
+      drawAccumulator(sob)
       console.timeEnd('render')
       imageLoaded(sob)
     }
@@ -108,13 +106,16 @@ function animate() {
   buffer = img.data.buffer
   //
   sob.changeImage.bind(sob)(img)
-    //sob.rgbEncodeOutput = false
-    //sob.thresholdOutput = 0
-    //sob.render()
+  drawAccumulator(sob)
     imageLoaded(sob)
   //
   requestAnimationFrame(animate)
-  //setTimeout(animate, 120)
+}
+
+function drawAccumulator(acc) {
+  sob.rgbEncodeOutput = true
+    sob.thresholdOutput = 0
+    sob.render()
 }
 
 
