@@ -205,7 +205,7 @@ houghShaders = {
         }
 
         vec4 number2Color( float n) {
-            return vec4(hsb2rgb(vec3(0.5+n/1024.0, 0.8, 1.0)) , 1.0);
+            return vec4(hsb2rgb(vec3(0.4+n/1024.0, 0.8, clamp(0.0, n/128.0, 1.0))) , 1.0);
         }
 
         void main() {
