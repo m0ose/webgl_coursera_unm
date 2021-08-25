@@ -15,129 +15,130 @@
 
 <body style="background-color:grey;">
 
-<br>
-<div style="float:right">
-  <div>
+  <br>
+  <div style="float:right">
+    <div>
       Cody Smith <br>
       Interactive Computer Graphics with WebGL <br>
       July 2015 <br>
+    </div>
+    <br>
+
+    <script type="text/javascript">
+      window.onload = function () {
+        window.sob = new glHough()
+        loadImage("goboard.jpg")
+      }
+
+      function loadImage(url) {
+        var img = new Image()
+        img.onload = function () {
+          console.time('render')
+          sob.changeImage.bind(sob)(this)
+          drawAccumulator(sob)
+          console.timeEnd('render')
+          imageLoaded(sob)
+        }
+        img.src = url
+      }
+
+      var threshold = 410
+
+      function imageLoaded(acc) {
+        //console.log('image loaded called')
+        var blobs = houghHelpers.findBlobs(acc, threshold)
+        houghHelpers.drawLines(acc, blobs.points, document.getElementById('can2db'))
+        //drawBlobDetection(blobs)
+      }
+
+      function drawBlobDetection(blobs) {
+        var can = document.getElementById('can2d')
+        can.width = blobs.imagedata.width
+        can.height = blobs.imagedata.height
+        var ctx = can.getContext('2d')
+        ctx.putImageData(blobs.imagedata, 0, 0)
+        //
+        //houghHelpers.drawPoints(blobs.points, ctx)
+      }
+
+
+
+    </script>
+
+    <script type="text/javascript">
+      function initVideo() {
+        video = document.createElement('video');
+        video.width = 400;
+        video.height = 300;
+        video.autoplay = true;
+        var hasUserMedia = navigator.webkitGetUserMedia ? true : false;
+        console.log('has user media', hasUserMedia)
+
+        navigator.webkitGetUserMedia({ 'video': true }, gotStream, function (error) {
+          console.log("Failed to get a stream due to", error);
+        });
+
+        //document.body.appendChild(video)
+      }
+
+      function gotStream(stream) {
+        console.log('Connected to stream. Starting decoding...')
+        video.srcObject = stream;
+        video.onerror = function () {
+          stream.stop();
+          streamError();
+        };
+        video.onloadedmetadata = function (e) {
+          //start();
+          console.log('meta data loaded. whatever that means???')
+          animate()
+        }
+      }
+
+      function animate() {
+        //console.log('.')
+        var can = document.getElementById('can2dc')
+        can.width = video.width
+        can.height = video.height
+        var ctx = can.getContext('2d')
+        ctx.drawImage(video, 0, 0, video.width, video.height)
+        img = ctx.getImageData(0, 0, can.width, can.height)
+        buffer = img.data.buffer
+        //
+        sob.changeImage.bind(sob)(img)
+        drawAccumulator(sob)
+        imageLoaded(sob)
+        //
+        requestAnimationFrame(animate)
+      }
+
+      function drawAccumulator(acc) {
+        sob.rgbEncodeOutput = true
+        sob.thresholdOutput = 0
+        sob.render()
+      }
+
+
+    </script>
+
   </div>
+  <button onclick="loadImage('goboard.jpg')">goboard.jpg</button>
+  <button onclick="loadImage('diags.png')">diags.png</button>
+  <button onclick="loadImage('diags2.png')">diags2.png</button>
+  <button onclick="loadImage('lines.png')">lines.png</button>
+  <button onclick="loadImage('verts.png')">verts.png</button>
+  <button onclick="loadImage('parking.jpg')">parking.jpg</button>
+  <button onclick="initVideo()">VIDEO</button>
   <br>
-
-<script type="text/javascript">
-  window.onload = function() {
-    window.sob = new glHough()
-    loadImage("goboard.jpg")
-  }
-
-  function loadImage( url) {
-    var img = new Image()
-    img.onload = function(){
-      console.time('render')
-      sob.changeImage.bind(sob)(this)
-      drawAccumulator(sob)
-      console.timeEnd('render')
-      imageLoaded(sob)
-    }
-    img.src = url
-  }
-
-  var threshold = 410
-
-  function imageLoaded( acc) {
-    //console.log('image loaded called')
-    var blobs = houghHelpers.findBlobs(acc, threshold)
-    houghHelpers.drawLines(acc, blobs.points, document.getElementById('can2db'))
-    //drawBlobDetection(blobs)
-  }
-
-  function drawBlobDetection(blobs) {
-    var can = document.getElementById('can2d')
-    can.width = blobs.imagedata.width
-    can.height = blobs.imagedata.height
-    var ctx = can.getContext('2d')
-    ctx.putImageData(blobs.imagedata, 0,0)
-    //
-    //houghHelpers.drawPoints(blobs.points, ctx)
-  }
+  <canvas id="gl-canvas" width="800" height="768" style=" border-style: solid; border-width: 5px;">
+    Oops ... your browser doesn't support the HTML5 canvas element
+  </canvas>
+  <canvas id='can2db'></canvas>
+  <canvas id='can2dc'></canvas>
+  <canvas id='can2d'></canvas>
 
 
-
-</script>
-
-<script type="text/javascript">
-function initVideo() {
-  video      = document.createElement('video');
-  video.width    = 400;
-  video.height   = 300;
-  video.autoplay = true;
-  var hasUserMedia = navigator.webkitGetUserMedia ? true : false;
-  console.log('has user media', hasUserMedia)
-
-  navigator.webkitGetUserMedia({'video':true}, gotStream, function(error){
-    console.log("Failed to get a stream due to", error);
-  });
-
-  //document.body.appendChild(video)
-}
-
-function gotStream( stream ) {
-  console.log( 'Connected to stream. Starting decoding...')
-  video.srcObject = stream;
-  video.onerror = function () {
-    stream.stop();
-    streamError();
-  };
-  video.onloadedmetadata = function(e) {
-    //start();
-    console.log('meta data loaded. whatever that means???')
-    animate()
-  }
-}
-
-function animate() {
-  //console.log('.')
-  var can = document.getElementById('can2dc')
-  can.width = video.width
-  can.height = video.height
-  var ctx = can.getContext('2d')
-  ctx.drawImage(video, 0, 0, video.width, video.height)
-  img = ctx.getImageData(0, 0, can.width, can.height)
-  buffer = img.data.buffer
-  //
-  sob.changeImage.bind(sob)(img)
-  drawAccumulator(sob)
-    imageLoaded(sob)
-  //
-  requestAnimationFrame(animate)
-}
-
-function drawAccumulator(acc) {
-  sob.rgbEncodeOutput = true
-    sob.thresholdOutput = 0
-    sob.render()
-}
-
-
-</script>
-  
-</div>
-<button onclick="loadImage('goboard.jpg')">goboard.jpg</button>
-<button onclick="loadImage('diags.png')">diags.png</button>
-<button onclick="loadImage('diags2.png')">diags2.png</button>
-<button onclick="loadImage('lines.png')">lines.png</button>
-<button onclick="loadImage('verts.png')">verts.png</button>
-<button onclick="loadImage('parking.jpg')">parking.jpg</button>
-<button onclick="initVideo()">VIDEO</button>
-<br>
-<canvas id="gl-canvas" width="800" height="768" style=" border-style: solid; border-width: 5px;">
-  Oops ... your browser doesn't support the HTML5 canvas element
-</canvas>
-<canvas id='can2db'></canvas>
-<canvas id='can2dc'></canvas>
-<canvas id='can2d'></canvas>
-
-
-<br>
+  <br>
 </body>
+
 </html>
