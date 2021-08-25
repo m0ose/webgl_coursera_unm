@@ -85,11 +85,7 @@ function initVideo() {
 
 function gotStream( stream ) {
   console.log( 'Connected to stream. Starting decoding...')
-  if( window.URL ) {
-    video.src = window.URL.createObjectURL( stream );
-  } else {
-    video.src = stream;
-  }
+  video.srcObject = stream;
   video.onerror = function () {
     stream.stop();
     streamError();
